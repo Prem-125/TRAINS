@@ -1,0 +1,1 @@
+pip freeze | Out-File requirements.txt -Encoding ASCII
