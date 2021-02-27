@@ -6,4 +6,4 @@
 pyinstaller --name="MyApplication" --windowed --onefile src/hello_world.py
 
 #stackoverflow step
-cp -recurse ..\..\lib\site-packages\PyQt6\Qt\plugins\platforms .\dist
+cp -recurse -force ..\..\lib\site-packages\PyQt6\Qt\plugins\platforms .\dist
