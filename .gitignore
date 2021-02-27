@@ -1,3 +1,7 @@
-VirtualEnvironment/build
-VirtualEnvironment/dist
-
+**/build
+**/dist
+**/Lib
+**/Scripts
+*.cfg
+*.spec
+**/__pycache__
