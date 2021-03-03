@@ -12,13 +12,13 @@ class MainWindow(QMainWindow):
 		self.ui.setupUi(self)
 		self.utimer = QTimer()
 		self.utimer.timeout.connect(self.timerCallback)
-		self.utimer.start(1000)
+		self.utimer.start(500)
 		self.testval = 0
 		self.arduino = serial.Serial(port='COM3', baudrate=115200,timeout=1)
 		self.ui.tcButton.clicked.connect(self.getTCInfo)
 		self.ui.beaconButton.clicked.connect(self.getBeaconInfo)
 		self.ui.speedButton.clicked.connect(self.getCurSpeed)
-
+		self.power = 0
 		self.cmdSpeed = ''
 		self.curSpeed = ''
 		self.authority = ''
@@ -26,24 +26,46 @@ class MainWindow(QMainWindow):
 		self.nFlag=0
 		self.eol = '\n'.encode('utf-8')
 		self.encodedTC=0
-		
+		self.rawToggle = 0
+		self.sBrakePull = False
+		self.EBrakePull = False
+		self.LDoorOpen = False
+		self.RDoorOpen = False
+		self.IntLightsOn = False
+		self.ExtLightsOn = False
 		
 	def timerCallback(self):
 		#self.arduino.write(str(self.testval).encode('utf-8')+ self.eol)
 		#self.serialWrite()
-		#self.serialRead()
+		self.serialRead()
 		...
 		
 		
 	def serialRead(self):
-		print(self.arduino.in_waiting)
-		raw = self.arduino.readline()
-		#print(raw)
-		status = raw.decode('ascii')#.strip('\r\n')
-		print(status)
-		self.ui.AnnounceVal.setPlainText(status)
-		self.arduino.reset_input_buffer()
-		
+		while(self.arduino.in_waiting > 0):
+			raw = self.arduino.readline()
+			status = raw.decode('ascii').strip('\r\n')
+			print("Status Val is: ")
+			print(status)
+			status = int(status)
+			if (status == 1):
+				raw = self.arduino.readline()
+				status = raw.decode('ascii').strip('\r\n')
+				print(status)
+				self.rawToggle = int(status)
+				self.decodeToggleStates()
+				self.updateToggleDisp()
+			elif (status == 2):
+				raw = self.arduino.readline()
+				status = raw.decode('ascii').strip('\r\n')
+				print(status)
+				self.power = float(status)
+				self.ui.PowerVal.setPlainText(str(self.power))
+			else:
+				raw = self.arduino.readline()
+				status = raw.decode('ascii').strip('\r\n')
+				print(status)
+				self.ui.AnnounceVal.setPlainText(status)
 	def serialWrite(self):
 		self.arduino.reset_output_buffer()
 		self.arduino.write(str(self.nFlag).encode('utf-8')+ self.eol)
@@ -98,6 +120,40 @@ class MainWindow(QMainWindow):
 		self.curSpeed= self.ui.CurSpeedVal.toPlainText()
 		self.arduino.write(str(1).encode('utf-8')+ self.eol)
 		self.arduino.write(self.curSpeed.encode('utf-8')+ self.eol)
+
+	def decodeToggleStates(self):
+		self.ExtLightsOn = self.rawToggle & 1
+		self.IntLightsOn = (self.rawToggle >> 1) & 1
+		self.sBrakePull = (self.rawToggle >> 2) & 1
+		self.RDoorOpen = (self.rawToggle >> 3) & 1
+		self.LDoorOpen = (self.rawToggle >> 4) & 1
+		self.EBrakePull = ((self.rawToggle >> 6) & 1) | ((self.rawToggle >> 7) & 1)
+
+	def updateToggleDisp(self):
+		if(self.ExtLightsOn):
+			self.ui.ELightVal.setPlainText("ON")
+		else:
+			self.ui.ELightVal.setPlainText("OFF")
+		if(self.IntLightsOn):
+			self.ui.ILightVal.setPlainText("ON")
+		else:
+			self.ui.ILightVal.setPlainText("OFF")
+		if(self.sBrakePull):
+			self.ui.SBrakeVal.setPlainText("ACTIVE")
+		else:
+			self.ui.SBrakeVal.setPlainText("INACTIVE")
+		if(self.RDoorOpen):
+			self.ui.RDoorVal.setPlainText("OPEN")
+		else:
+			self.ui.RDoorVal.setPlainText("CLOSE")
+		if(self.LDoorOpen):
+			self.ui.LDoorVal.setPlainText("OPEN")
+		else:
+			self.ui.LDoorVal.setPlainText("CLOSE")
+		if(self.EBrakePull):
+			self.ui.EBrakeVal.setPlainText("ACTIVE")
+		else:
+			self.ui.EBrakeVal.setPlainText("INACTIVE")
 
 
 if __name__ == "__main__":
