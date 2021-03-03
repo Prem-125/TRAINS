@@ -187,9 +187,9 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>80</x>
-      <y>220</y>
+      <y>200</y>
       <width>231</width>
-      <height>91</height>
+      <height>81</height>
      </rect>
     </property>
     <property name="font">
@@ -201,6 +201,16 @@ p, li { white-space: pre-wrap; }
     </property>
     <property name="text">
      <string>Intercom</string>
+    </property>
+   </widget>
+   <widget class="QTextBrowser" name="announcementDisplay">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>290</y>
+      <width>381</width>
+      <height>51</height>
+     </rect>
     </property>
    </widget>
   </widget>
@@ -539,7 +549,7 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>275</x>
       <y>90</y>
-      <width>131</width>
+      <width>111</width>
       <height>41</height>
      </rect>
     </property>
@@ -1152,6 +1162,19 @@ p, li { white-space: pre-wrap; }
     </property>
     <property name="text">
      <string>Cause Brake Failure</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="updatePID">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>390</y>
+      <width>111</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Update PID</string>
     </property>
    </widget>
   </widget>

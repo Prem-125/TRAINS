@@ -1,6 +1,6 @@
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow
-from PySide6.QtCore import QFile
+from PySide6.QtCore import QFile, QTimer
 from UI import Ui_TrainControllerSW
 from simple_pid import PID
 
@@ -10,21 +10,31 @@ class MainWindow(QMainWindow):
         self.ui = Ui_TrainControllerSW()
         self.ui.setupUi(self)
 
-
         #automatic mode stuff
         self.autoMode = True
+        self.ui.automaticMode.toggled.connect(self.onAutoManual)
 
         #commanded speed stuff
-        self.setPointSpeed = 125
+        self.setPointSpeed = 43.5
         self.ui.setPointSpeedVal.display(self.setPointSpeed)
         self.ui.speedUpButton.clicked.connect(self.increaseSetPoint)
         self.ui.speedDownButton.clicked.connect(self.decreaseSetPoint)
 
         #service brake stuff
-        self.ui.serviceBrake.clicked.connect(self.serviceBrakeActivated)
+        self.serviceBrake = False
+        self.ui.serviceBrake.pressed.connect(self.serviceBrakeActivated)
+        self.ui.serviceBrake.released.connect(self.serviceBrakeDeactivated)
+
+        #service Brake Failure Stuff
+        self.ui.causeBrakeFailure.clicked.connect(self.causeBrakeFailure)
+
+        #emergency brake stuff
+        self.ui.emergencyBrake.clicked.connect(self.onEmergencyBrake)
 
         #encoded Track Circuit stuff
         self.actualSpeed = 0
+        self.actualSpeedLast = 0
+        self.actualSpeedSecond = 0
         self.commandedSpeed = 0
         self.authority = 0
         self.encodedTC = 0
@@ -32,13 +42,14 @@ class MainWindow(QMainWindow):
         self.power = 0
 
         #passenger brake fake stuff
-        self.ui.causePassenger.clicked.connect(self.passengerBrakeActivated)
+        self.ui.causePassenger.clicked.connect(self.onPassengerBrakeActivated)
 
         #actual speed fake stuff
         self.ui.updateActualFake.clicked.connect(self.onUpdateActualFake)
 
         #beacon stuff
         self.ui.updateBeaconFake.clicked.connect(self.onUpdateBeaconFake)
+        self.encodedBeacon = 0
         self.upcomingStation = False 
         self.leftDoorsOpen = False
         self.rightDoorsOpen = False
@@ -54,7 +65,18 @@ class MainWindow(QMainWindow):
         #pid loop stuff
         self.kp = 0
         self.ki = 0
-        self.pid = PID(kp, ki, 0)
+        self.pid = PID(self.kp, self.ki, 0)
+        self.pid.output_limits = (0, 120000)
+        self.pidTimer = QTimer()
+        self.pidTimer.timeout.connect(self.pidLoop)
+        self.pidTimer.start(1000)
+
+        #cause engine failure
+        self.ui.causeEngineFailure.clicked.connect(self.causeEngineFailure)
+
+        #Announcements
+        self.announcement=""
+        self.ui.intercom.clicked.connect(self.onAnnouncement)
 
 
 
@@ -80,20 +102,35 @@ class MainWindow(QMainWindow):
         self.ui.rightDoors.setChecked(self.rightDoorsOpen)
         self.ui.exteriorLights.setChecked(self.exteriorLightsOn)
         self.ui.upcomingStation.setPlainText(str(self.station))
+        self.ui.encodedBeacon.setPlainText(str(bin(self.encodedBeacon)))
+        self.ui.power.display(self.power)
         if(self.upcomingStation):
             self.ui.upcomingStation.setStyleSheet(u"background-color: rgb(124,252,0);")
         else:
             self.ui.upcomingStation.setStyleSheet(u"background-color: rgb(255,255,255);")
         
+    def onEmergencyBrake(self):
+        print("Emergency Brake Activated")
+        self.commandedSpeed = 0
+        self.setpointSpeed = 0
+        self.displayUpdate()
 
     def serviceBrakeActivated(self):
+        self.serviceBrake = True
         print("Service Brake Activated")
         self.setPointSpeed=0
         self.displayUpdate()
+    
+    def serviceBrakeDeactivated(self):
+        self.serviceBrake = False
+        print("Service Brake Released")
+        self.displayUpdate
 
-    def passengerBrakeActivated(self):
+    def onPassengerBrakeActivated(self):
         print("Passenger Brake Activated!")
         self.ui.textBrowser_16.setStyleSheet(u"background-color: rgb(255, 0, 0);")
+        self.setPointSpeed=0
+        self.commandedSpeed=0
 
     def onUpdateTCFake(self):
         self.commandedSpeed = float(self.ui.inputCommanded.toPlainText())
@@ -124,9 +161,45 @@ class MainWindow(QMainWindow):
         self.displayUpdate()
 
     def onUpdateActualFake(self):
+        self.actualSpeedSecond = self.actualSpeedLast
+        self.actualSpeedLast = self.actualSpeed
         self.actualSpeed = float(self.ui.actualSpeed.toPlainText())
+
+        #checking to see if there is train engine failure
+        self.detectEngineFailure()
+        self.detectBrakeFailure()
         self.displayUpdate()
 
+    def detectEngineFailure(self):
+        # print("In Detect Engine Failure. Actual Speed Last: " + str(self.actualSpeedLast) + ". Actual Speed: " + str(self.actualSpeed) + " Commanded Speed: " + str(self.commandedSpeed))
+        if((self.actualSpeedLast > self.actualSpeed) and ((self.setPointSpeed > self.actualSpeed and not self.autoMode) or (self.commandedSpeed > self.actualSpeed and self.autoMode))):
+            self.onEngineFailure()
+            # print("failure confirmed")
+    
+    def causeEngineFailure(self):
+        self.actualSpeedLast=10000
+        self.detectEngineFailure()
+
+    def onEngineFailure(self):
+        self.ui.textBrowser_13.setStyleSheet(u"background-color: rgb(255, 0, 0);")
+
+    def detectBrakeFailure(self):
+        print("Brake Failure Detection Occuring")
+        print("Service Brake: " + str(self.serviceBrake))
+        if(self.serviceBrake and (self.actualSpeedSecond <= self.actualSpeedLast and self.actualSpeedLast <= self.actualSpeed)):
+           self.onBrakeFailure()
+
+    def causeBrakeFailure(self):
+        self.actualSpeedLast=16
+        self.actualSpeedSecond=15
+        self.actualSpeed=17
+        self.serviceBrake = True
+        self.detectBrakeFailure()
+
+
+    def onBrakeFailure(self):
+        self.ui.textBrowser_14.setStyleSheet(u"background-color: rgb(255, 0, 0);") 
+    
 
 
     def onUpdateBeaconFake(self):
@@ -149,6 +222,7 @@ class MainWindow(QMainWindow):
         self.exteriorLightsOn = (self.encodedBeacon >> 3)&1
         self.station = self.stationArray[((self.encodedBeacon >> 4) & 31)]
         self.buildAnnouncement()
+        self.onAnnouncement()
         self.displayUpdate()
 
     def buildAnnouncement(self):
@@ -160,14 +234,14 @@ class MainWindow(QMainWindow):
                 self.announcement += "left.\n"
             else:
                 self.announcement += "right.\n"
+        else:
+            self.announcement = ""
 
     def onUpdateKpKi(self):
-        pid.Ki = toPlainText(self.ui.kiInput)
-        pid.Kp = toPlainText(self.ui.kpInput)
+        self.pid.Ki = float(self.ui.kiInput.toPlainText())
+        self.pid.Kp = float(self.ui.kpInput.toPlainText())
+        print("Kp Ki values updated" + str(self.pid.Ki) + str(self.pid.Kp))
 
-    
-    def checkFailures(self):
-        ...
 
     def checkSignalPickup(self, tempCmdInt, tempCmdFloat, tempAuthInt, tempAuthFloat, tempCheckSum):
         if(tempCheckSum != tempCmdInt+ tempCmdFloat + tempAuthInt + tempAuthFloat):
@@ -186,6 +260,26 @@ class MainWindow(QMainWindow):
         self.checkSignalPickup(tempCmdInt, tempCmdFloat, tempAuthInt, tempAuthFloat, tempCheckSum)
 
     def pidLoop(self):
+        if(self.autoMode):
+            self.pid.setpoint = self.commandedSpeed
+            self.power = self.pid(self.actualSpeed, dt = 1)
+        else:
+            self.pid.setpoint = self.setPointSpeed
+            self.power = self.pid(self.actualSpeed, dt = 1)
+       
+        self.displayUpdate()
+        print(self.power)
+
+    def onAnnouncement(self):
+        self.ui.announcementDisplay.setPlainText(str(self.announcement))
+
+    def onAutoManual(self):
+        if(self.ui.automaticMode.isChecked()):
+            self.autoMode = True
+            print("Auto Mode Entered")
+        else:
+            self.autoMode = False
+            print("Manual Mode Entered")
 
         
 
