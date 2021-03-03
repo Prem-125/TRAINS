@@ -9,3 +9,4 @@ PyQt6-sip==13.0.1
 PySide6==6.0.1
 pywin32-ctypes==0.2.0
 shiboken6==6.0.1
+simple-pid==0.2.4
