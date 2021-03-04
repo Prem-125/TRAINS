@@ -219,7 +219,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>20</x>
      <y>310</y>
-     <width>311</width>
+     <width>411</width>
      <height>361</height>
     </rect>
    </property>
@@ -234,7 +234,7 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>10</x>
       <y>50</y>
-      <width>211</width>
+      <width>300</width>
       <height>31</height>
      </rect>
     </property>
@@ -251,7 +251,7 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>10</x>
       <y>130</y>
-      <width>141</width>
+      <width>190</width>
       <height>111</height>
      </rect>
     </property>
@@ -274,7 +274,7 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>211</width>
+      <width>300</width>
       <height>31</height>
      </rect>
     </property>
@@ -291,7 +291,7 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>10</x>
       <y>90</y>
-      <width>211</width>
+      <width>290</width>
       <height>31</height>
      </rect>
     </property>
@@ -306,7 +306,7 @@ p, li { white-space: pre-wrap; }
    <widget class="QLCDNumber" name="actualSpeedVal">
     <property name="geometry">
      <rect>
-      <x>230</x>
+      <x>320</x>
       <y>10</y>
       <width>71</width>
       <height>31</height>
@@ -325,7 +325,7 @@ p, li { white-space: pre-wrap; }
    <widget class="QLCDNumber" name="setPointSpeedVal">
     <property name="geometry">
      <rect>
-      <x>230</x>
+      <x>320</x>
       <y>50</y>
       <width>71</width>
       <height>31</height>
@@ -346,7 +346,7 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>10</x>
       <y>250</y>
-      <width>291</width>
+      <width>390</width>
       <height>111</height>
      </rect>
     </property>
@@ -364,9 +364,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QPushButton" name="speedUpButton">
     <property name="geometry">
      <rect>
-      <x>160</x>
+      <x>210</x>
       <y>130</y>
-      <width>141</width>
+      <width>190</width>
       <height>111</height>
      </rect>
     </property>
@@ -387,7 +387,7 @@ p, li { white-space: pre-wrap; }
    <widget class="QLCDNumber" name="commandedSpeedVal">
     <property name="geometry">
      <rect>
-      <x>230</x>
+      <x>320</x>
       <y>90</y>
       <width>71</width>
       <height>31</height>
@@ -410,7 +410,7 @@ p, li { white-space: pre-wrap; }
      <x>20</x>
      <y>60</y>
      <width>401</width>
-     <height>241</height>
+     <height>211</height>
     </rect>
    </property>
    <property name="frameShape">
@@ -433,7 +433,7 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Authority&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Authority (miles)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="QTextBrowser" name="textBrowser_6">
@@ -450,7 +450,7 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Power&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Power (kW)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="QTextBrowser" name="textBrowser_7">
@@ -458,7 +458,7 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>10</x>
       <y>90</y>
-      <width>250</width>
+      <width>381</width>
       <height>31</height>
      </rect>
     </property>
@@ -475,7 +475,7 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>270</x>
       <y>10</y>
-      <width>71</width>
+      <width>121</width>
       <height>31</height>
      </rect>
     </property>
@@ -494,43 +494,7 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>270</x>
       <y>50</y>
-      <width>71</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="autoFillBackground">
-     <bool>true</bool>
-    </property>
-    <property name="lineWidth">
-     <number>2</number>
-    </property>
-    <property name="smallDecimalPoint">
-     <bool>false</bool>
-    </property>
-   </widget>
-   <widget class="QTextBrowser" name="textBrowser_8">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>140</y>
-      <width>250</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="html">
-     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Distance To Next (miles)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-   </widget>
-   <widget class="QLCDNumber" name="distanceToNext">
-    <property name="geometry">
-     <rect>
-      <x>270</x>
-      <y>140</y>
-      <width>71</width>
+      <width>121</width>
       <height>31</height>
      </rect>
     </property>
@@ -547,11 +511,16 @@ p, li { white-space: pre-wrap; }
    <widget class="QTextBrowser" name="upcomingStation">
     <property name="geometry">
      <rect>
-      <x>275</x>
-      <y>90</y>
-      <width>111</width>
+      <x>10</x>
+      <y>130</y>
+      <width>381</width>
       <height>41</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+     </font>
     </property>
    </widget>
   </widget>

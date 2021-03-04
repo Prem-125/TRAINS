@@ -29,8 +29,9 @@ class MainWindow(QMainWindow):
         self.ui.causeBrakeFailure.clicked.connect(self.causeBrakeFailure)
 
         #emergency brake stuff
-        self.ui.emergencyBrake.clicked.connect(self.onEmergencyBrake)
-
+        self.ui.emergencyBrake.pressed.connect(self.onEmergencyBrake)
+        self.ui.emergencyBrake.released.connect(self.onEmergencyBrakeOff)
+        self.emergencyBrake = False
         #encoded Track Circuit stuff
         self.actualSpeed = 0
         self.actualSpeedLast = 0
@@ -113,7 +114,13 @@ class MainWindow(QMainWindow):
         print("Emergency Brake Activated")
         self.commandedSpeed = 0
         self.setpointSpeed = 0
+        self.emergencyBrake = True
         self.displayUpdate()
+
+    def onEmergencyBrakeOff(self):
+        print("Emergency Brake Released")
+        self.emergencyBrake = False
+
 
     def serviceBrakeActivated(self):
         self.serviceBrake = True
@@ -171,29 +178,30 @@ class MainWindow(QMainWindow):
         self.displayUpdate()
 
     def detectEngineFailure(self):
-        # print("In Detect Engine Failure. Actual Speed Last: " + str(self.actualSpeedLast) + ". Actual Speed: " + str(self.actualSpeed) + " Commanded Speed: " + str(self.commandedSpeed))
-        if((self.actualSpeedLast > self.actualSpeed) and ((self.setPointSpeed > self.actualSpeed and not self.autoMode) or (self.commandedSpeed > self.actualSpeed and self.autoMode))):
+        #defined by Train Model
+        #stephen send a value as our current velocity symbolizing problem with engine
+        if(self.actualSpeed==666):
             self.onEngineFailure()
-            # print("failure confirmed")
     
     def causeEngineFailure(self):
-        self.actualSpeedLast=10000
+        self.actualSpeed=666
         self.detectEngineFailure()
 
     def onEngineFailure(self):
         self.ui.textBrowser_13.setStyleSheet(u"background-color: rgb(255, 0, 0);")
 
     def detectBrakeFailure(self):
+        # a brake failure is actually when the brakes are stuck on, so if we're slowing down, no brakes are applied and power is not 0 
         print("Brake Failure Detection Occuring")
         print("Service Brake: " + str(self.serviceBrake))
-        if(self.serviceBrake and (self.actualSpeedSecond <= self.actualSpeedLast and self.actualSpeedLast <= self.actualSpeed)):
+        if(not self.serviceBrake and (self.actualSpeedSecond >= self.actualSpeedLast and self.actualSpeedLast >= self.actualSpeed) and not self.power == 0):
            self.onBrakeFailure()
 
     def causeBrakeFailure(self):
+        self.actualSpeedSecond=17
         self.actualSpeedLast=16
-        self.actualSpeedSecond=15
-        self.actualSpeed=17
-        self.serviceBrake = True
+        self.actualSpeed=15
+        self.serviceBrake = False
         self.detectBrakeFailure()
 
 
@@ -258,6 +266,14 @@ class MainWindow(QMainWindow):
         tempAuthFloat= (self.encodedTC >> 20) & 15
         tempCheckSum = (self.encodedTC >> 24) & 1023
         self.checkSignalPickup(tempCmdInt, tempCmdFloat, tempAuthInt, tempAuthFloat, tempCheckSum)
+        if((tempAuthInt == 0 and tempAuthFloat == 0)):
+            self.onAuthorityExpiration()
+
+    def onAuthorityExpiration(self):
+        print("Authority Expired")
+        self.setPointSpeed = 0
+        self.commandedSPeed = 0
+        self.emergencyBrake = True 
 
     def pidLoop(self):
         if(self.autoMode):
