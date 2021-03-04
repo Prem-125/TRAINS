@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1248</width>
+    <width>1222</width>
     <height>566</height>
    </rect>
   </property>
@@ -16,11 +16,16 @@
   <widget class="QPlainTextEdit" name="PowerVal">
    <property name="geometry">
     <rect>
-     <x>140</x>
+     <x>160</x>
      <y>110</y>
      <width>101</width>
-     <height>21</height>
+     <height>31</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="verticalScrollBarPolicy">
     <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -35,11 +40,16 @@
   <widget class="QPlainTextEdit" name="LDoorVal">
    <property name="geometry">
     <rect>
-     <x>403</x>
+     <x>423</x>
      <y>110</y>
      <width>101</width>
-     <height>21</height>
+     <height>31</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="verticalScrollBarPolicy">
     <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -57,11 +67,16 @@
   <widget class="QPlainTextEdit" name="RDoorVal">
    <property name="geometry">
     <rect>
-     <x>403</x>
-     <y>140</y>
+     <x>423</x>
+     <y>150</y>
      <width>101</width>
-     <height>21</height>
+     <height>31</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="verticalScrollBarPolicy">
     <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -76,11 +91,16 @@
   <widget class="QPlainTextEdit" name="ILightVal">
    <property name="geometry">
     <rect>
-     <x>403</x>
-     <y>190</y>
+     <x>420</x>
+     <y>210</y>
      <width>101</width>
-     <height>21</height>
+     <height>31</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="verticalScrollBarPolicy">
     <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -98,11 +118,16 @@
   <widget class="QPlainTextEdit" name="ELightVal">
    <property name="geometry">
     <rect>
-     <x>403</x>
-     <y>220</y>
+     <x>420</x>
+     <y>250</y>
      <width>101</width>
-     <height>21</height>
+     <height>31</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="verticalScrollBarPolicy">
     <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -123,8 +148,13 @@
      <x>730</x>
      <y>140</y>
      <width>101</width>
-     <height>21</height>
+     <height>31</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="verticalScrollBarPolicy">
     <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -142,11 +172,16 @@
   <widget class="QPlainTextEdit" name="EBrakeVal">
    <property name="geometry">
     <rect>
-     <x>140</x>
-     <y>220</y>
+     <x>160</x>
+     <y>230</y>
      <width>101</width>
-     <height>21</height>
+     <height>31</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="verticalScrollBarPolicy">
     <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -164,11 +199,16 @@
   <widget class="QPlainTextEdit" name="SBrakeVal">
    <property name="geometry">
     <rect>
-     <x>140</x>
+     <x>160</x>
      <y>190</y>
      <width>101</width>
-     <height>21</height>
+     <height>31</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="verticalScrollBarPolicy">
     <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -186,11 +226,16 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>60</x>
+     <x>40</x>
      <y>110</y>
-     <width>81</width>
+     <width>121</width>
      <height>20</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Power Output:</string>
@@ -199,14 +244,19 @@
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>610</x>
+     <x>620</x>
      <y>140</y>
-     <width>121</width>
+     <width>151</width>
      <height>20</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
    <property name="text">
-    <string>Commanded Speed:</string>
+    <string>Comm. Speed:</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_3">
@@ -218,6 +268,11 @@
      <height>20</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
    <property name="text">
     <string>Left Door:</string>
    </property>
@@ -226,10 +281,15 @@
    <property name="geometry">
     <rect>
      <x>330</x>
-     <y>140</y>
+     <y>150</y>
      <width>81</width>
      <height>20</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Right Door:</string>
@@ -238,11 +298,16 @@
   <widget class="QLabel" name="label_5">
    <property name="geometry">
     <rect>
-     <x>320</x>
-     <y>190</y>
-     <width>91</width>
+     <x>300</x>
+     <y>210</y>
+     <width>111</width>
      <height>20</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Interior Lights:</string>
@@ -251,11 +316,16 @@
   <widget class="QLabel" name="label_6">
    <property name="geometry">
     <rect>
-     <x>320</x>
-     <y>220</y>
-     <width>91</width>
+     <x>300</x>
+     <y>250</y>
+     <width>111</width>
      <height>20</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Exterior Lights:</string>
@@ -264,11 +334,16 @@
   <widget class="QLabel" name="label_7">
    <property name="geometry">
     <rect>
-     <x>60</x>
+     <x>50</x>
      <y>190</y>
-     <width>91</width>
+     <width>111</width>
      <height>20</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Service Brake:</string>
@@ -277,11 +352,16 @@
   <widget class="QLabel" name="label_8">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>220</y>
-     <width>91</width>
+     <x>20</x>
+     <y>230</y>
+     <width>141</width>
      <height>20</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Emergency Brake:</string>
@@ -293,8 +373,13 @@
      <x>580</x>
      <y>0</y>
      <width>21</width>
-     <height>441</height>
+     <height>561</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="orientation">
     <enum>Qt::Vertical</enum>
@@ -303,7 +388,7 @@
   <widget class="QLabel" name="label_9">
    <property name="geometry">
     <rect>
-     <x>150</x>
+     <x>170</x>
      <y>30</y>
      <width>321</width>
      <height>41</height>
@@ -340,10 +425,15 @@
    <property name="geometry">
     <rect>
      <x>730</x>
-     <y>170</y>
+     <y>180</y>
      <width>101</width>
-     <height>21</height>
+     <height>31</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="verticalScrollBarPolicy">
     <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -361,11 +451,16 @@
   <widget class="QLabel" name="label_12">
    <property name="geometry">
     <rect>
-     <x>660</x>
-     <y>170</y>
+     <x>640</x>
+     <y>180</y>
      <width>81</width>
      <height>20</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Authourity:</string>
@@ -374,11 +469,16 @@
   <widget class="QLabel" name="label_13">
    <property name="geometry">
     <rect>
-     <x>940</x>
+     <x>910</x>
      <y>140</y>
      <width>101</width>
      <height>20</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Station Name:</string>
@@ -387,11 +487,16 @@
   <widget class="QPushButton" name="tcButton">
    <property name="geometry">
     <rect>
-     <x>710</x>
-     <y>260</y>
+     <x>730</x>
+     <y>290</y>
      <width>131</width>
      <height>51</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Update TC</string>
@@ -400,11 +505,16 @@
   <widget class="QLabel" name="label_11">
    <property name="geometry">
     <rect>
-     <x>780</x>
-     <y>350</y>
+     <x>750</x>
+     <y>370</y>
      <width>121</width>
      <height>20</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Current Speed:</string>
@@ -414,10 +524,15 @@
    <property name="geometry">
     <rect>
      <x>870</x>
-     <y>350</y>
+     <y>370</y>
      <width>101</width>
-     <height>21</height>
+     <height>31</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="verticalScrollBarPolicy">
     <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -436,10 +551,15 @@
    <property name="geometry">
     <rect>
      <x>730</x>
-     <y>210</y>
-     <width>141</width>
+     <y>250</y>
+     <width>171</width>
      <height>17</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Cause Signal Failure</string>
@@ -450,9 +570,14 @@
     <rect>
      <x>1020</x>
      <y>170</y>
-     <width>131</width>
-     <height>17</height>
+     <width>161</width>
+     <height>21</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Station Upcoming</string>
@@ -462,10 +587,15 @@
    <property name="geometry">
     <rect>
      <x>1020</x>
-     <y>190</y>
-     <width>131</width>
-     <height>17</height>
+     <y>200</y>
+     <width>141</width>
+     <height>20</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Left Doors</string>
@@ -475,10 +605,15 @@
    <property name="geometry">
     <rect>
      <x>1020</x>
-     <y>210</y>
-     <width>131</width>
-     <height>17</height>
+     <y>230</y>
+     <width>151</width>
+     <height>21</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Right Doors</string>
@@ -488,10 +623,15 @@
    <property name="geometry">
     <rect>
      <x>1020</x>
-     <y>230</y>
-     <width>131</width>
-     <height>17</height>
+     <y>260</y>
+     <width>171</width>
+     <height>20</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Exterioir Lights On</string>
@@ -536,11 +676,16 @@
   <widget class="QPushButton" name="beaconButton">
    <property name="geometry">
     <rect>
-     <x>1000</x>
-     <y>260</y>
+     <x>1020</x>
+     <y>290</y>
      <width>131</width>
      <height>51</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Update Beacon</string>
@@ -550,10 +695,15 @@
    <property name="geometry">
     <rect>
      <x>860</x>
-     <y>400</y>
+     <y>420</y>
      <width>131</width>
      <height>51</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Update Speed</string>
@@ -567,6 +717,11 @@
      <width>101</width>
      <height>22</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <item>
     <property name="text">
@@ -678,6 +833,11 @@
      <height>16</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
    <property name="text">
     <string>Announcement:</string>
    </property>
@@ -691,6 +851,11 @@
      <height>71</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
    <property name="verticalScrollBarPolicy">
     <enum>Qt::ScrollBarAlwaysOff</enum>
    </property>
@@ -702,6 +867,105 @@
    </property>
    <property name="plainText">
     <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_17">
+   <property name="geometry">
+    <rect>
+     <x>310</x>
+     <y>310</y>
+     <width>101</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Temperature:</string>
+   </property>
+  </widget>
+  <widget class="QPlainTextEdit" name="TemperatureVal">
+   <property name="geometry">
+    <rect>
+     <x>420</x>
+     <y>310</y>
+     <width>101</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="verticalScrollBarPolicy">
+    <enum>Qt::ScrollBarAlwaysOff</enum>
+   </property>
+   <property name="horizontalScrollBarPolicy">
+    <enum>Qt::ScrollBarAlwaysOff</enum>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
+   </property>
+   <property name="plainText">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_18">
+   <property name="geometry">
+    <rect>
+     <x>840</x>
+     <y>140</y>
+     <width>111</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Km/h</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_19">
+   <property name="geometry">
+    <rect>
+     <x>980</x>
+     <y>370</y>
+     <width>111</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Km/h</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_20">
+   <property name="geometry">
+    <rect>
+     <x>840</x>
+     <y>180</y>
+     <width>111</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Blocks</string>
    </property>
   </widget>
  </widget>

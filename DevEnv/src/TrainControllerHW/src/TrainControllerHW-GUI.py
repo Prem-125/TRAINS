@@ -60,12 +60,17 @@ class MainWindow(QMainWindow):
 				status = raw.decode('ascii').strip('\r\n')
 				print(status)
 				self.power = float(status)
-				self.ui.PowerVal.setPlainText(str(self.power))
-			else:
+				self.ui.PowerVal.setPlainText(str(self.power/1000.0)+ " kW")
+			elif(status ==3):
 				raw = self.arduino.readline()
 				status = raw.decode('ascii').strip('\r\n')
 				print(status)
 				self.ui.AnnounceVal.setPlainText(status)
+			elif(status ==4):
+				raw = self.arduino.readline()
+				status = raw.decode('ascii').strip('\r\n')
+				print(status)
+				self.ui.TemperatureVal.setPlainText(status + "°F")
 	def serialWrite(self):
 		self.arduino.reset_output_buffer()
 		self.arduino.write(str(self.nFlag).encode('utf-8')+ self.eol)
