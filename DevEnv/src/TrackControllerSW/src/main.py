@@ -1,13 +1,13 @@
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow
-from Pyside6.QtCore import QFile
+from PySide6.QtCore import QFile
 from UI import Ui_TrackControllerUI
 
 class MainWindow(QMainWindow):
     def __init__(self):
         #call parent constructor
         super(MainWindow, self).__init__()
-        self.ui = UI_TrackControllerUI()
+        self.ui = Ui_TrackControllerUI()
         self.ui.setupUi(self)
         
         #Variables
