@@ -17,7 +17,7 @@ class MainWindow(QMainWindow):
         self.onAutoManual()
 
         #commanded speed stuff
-        self.setPointSpeed = 43.5
+        self.setPointSpeed = 0
         self.ui.setPointSpeedVal.display(self.setPointSpeed)
         self.ui.speedUpButton.clicked.connect(self.increaseSetPoint)
         self.ui.speedDownButton.clicked.connect(self.decreaseSetPoint)
@@ -57,6 +57,7 @@ class MainWindow(QMainWindow):
         self.leftDoorsOpen = False
         self.rightDoorsOpen = False
         self.exteriorLightsOn = False
+        
         self.station = "Undefined"
         #setting up stations
         self.stationArray = ("Shadyside","Herron Ave","Swissville","Penn Station","Steel Plaza","First Ave","Station Square","South Hills Junction", 
@@ -85,6 +86,10 @@ class MainWindow(QMainWindow):
         self.ui.trainStopped.clicked.connect(self.openDoors)
         self.alreadyWaiting=False
 
+        #manual mode loop
+        self.openedl = False
+        self.openedr = False
+
 
 
 
@@ -92,8 +97,9 @@ class MainWindow(QMainWindow):
 
 
     def increaseSetPoint(self):
-        self.setPointSpeed = self.setPointSpeed + 1
-        print(self.setPointSpeed)
+        if(self.setPointSpeed+1 <= self.commandedSpeed):
+            self.setPointSpeed = self.setPointSpeed + 1
+            print(self.setPointSpeed)
         self.displayUpdate()
 
     def decreaseSetPoint(self):
@@ -136,6 +142,7 @@ class MainWindow(QMainWindow):
         print("Emergency Brake Activated")
         self.commandedSpeed = 0
         self.setpointSpeed = 0
+        self.power=0
         self.emergencyBrake = True
         self.displayUpdate()
 
@@ -148,6 +155,7 @@ class MainWindow(QMainWindow):
         self.serviceBrake = True
         print("Service Brake Activated")
         self.setPointSpeed=0
+        self.power=0
         self.displayUpdate()
 
     def serviceBrakeDeactivated(self):
@@ -158,6 +166,7 @@ class MainWindow(QMainWindow):
     def onPassengerBrakeActivated(self):
         print("Passenger Brake Activated!")
         self.ui.textBrowser_16.setStyleSheet(u"background-color: rgb(255, 0, 0);")
+        self.emergencyBrake = True
         self.setPointSpeed=0
         self.commandedSpeed=0
 
@@ -211,12 +220,13 @@ class MainWindow(QMainWindow):
 
     def onEngineFailure(self):
         self.ui.textBrowser_13.setStyleSheet(u"background-color: rgb(255, 0, 0);")
+        self.emergencyBrake = true
 
     def detectBrakeFailure(self):
         # a brake failure is actually when the brakes are stuck on, so if we're slowing down, no brakes are applied and power is not 0 
         #print("Brake Failure Detection Occuring")
         #print("Service Brake: " + str(self.serviceBrake))
-        if(not self.serviceBrake and (self.actualSpeedSecond >= self.actualSpeedLast and self.actualSpeedLast >= self.actualSpeed) and not self.power == 0):
+        if(not self.serviceBrake and (self.actualSpeedSecond > self.actualSpeedLast and self.actualSpeedLast > self.actualSpeed) and not self.power == 0):
            self.onBrakeFailure()
 
     def causeBrakeFailure(self):
@@ -229,6 +239,7 @@ class MainWindow(QMainWindow):
 
     def onBrakeFailure(self):
         self.ui.textBrowser_14.setStyleSheet(u"background-color: rgb(255, 0, 0);") 
+        self.emergencyBrake = True
     
 
 
@@ -277,6 +288,7 @@ class MainWindow(QMainWindow):
         if(tempCheckSum != tempCmdInt+ tempCmdFloat + tempAuthInt + tempAuthFloat):
             print("Signal Pickup Failure")
             self.ui.textBrowser_15.setStyleSheet(u"background-color: rgb(255, 0, 0);")
+            self.emergencyBrake = True
         else:
             self.ui.textBrowser_15.setStyleSheet(u"background-color: rgb(255, 255, 255);")
 
@@ -298,13 +310,23 @@ class MainWindow(QMainWindow):
         self.emergencyBrake = True 
 
     def pidLoop(self):
-        if(self.autoMode):
+        print("INPID")
+        print("auto mode = " + str(self.autoMode))
+        print("self.upComingStation = " + str(self.upcomingStation))
+        print("service brake" + str(self.serviceBrake))
+        print("emergency brake" + str(self.emergencyBrake))
+        if(self.autoMode and not self.upcomingStation and ((not self.serviceBrake ) and ( not self.emergencyBrake))):
+            print("PID Auto")
             self.pid.setpoint = self.commandedSpeed
             self.power = self.pid(self.actualSpeed, dt = 1)
-        else:
+        elif(not self.serviceBrake and not self.emergencyBrake):
+            print("PID Manual")
             self.pid.setpoint = self.setPointSpeed
             self.power = self.pid(self.actualSpeed, dt = 1)
-       
+        else:
+            self.pid.setpoint=0
+            self.power= 0
+            print("inPIDOff")
         self.displayUpdate()
         # print(self.power)
 
@@ -333,7 +355,7 @@ class MainWindow(QMainWindow):
         if(self.autoMode == True):
             self.alreadyWaiting = True
             self.previousCommanded = self.commandedSpeed
-            self.serviceBrake =  True
+            self.serviceBrake = True
             self.commandedSpeed = 0
             self.power = 0
             
@@ -342,7 +364,7 @@ class MainWindow(QMainWindow):
             self.waitTimer.start(1000)
 
         else:
-            print("You're in manual mode. Figure it out.")
+            ...
             #Letting use open the doors on their own
             
     #openDoorsManual: used in Manual Mode to open/close doors
@@ -351,16 +373,28 @@ class MainWindow(QMainWindow):
             if(self.actualSpeed == 0):
                 if(self.leftDoors):
                     self.ui.leftDoorsStatus.setPlainText("Open")  
-                    self.ui.leftDoorsStatus.setStyleSheet(u"background-color: rgb(124,252,0);")     
+                    self.ui.leftDoorsStatus.setStyleSheet(u"background-color: rgb(124,252,0);")   
+                      
                 if(self.rightDoors):
                     self.ui.rightDoorsStatus.setPlainText("Open")
                     self.ui.rightDoorsStatus.setStyleSheet(u"background-color: rgb(124,252,0);")
+                    self.openedr=True 
             if(not self.leftDoors):
                 self.ui.leftDoorsStatus.setPlainText("Closed")  
-                self.ui.leftDoorsStatus.setStyleSheet(u"background-color: rgb(255,255,255);")     
+                self.ui.leftDoorsStatus.setStyleSheet(u"background-color: rgb(255,255,255);")    
+#                if(self.openedl or self.openedr):
+#                    self.ui.stationUpcoming.setChecked(False)
+#                    self.upcomingStation = False
+#                    self.openedr=False
+#                    self.openedl=False
             if(not self.rightDoors):
                 self.ui.rightDoorsStatus.setPlainText("Closed")
                 self.ui.rightDoorsStatus.setStyleSheet(u"background-color: rgb(255,255,255);")
+#                if(self.openedl or self.openedr):
+#                    self.ui.stationUpcoming.setChecked(False)
+#                    self.upcomingStation = False
+#                    self.openedr=False
+#                    self.openedl=False
             
 
     #checkVel: Used in Auto mode to see if doors can be opened
@@ -396,12 +430,16 @@ class MainWindow(QMainWindow):
     def closeDoors(self):
         self.waitTimer2.stop()
         print("Done with disembarking.")
+        self.ui.stationUpcoming.setChecked(False)
+        self.upcomingStation = False
         self.ui.rightDoorsStatus.setPlainText("Closed")
         self.ui.leftDoorsStatus.setPlainText("Closed")
         self.ui.leftDoorsStatus.setStyleSheet(u"background-color: rgb(255,255,255);")
         self.ui.rightDoorsStatus.setStyleSheet(u"background-color: rgb(255,255,255);")
         self.commandedSpeed = self.previousCommanded
         self.alreadyWaiting = False
+        self.serviceBrake = False
+        print("upcomingStation flag is" + str(self.upcomingStation))
 
 
 if __name__ == "__main__":
