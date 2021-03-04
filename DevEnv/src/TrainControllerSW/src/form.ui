@@ -213,6 +213,26 @@ p, li { white-space: pre-wrap; }
      </rect>
     </property>
    </widget>
+   <widget class="QTextBrowser" name="leftDoorsStatus">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>0</y>
+      <width>111</width>
+      <height>31</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QTextBrowser" name="rightDoorsStatus">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>30</y>
+      <width>111</width>
+      <height>31</height>
+     </rect>
+    </property>
+   </widget>
   </widget>
   <widget class="QFrame" name="speedSettings">
    <property name="geometry">
@@ -1144,6 +1164,19 @@ p, li { white-space: pre-wrap; }
     </property>
     <property name="text">
      <string>Update PID</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="trainStopped">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>450</y>
+      <width>111</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Train Stopped</string>
     </property>
    </widget>
   </widget>

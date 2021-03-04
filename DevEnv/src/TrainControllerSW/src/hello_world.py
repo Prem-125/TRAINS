@@ -1,8 +1,9 @@
-import sys
+import sys, time
 from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtCore import QFile, QTimer
 from UI import Ui_TrainControllerSW
 from simple_pid import PID
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -13,6 +14,7 @@ class MainWindow(QMainWindow):
         #automatic mode stuff
         self.autoMode = True
         self.ui.automaticMode.toggled.connect(self.onAutoManual)
+        self.onAutoManual()
 
         #commanded speed stuff
         self.setPointSpeed = 43.5
@@ -62,7 +64,7 @@ class MainWindow(QMainWindow):
 
         #pid loop updates
         self.ui.updatePID.clicked.connect(self.onUpdateKpKi)
-
+        
         #pid loop stuff
         self.kp = 0
         self.ki = 0
@@ -78,6 +80,13 @@ class MainWindow(QMainWindow):
         #Announcements
         self.announcement=""
         self.ui.intercom.clicked.connect(self.onAnnouncement)
+
+        #auto mode loop
+        self.ui.trainStopped.clicked.connect(self.openDoors)
+        self.alreadyWaiting=False
+
+
+
 
 
 
@@ -99,14 +108,27 @@ class MainWindow(QMainWindow):
         self.ui.authority.display(self.authority)
         self.ui.actualSpeedVal.display(self.actualSpeed)
         self.ui.encodedTC.setPlainText(str(bin(self.encodedTC)))
-        self.ui.leftDoors.setChecked(self.leftDoorsOpen)
-        self.ui.rightDoors.setChecked(self.rightDoorsOpen)
+        
+        #to be removed once fake inputs are stripped
+        if(self.autoMode == True):
+            self.ui.leftDoors.setChecked(self.leftDoorsOpen)
+            self.ui.rightDoors.setChecked(self.rightDoorsOpen)
+        
+        #when you are in not auto mode
+        if(self.autoMode == False):
+            self.leftDoors = self.ui.leftDoors.isChecked()
+            self.rightDoors = self.ui.rightDoors.isChecked()
+            self.openDoorsManual()
+        
         self.ui.exteriorLights.setChecked(self.exteriorLightsOn)
         self.ui.upcomingStation.setPlainText(str(self.station))
         self.ui.encodedBeacon.setPlainText(str(bin(self.encodedBeacon)))
-        self.ui.power.display(self.power)
+        self.ui.power.display(self.power/1000)
         if(self.upcomingStation):
             self.ui.upcomingStation.setStyleSheet(u"background-color: rgb(124,252,0);")
+            #going through our arrival procedures
+            if(self.alreadyWaiting == False):
+                self.onArrival()
         else:
             self.ui.upcomingStation.setStyleSheet(u"background-color: rgb(255,255,255);")
         
@@ -127,7 +149,7 @@ class MainWindow(QMainWindow):
         print("Service Brake Activated")
         self.setPointSpeed=0
         self.displayUpdate()
-    
+
     def serviceBrakeDeactivated(self):
         self.serviceBrake = False
         print("Service Brake Released")
@@ -192,8 +214,8 @@ class MainWindow(QMainWindow):
 
     def detectBrakeFailure(self):
         # a brake failure is actually when the brakes are stuck on, so if we're slowing down, no brakes are applied and power is not 0 
-        print("Brake Failure Detection Occuring")
-        print("Service Brake: " + str(self.serviceBrake))
+        #print("Brake Failure Detection Occuring")
+        #print("Service Brake: " + str(self.serviceBrake))
         if(not self.serviceBrake and (self.actualSpeedSecond >= self.actualSpeedLast and self.actualSpeedLast >= self.actualSpeed) and not self.power == 0):
            self.onBrakeFailure()
 
@@ -284,7 +306,7 @@ class MainWindow(QMainWindow):
             self.power = self.pid(self.actualSpeed, dt = 1)
        
         self.displayUpdate()
-        print(self.power)
+        # print(self.power)
 
     def onAnnouncement(self):
         self.ui.announcementDisplay.setPlainText(str(self.announcement))
@@ -293,11 +315,94 @@ class MainWindow(QMainWindow):
         if(self.ui.automaticMode.isChecked()):
             self.autoMode = True
             print("Auto Mode Entered")
+
+            #making the door checkboxes not usable
+            self.ui.leftDoors.setEnabled(False)
+            self.ui.rightDoors.setEnabled(False)
+
         else:
             self.autoMode = False
             print("Manual Mode Entered")
 
-        
+            #making the door checkboxes usable
+            self.ui.leftDoors.setEnabled(True)
+            self.ui.rightDoors.setEnabled(True)
+
+    def onArrival(self):
+        #if we are in autoMode, and we have upComingStation = true, stop the train
+        if(self.autoMode == True):
+            self.alreadyWaiting = True
+            self.previousCommanded = self.commandedSpeed
+            self.serviceBrake =  True
+            self.commandedSpeed = 0
+            self.power = 0
+            
+            self.waitTimer = QTimer()
+            self.waitTimer.timeout.connect(self.checkVel)
+            self.waitTimer.start(1000)
+
+        else:
+            print("You're in manual mode. Figure it out.")
+            #Letting use open the doors on their own
+            
+    #openDoorsManual: used in Manual Mode to open/close doors
+    def openDoorsManual(self):
+        if(self.autoMode == False):
+            if(self.actualSpeed == 0):
+                if(self.leftDoors):
+                    self.ui.leftDoorsStatus.setPlainText("Open")  
+                    self.ui.leftDoorsStatus.setStyleSheet(u"background-color: rgb(124,252,0);")     
+                if(self.rightDoors):
+                    self.ui.rightDoorsStatus.setPlainText("Open")
+                    self.ui.rightDoorsStatus.setStyleSheet(u"background-color: rgb(124,252,0);")
+            if(not self.leftDoors):
+                self.ui.leftDoorsStatus.setPlainText("Closed")  
+                self.ui.leftDoorsStatus.setStyleSheet(u"background-color: rgb(255,255,255);")     
+            if(not self.rightDoors):
+                self.ui.rightDoorsStatus.setPlainText("Closed")
+                self.ui.rightDoorsStatus.setStyleSheet(u"background-color: rgb(255,255,255);")
+            
+
+    #checkVel: Used in Auto mode to see if doors can be opened
+    def checkVel(self):
+        if(self.actualSpeed==0):
+            self.waitTimer.stop()
+            self.upcomingStation=False
+            self.ui.stationUpcoming.setChecked(False)
+            self.openDoors()
+            
+
+    #openDoors: Used in Auto mode to open doors
+    def openDoors(self):
+            #opening the doors
+        if(self.leftDoorsOpen):
+            self.ui.leftDoorsStatus.setPlainText("Open")  
+            self.ui.leftDoorsStatus.setStyleSheet(u"background-color: rgb(124,252,0);")     
+        if(self.rightDoorsOpen):
+            self.ui.rightDoorsStatus.setPlainText("Open")
+            self.ui.rightDoorsStatus.setStyleSheet(u"background-color: rgb(124,252,0);")  
+            
+        self.waitForDisembark()
+
+    #waitForDisembark: Used in Auto mode to close doors
+    def waitForDisembark(self):
+            #waiting for passengers to disembark
+            self.waitTimer2 = QTimer()
+            self.waitTimer2.timeout.connect(self.closeDoors)
+            self.waitTimer2.start(4000)
+            #where you would send out a signal to close doors
+
+    #closeDoors: Used in Auto mode to close doors and keep going
+    def closeDoors(self):
+        self.waitTimer2.stop()
+        print("Done with disembarking.")
+        self.ui.rightDoorsStatus.setPlainText("Closed")
+        self.ui.leftDoorsStatus.setPlainText("Closed")
+        self.ui.leftDoorsStatus.setStyleSheet(u"background-color: rgb(255,255,255);")
+        self.ui.rightDoorsStatus.setStyleSheet(u"background-color: rgb(255,255,255);")
+        self.commandedSpeed = self.previousCommanded
+        self.alreadyWaiting = False
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
