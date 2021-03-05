@@ -7,6 +7,7 @@ class Mailbox:
     self.greeting = ""
     self.newMessage
     self.keptMessages
+    
     def __init__(self, aPasscode, aGreeting):
         self.passcode = aPasscode
         self.greeting = aGreeting
