@@ -35,14 +35,14 @@ class MainWindow(QMainWindow):
         self.ui.emergencyBrake.released.connect(self.onEmergencyBrakeOff)
         self.emergencyBrake = False
         #encoded Track Circuit stuff
-        self.actualSpeed = 0
-        self.actualSpeedLast = 0
-        self.actualSpeedSecond = 0
-        self.commandedSpeed = 0
-        self.authority = 0
+        self.actualSpeed = float(0)
+        self.actualSpeedLast = float(0)
+        self.actualSpeedSecond = float(0)
+        self.commandedSpeed = float(0)
+        self.authority = float(0)
         self.encodedTC = 0
         self.ui.updateTCFake.clicked.connect(self.onUpdateTCFake)
-        self.power = 0
+        self.power = float(0)
 
         #passenger brake fake stuff
         self.ui.causePassenger.clicked.connect(self.onPassengerBrakeActivated)
@@ -58,7 +58,7 @@ class MainWindow(QMainWindow):
         self.rightDoorsOpen = False
         self.exteriorLightsOn = False
         
-        self.station = "Undefined"
+        self.station = " "
         #setting up stations
         self.stationArray = ("Shadyside","Herron Ave","Swissville","Penn Station","Steel Plaza","First Ave","Station Square","South Hills Junction", 
                             "Pioneer","Edgebrook","Whited","South Bank","Central","Inglewood","Overbrook","Glenburry","Dormont","Mt Lebanon", "Poplar","Castle Shannon")
@@ -82,32 +82,42 @@ class MainWindow(QMainWindow):
         self.announcement=""
         self.ui.intercom.clicked.connect(self.onAnnouncement)
 
+        self.ui.temperature.valueChanged.connect(self.onTemperatureChange)
+        self.temperature = 70
+
         #auto mode loop
-        self.ui.trainStopped.clicked.connect(self.openDoors)
         self.alreadyWaiting=False
 
         #manual mode loop
         self.openedl = False
         self.openedr = False
 
+        #lights sending to test ui
+        
+        self.ui.interiorLights_2.setEnabled(False)
+        self.ui.exteriorLights_2.setEnabled(False)
+        self.ui.interiorLights.stateChanged.connect(self.onIntLightsChanged)
+        self.ui.exteriorLights.stateChanged.connect(self.onExtLightsChanged)
 
 
 
 
 
-
+    #increase: used to increase setpoint speed
     def increaseSetPoint(self):
         if(self.setPointSpeed+1 <= self.commandedSpeed):
             self.setPointSpeed = self.setPointSpeed + 1
             print(self.setPointSpeed)
         self.displayUpdate()
 
+    #decreaseSetPoint: used to decrease setpoint speed
     def decreaseSetPoint(self):
         if(self.setPointSpeed>0):
             self.setPointSpeed = self.setPointSpeed - 1
         print(self.setPointSpeed)
         self.displayUpdate()
 
+    #displayUpdate: used to update all display features
     def displayUpdate(self):
         self.ui.setPointSpeedVal.display(self.setPointSpeed)
         self.ui.commandedSpeedVal.display(self.commandedSpeed)
@@ -115,6 +125,21 @@ class MainWindow(QMainWindow):
         self.ui.actualSpeedVal.display(self.actualSpeed)
         self.ui.encodedTC.setPlainText(str(bin(self.encodedTC)))
         
+        if(self.serviceBrake):
+            self.ui.textBrowser_9.setPlainText("S Brake Active")
+            self.ui.textBrowser_11.setPlainText("S Brake Active")
+        else:
+            self.ui.textBrowser_9.setPlainText("S Brake Inactive")
+            self.ui.textBrowser_11.setPlainText("S Brake Inactive")
+
+        if(self.emergencyBrake):
+            self.ui.textBrowser_8.setPlainText("E Brake Active")
+            self.ui.textBrowser_10.setPlainText("E Brake Active")
+        else:
+            self.ui.textBrowser_8.setPlainText("E Brake Inactive")
+            self.ui.textBrowser_10.setPlainText("E Brake Inactive")
+
+
         #to be removed once fake inputs are stripped
         if(self.autoMode == True):
             self.ui.leftDoors.setChecked(self.leftDoorsOpen)
@@ -125,11 +150,12 @@ class MainWindow(QMainWindow):
             self.leftDoors = self.ui.leftDoors.isChecked()
             self.rightDoors = self.ui.rightDoors.isChecked()
             self.openDoorsManual()
-        
-        self.ui.exteriorLights.setChecked(self.exteriorLightsOn)
+        if(self.autoMode):
+            self.ui.exteriorLights.setChecked(self.exteriorLightsOn)
         self.ui.upcomingStation.setPlainText(str(self.station))
         self.ui.encodedBeacon.setPlainText(str(bin(self.encodedBeacon)))
         self.ui.power.display(self.power/1000)
+        self.ui.textBrowser_17.setPlainText(str(int(self.power)))
         if(self.upcomingStation):
             self.ui.upcomingStation.setStyleSheet(u"background-color: rgb(124,252,0);")
             #going through our arrival procedures
@@ -138,19 +164,22 @@ class MainWindow(QMainWindow):
         else:
             self.ui.upcomingStation.setStyleSheet(u"background-color: rgb(255,255,255);")
         
+    #onEmergencyBrake: used to enable emergency brake
     def onEmergencyBrake(self):
         print("Emergency Brake Activated")
-        self.commandedSpeed = 0
         self.setpointSpeed = 0
         self.power=0
         self.emergencyBrake = True
         self.displayUpdate()
 
+    #onEmergencyBrakeOff: used to disable emergency brake upon release
     def onEmergencyBrakeOff(self):
         print("Emergency Brake Released")
         self.emergencyBrake = False
+        self.displayUpdate()
 
 
+    #serviceBrakeActivated: used when service Brake activated
     def serviceBrakeActivated(self):
         self.serviceBrake = True
         print("Service Brake Activated")
@@ -158,11 +187,13 @@ class MainWindow(QMainWindow):
         self.power=0
         self.displayUpdate()
 
+    #serviceBrakeDeactivated: used when service brake released
     def serviceBrakeDeactivated(self):
         self.serviceBrake = False
         print("Service Brake Released")
-        self.displayUpdate
+        self.displayUpdate()
 
+    #onPassengerBrakeActivated: act upon passenger brake
     def onPassengerBrakeActivated(self):
         print("Passenger Brake Activated!")
         self.ui.textBrowser_16.setStyleSheet(u"background-color: rgb(255, 0, 0);")
@@ -170,13 +201,18 @@ class MainWindow(QMainWindow):
         self.setPointSpeed=0
         self.commandedSpeed=0
 
+
+    #onUpdateTCFake: used to act upon TC Values
     def onUpdateTCFake(self):
-        self.commandedSpeed = float(self.ui.inputCommanded.toPlainText())
-        self.authority = float(self.ui.inputAuthority.toPlainText())
+        self.commandedSpeed = (2.237 * float(self.ui.inputCommanded.toPlainText()))
+        self.authority = float (float(self.ui.inputAuthority.toPlainText()) * 3.28084 )
         
         print("Fake Commanded" + str(self.commandedSpeed))
         print("Fake Authority" + str(self.authority))
        
+        if(self.authority <= 0):
+            self.onAuthorityExpiration()
+
         #encoding the track circuit stuff
         cmdInt= int(float(self.commandedSpeed))
         cmdFloat= int(((float(self.commandedSpeed)-cmdInt)*10))
@@ -198,30 +234,35 @@ class MainWindow(QMainWindow):
         #updating the display
         self.displayUpdate()
 
+    #onUpdateActualFake: used for updating current speed
     def onUpdateActualFake(self):
         self.actualSpeedSecond = self.actualSpeedLast
         self.actualSpeedLast = self.actualSpeed
-        self.actualSpeed = float(self.ui.actualSpeed.toPlainText())
+        self.actualSpeed = (2.237 * float(self.ui.actualSpeed.toPlainText()))
 
         #checking to see if there is train engine failure
         self.detectEngineFailure()
         self.detectBrakeFailure()
         self.displayUpdate()
 
+    #onBrakeFailure: used to detect engine failures
     def detectEngineFailure(self):
         #defined by Train Model
         #stephen send a value as our current velocity symbolizing problem with engine
         if(self.actualSpeed==666):
             self.onEngineFailure()
     
+    #causeEngineFailure: used to cause engine failures
     def causeEngineFailure(self):
         self.actualSpeed=666
         self.detectEngineFailure()
 
+    #onEngineFailure: used to act upon engine failures
     def onEngineFailure(self):
         self.ui.textBrowser_13.setStyleSheet(u"background-color: rgb(255, 0, 0);")
         self.emergencyBrake = true
 
+    #detectBrakeFailure: used to detect brake failures
     def detectBrakeFailure(self):
         # a brake failure is actually when the brakes are stuck on, so if we're slowing down, no brakes are applied and power is not 0 
         #print("Brake Failure Detection Occuring")
@@ -229,6 +270,7 @@ class MainWindow(QMainWindow):
         if(not self.serviceBrake and (self.actualSpeedSecond > self.actualSpeedLast and self.actualSpeedLast > self.actualSpeed) and not self.power == 0):
            self.onBrakeFailure()
 
+    #causeBrakeFailure: used to simulate brake failures
     def causeBrakeFailure(self):
         self.actualSpeedSecond=17
         self.actualSpeedLast=16
@@ -237,12 +279,13 @@ class MainWindow(QMainWindow):
         self.detectBrakeFailure()
 
 
+    #onBrakeFailure: used to act on brake failures
     def onBrakeFailure(self):
         self.ui.textBrowser_14.setStyleSheet(u"background-color: rgb(255, 0, 0);") 
         self.emergencyBrake = True
     
 
-
+    #onUpdateBeaconFake: Used to update beacon values
     def onUpdateBeaconFake(self):
         beaconNum= self.ui.stationNameFake.currentIndex()
         #encoding my beacon
@@ -256,6 +299,7 @@ class MainWindow(QMainWindow):
         self.displayUpdate()
         self.decodeBeacon()
 
+    #decodeBeacon: Used to decode beacon
     def decodeBeacon(self):
         self.upcomingStation = (self.encodedBeacon & 1)
         self.leftDoorsOpen = (self.encodedBeacon >> 1)&1
@@ -263,9 +307,11 @@ class MainWindow(QMainWindow):
         self.exteriorLightsOn = (self.encodedBeacon >> 3)&1
         self.station = self.stationArray[((self.encodedBeacon >> 4) & 31)]
         self.buildAnnouncement()
-        self.onAnnouncement()
+        if(self.autoMode):
+            self.onAnnouncement()
         self.displayUpdate()
 
+    #buildAnnouncement: Used to build announcement
     def buildAnnouncement(self):
         if(self.upcomingStation):
             self.announcement = str("Arriving at " + self.station + " Station. The doors will open on the ")
@@ -278,12 +324,13 @@ class MainWindow(QMainWindow):
         else:
             self.announcement = ""
 
+    #onUpdateKpKi: Used to update Kp/Ki Values
     def onUpdateKpKi(self):
         self.pid.Ki = float(self.ui.kiInput.toPlainText())
         self.pid.Kp = float(self.ui.kpInput.toPlainText())
         print("Kp Ki values updated" + str(self.pid.Ki) + str(self.pid.Kp))
 
-
+    #checkSignalPickup: Used to detect and act on signal pickup failures
     def checkSignalPickup(self, tempCmdInt, tempCmdFloat, tempAuthInt, tempAuthFloat, tempCheckSum):
         if(tempCheckSum != tempCmdInt+ tempCmdFloat + tempAuthInt + tempAuthFloat):
             print("Signal Pickup Failure")
@@ -292,7 +339,7 @@ class MainWindow(QMainWindow):
         else:
             self.ui.textBrowser_15.setStyleSheet(u"background-color: rgb(255, 255, 255);")
 
-
+    #decodeTC: Used to decode track circuit
     def decodeTC(self):
         tempCmdInt = self.encodedTC & 255
         tempCmdFloat = (self.encodedTC >> 8) & 15
@@ -300,17 +347,20 @@ class MainWindow(QMainWindow):
         tempAuthFloat= (self.encodedTC >> 20) & 15
         tempCheckSum = (self.encodedTC >> 24) & 1023
         self.checkSignalPickup(tempCmdInt, tempCmdFloat, tempAuthInt, tempAuthFloat, tempCheckSum)
-        if((tempAuthInt == 0 and tempAuthFloat == 0)):
-            self.onAuthorityExpiration()
+        #if((tempAuthInt == 0 and tempAuthFloat == 0)):
+            #self.onAuthorityExpiration()
 
+    #onAuthorityExpiration: Used as emergency procedure if authority has expired
     def onAuthorityExpiration(self):
         print("Authority Expired")
         self.setPointSpeed = 0
-        self.commandedSPeed = 0
-        self.emergencyBrake = True 
+        self.commandedSpeed = 0
+        self.emergencyBrake = True
+        self.ui.textBrowser_5.setStyleSheet(u"background-color: rgb(255,0,0);")   
 
+    #pidLoop: used to calculate power
     def pidLoop(self):
-        print("INPID")
+        #print("INPID")
         print("auto mode = " + str(self.autoMode))
         print("self.upComingStation = " + str(self.upcomingStation))
         print("service brake" + str(self.serviceBrake))
@@ -319,7 +369,7 @@ class MainWindow(QMainWindow):
             print("PID Auto")
             self.pid.setpoint = self.commandedSpeed
             self.power = self.pid(self.actualSpeed, dt = 1)
-        elif(not self.serviceBrake and not self.emergencyBrake):
+        elif(not(self.setPointSpeed == 0) and not self.serviceBrake and not self.emergencyBrake and not self.ui.leftDoors.isChecked() and not self.ui.rightDoors.isChecked()):
             print("PID Manual")
             self.pid.setpoint = self.setPointSpeed
             self.power = self.pid(self.actualSpeed, dt = 1)
@@ -330,9 +380,12 @@ class MainWindow(QMainWindow):
         self.displayUpdate()
         # print(self.power)
 
+    #onAnnouncement: Used to display announcement
     def onAnnouncement(self):
         self.ui.announcementDisplay.setPlainText(str(self.announcement))
+        self.ui.intercomFake.setPlainText(str(self.announcement))
 
+    #onAutoManual: Used to differentiate between operation modes
     def onAutoManual(self):
         if(self.ui.automaticMode.isChecked()):
             self.autoMode = True
@@ -382,19 +435,9 @@ class MainWindow(QMainWindow):
             if(not self.leftDoors):
                 self.ui.leftDoorsStatus.setPlainText("Closed")  
                 self.ui.leftDoorsStatus.setStyleSheet(u"background-color: rgb(255,255,255);")    
-#                if(self.openedl or self.openedr):
-#                    self.ui.stationUpcoming.setChecked(False)
-#                    self.upcomingStation = False
-#                    self.openedr=False
-#                    self.openedl=False
             if(not self.rightDoors):
                 self.ui.rightDoorsStatus.setPlainText("Closed")
                 self.ui.rightDoorsStatus.setStyleSheet(u"background-color: rgb(255,255,255);")
-#                if(self.openedl or self.openedr):
-#                    self.ui.stationUpcoming.setChecked(False)
-#                    self.upcomingStation = False
-#                    self.openedr=False
-#                    self.openedl=False
             
 
     #checkVel: Used in Auto mode to see if doors can be opened
@@ -436,10 +479,27 @@ class MainWindow(QMainWindow):
         self.ui.leftDoorsStatus.setPlainText("Closed")
         self.ui.leftDoorsStatus.setStyleSheet(u"background-color: rgb(255,255,255);")
         self.ui.rightDoorsStatus.setStyleSheet(u"background-color: rgb(255,255,255);")
+        self.leftDoorsOpen = False
+        self.rightDoorsOpen = False
         self.commandedSpeed = self.previousCommanded
         self.alreadyWaiting = False
         self.serviceBrake = False
         print("upcomingStation flag is" + str(self.upcomingStation))
+
+
+    def onTemperatureChange(self):
+        self.temperature = int(self.ui.temperature.value())
+        print("Temp is " + str(self.temperature))
+        self.ui.textBrowser_12.setPlainText(str(self.temperature))
+        self.displayUpdate()
+
+    def onExtLightsChanged(self):
+        self.ui.exteriorLights_2.setChecked(self.ui.exteriorLights.checkState())
+        self.displayUpdate()
+
+    def onIntLightsChanged(self):
+        self.ui.interiorLights_2.setChecked(self.ui.interiorLights.checkState())
+        self.displayUpdate()
 
 
 if __name__ == "__main__":
