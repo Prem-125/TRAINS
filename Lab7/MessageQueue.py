@@ -15,11 +15,11 @@ class MessageQueue:
 		#return the arrayList length
 		return len(self.queue)
 		
-	def peak(self)
+	def peak(self):
 		#return the last element of the arraylist
 		return self.queue[-1]
 	
-	def add(self, messageIn)
+	def add(self, messageIn):
 		#add a new message to the list
 		self.queue.append(messageIn)
 	
