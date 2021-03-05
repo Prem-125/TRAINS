@@ -60,7 +60,7 @@ class MainWindow(QMainWindow):
 				status = raw.decode('ascii').strip('\r\n')
 				print(status)
 				self.power = float(status)
-				self.ui.PowerVal.setPlainText(str(self.power/1000.0)+ " kW")
+				self.ui.PowerVal.setPlainText(str(round(self.power/1000.0 , 2))+ " kW")
 			elif(status ==3):
 				raw = self.arduino.readline()
 				status = raw.decode('ascii').strip('\r\n')

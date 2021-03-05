@@ -262,7 +262,7 @@
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>340</x>
+     <x>330</x>
      <y>110</y>
      <width>81</width>
      <height>20</height>
@@ -274,15 +274,15 @@
     </font>
    </property>
    <property name="text">
-    <string>Left Door:</string>
+    <string>Left Doors:</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>330</x>
+     <x>320</x>
      <y>150</y>
-     <width>81</width>
+     <width>91</width>
      <height>20</height>
     </rect>
    </property>
@@ -292,7 +292,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Right Door:</string>
+    <string>Right Doors:</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_5">
@@ -634,7 +634,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Exterioir Lights On</string>
+    <string>Lights On</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_14">
@@ -929,7 +929,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Km/h</string>
+    <string>m / s</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_19">
@@ -947,7 +947,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Km/h</string>
+    <string>m / s</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_20">
@@ -965,7 +965,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Blocks</string>
+    <string>Meters</string>
    </property>
   </widget>
  </widget>
