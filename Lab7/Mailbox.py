@@ -7,10 +7,6 @@ class Mailbox:
     self.greeting = ""
     self.newMessage
     self.keptMessages
-    #newMessages MessageQueue
-    #keptMessages MessageQueue
-    #greeting string
-    #passcodenewMessages
     def __init__(self, aPasscode, aGreeting):
         self.passcode = aPasscode
         self.greeting = aGreeting
