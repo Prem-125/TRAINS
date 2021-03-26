@@ -8,34 +8,36 @@ import csv
 import ast
 
 
+#i currently need to change the function to that of which will match the coding standards
+
 #switch class
 class Switch:
 	def _init_(self):	
-		self.currentSwitchPos=currentSwitchPos
-		self.yStem = yStem
-		self.yZero = yZero
-		self.yOne = yOne
+		self.current_switch_pos=current_switch_pos
+		self.y_stem = y_stem
+		self.y_zero = y_zero
+		self.y_one = y_one
 	
 	#declare set/get functions
-	def getSwitchPosition(self):
-		return self.currentSwitchPos
-	def setSwitchPosition(self,pos):
-		self.currentSwitchPos=pos
+	def get_switch_position(self):
+		return self.current_switch_pos
+	def set_switch_position(self,pos):
+		self.current_switch_pos=pos
 
-	def getYstem(self):
-		return self.yStem
-	def setYstem(self, newYstem):
-		self.yStem=newYstem
+	def get_y_stem(self):
+		return self.y_stem
+	def set_y_stem(self, newy_stem):
+		self.y_stem=newy_stem
 
-	def getYzero(self):
-		return self.yZero
-	def setYzero(self, newYzero):
-		self.yZero=newYzero
+	def set_y_zero(self):
+		return self.y_zero
+	def set_y_zero(self, newy_Zero):
+		self.y_zero=newy_Zero
 
-	def getYone(self):
-		return self.yOne
-	def setYone(self, newYone):
-		self.yOne=newYone
+	def set_y_one(self):
+		return self.y_one
+	def set_y_one(self, newy_One):
+		self.y_one=newy_One
 
 #track class
 class Track:
@@ -273,13 +275,13 @@ class Track:
 					Track.switchNum+=1
 					#print("stem is ", self.getBlock())
 					Track.switchList.append(Switch())
-					Track.switchList[Track.switchNum].setYstem(self.getBlock())
-					yZeroIn = int(atrib[3])
-					yOneIn = int(atrib[8])
-					Track.switchList[Track.switchNum].setSwitchPosition(False)
-					Track.switchList[Track.switchNum].setYzero(yZeroIn)
-					Track.switchList[Track.switchNum].setYone(yOneIn)
-					#print("zero is ", Track.switchList[Track.switchNum].getYzero(), " and one is ", Track.switchList[Track.switchNum].getYone(), "and switch position is", Track.switchList[Track.switchNum].getSwitchPosition())
+					Track.switchList[Track.switchNum].set_y_stem(self.getBlock())
+					y_ZeroIn = int(atrib[3])
+					y_OneIn = int(atrib[8])
+					Track.switchList[Track.switchNum].set_switch_position(False)
+					Track.switchList[Track.switchNum].set_y_zero(y_ZeroIn)
+					Track.switchList[Track.switchNum].set_y_one(y_OneIn)
+					#print("zero is ", Track.switchList[Track.switchNum].set_y_zero(), " and one is ", Track.switchList[Track.switchNum].set_y_one(), "and switch position is", Track.switchList[Track.switchNum].get_switch_position())
 					self.setIsSwitchLeg(False)
 					
 				else: 
@@ -503,8 +505,8 @@ class MainWindow(QMainWindow):
 	
 	def swapSwitch(self): #change this to be inside the swtich class
 		if(self.trackList[self.currentBlock].getIsSwitch() == True):
-			temp = not self.trackList[self.currentBlock].switchList[Track.switchNum].getSwitchPosition()
-			self.trackList[self.currentBlock].switchList[Track.switchNum].setSwitchPosition(temp)
+			temp = not self.trackList[self.currentBlock].switchList[Track.switchNum].get_switch_position()
+			self.trackList[self.currentBlock].switchList[Track.switchNum].set_switch_position(temp)
 			self.updateTrackInfo(self.currentBlock)
 	
 	def updateTrackInfo(self,blckNum):
@@ -529,16 +531,16 @@ class MainWindow(QMainWindow):
 								
 			else:
 				#print('d')
-				if self.trackList[i].switchList[Track.switchNum].getSwitchPosition() == False:
+				if self.trackList[i].switchList[Track.switchNum].get_switch_position() == False:
 					#print('h')
-					self.trackList[i].setConnectionTrackA(self.trackList[Track.switchList[1].getYstem()])
-					self.trackList[i].setConnectionTrackB(self.trackList[Track.switchList[1].getYzero()])
-					self.trackList[Track.switchList[1].getYone()].setConnectionTrackA(None)
+					self.trackList[i].setConnectionTrackA(self.trackList[Track.switchList[1].get_y_stem()])
+					self.trackList[i].setConnectionTrackB(self.trackList[Track.switchList[1].set_y_zero()])
+					self.trackList[Track.switchList[1].set_y_one()].setConnectionTrackA(None)
 				
-				if self.trackList[i].switchList[Track.switchNum].getSwitchPosition() == True:
-					self.trackList[i].setConnectionTrackA(self.trackList[Track.switchList[1].getYstem()])
-					self.trackList[i].setConnectionTrackB(self.trackList[Track.switchList[1].getYone()])
-					self.trackList[Track.switchList[1].getYzero()].setConnectionTrackA(None)				
+				if self.trackList[i].switchList[Track.switchNum].get_switch_position() == True:
+					self.trackList[i].setConnectionTrackA(self.trackList[Track.switchList[1].get_y_stem()])
+					self.trackList[i].setConnectionTrackB(self.trackList[Track.switchList[1].set_y_one()])
+					self.trackList[Track.switchList[1].set_y_zero()].setConnectionTrackA(None)				
 				
 				
 			
