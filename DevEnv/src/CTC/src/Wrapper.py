@@ -4,7 +4,7 @@ import TransitSystem
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
-from UI import Ui_MainWindow
+from UI import Ui_CTCOffice
 
 
 #Initialize track layout
@@ -13,6 +13,9 @@ BlueLine = TransitSystem.Trackline("Blue", "BlueLineLayout.xls", 0)
 #Declare Schedule
 DemoSchedule = TransitSystem.Schedule()
 
+#Seconds global variable
+gblSeconds = 0
+
 #Define MainWindow class
 class MainWindow(QMainWindow): #Subclass of QMainWindow
 
@@ -20,7 +23,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
     def __init__(self):
         #Call parent constructor
         super(MainWindow, self).__init__()
-        self.ui = Ui_MainWindow()
+        self.ui = Ui_CTCOffice()
         self.ui.setupUi(self)
 
         #Define user interactivity
@@ -34,6 +37,15 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         self.ui.pushButton_8.clicked.connect(self.BlockReopen)
         self.ui.pushButton_9.clicked.connect(self.SwitchFlip)
         self.ui.pushButton_10.clicked.connect(self.BlockInfo)
+        self.ui.pushButton_13.clicked.connect(self.TrainInterface)
+        self.ui.comboBox_10.currentTextChanged.connect(self.BlockInterfaceButtons)
+        self.ui.pushButton_21.clicked.connect(self.BlockInterfaceDecide1)
+        self.ui.pushButton_22.clicked.connect(self.BlockInterfaceDecide2)
+        self.ui.pushButton_23.clicked.connect(self.SwitchInterface)
+        self.ui.pushButton_19.clicked.connect(self.ComputeThroughput)
+        self.utimer = QTimer()
+        self.utimer.timeout.connect(self.timerCallback)
+        self.utimer.start(1000)
 
     #Methods to navigate central stacked widget
     def setStackIndex0(self):
@@ -71,6 +83,9 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
         #Add train to schedule
         DemoSchedule.addTrain(trainDestination, trainArrivalTime, BlueLine)
+
+        #Add train to track controller interface
+        self.ui.comboBox_14.addItem(str(DemoSchedule.trainList[len(DemoSchedule.trainList)-1].getNumber()))
 
         #Populate transit schedule table
         numRows = self.ui.tableWidget.rowCount()
@@ -155,10 +170,47 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
         self.ui.comboBox_5.addItem(blockNumber)
 
+    def BlockClosureInterface(self, blockNumber):
+        trackLine = self.ui.comboBox_2.currentText()
+
+        BlueLine.CloseBlock(int(blockNumber))
+
+        numRows = self.ui.tableWidget_3.rowCount()
+        self.ui.tableWidget_3.insertRow(numRows)
+        self.ui.tableWidget_3.setItem(numRows, 0, QTableWidgetItem(trackLine))
+        self.ui.tableWidget_3.setItem(numRows, 1, QTableWidgetItem(blockNumber))
+        self.ui.tableWidget_3.sortItems(1)
+
+        for i in range(0, self.ui.comboBox_3.count()):
+            if (self.ui.comboBox_3.itemText(i) == blockNumber):
+                self.ui.comboBox_3.removeItem(i)
+                break
+
+        self.ui.comboBox_5.addItem(blockNumber)
+
     #Method to reopen blocks
     def BlockReopen(self):
         trackLine = self.ui.comboBox_4.currentText()
         blockNumber = self.ui.comboBox_5.currentText()
+
+        BlueLine.OpenBlock(int(blockNumber))
+
+        for i in range(0, self.ui.tableWidget_3.rowCount()):
+            #print("\n\nCell contents: " + self.ui.tableWidget_3.item(i,1).text())
+            if(self.ui.tableWidget_3.item(i, 1).text() == blockNumber):
+                self.ui.tableWidget_3.removeRow(i)
+                break
+
+        for j in range(0, self.ui.comboBox_5.count()):
+            if (self.ui.comboBox_5.itemText(j) == blockNumber):
+                self.ui.comboBox_5.removeItem(j)
+                break
+
+        self.ui.comboBox_3.addItem(blockNumber)
+
+    #Method to reopen blocks
+    def BlockReopenInterface(self, blockNumber):
+        trackLine = self.ui.comboBox_4.currentText()
 
         BlueLine.OpenBlock(int(blockNumber))
 
@@ -183,8 +235,8 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
         if(BlueLine.blockList[4].getStatus() == 0 or ((BlueLine.blockList[5].getStatus() == 0 and BlueLine.blockList[10].getStatus() == 0))):
             BlueLine.ToggleSwitchPosition(5)
-            print(str(BlueLine.switchList[0].getCurrPosition()))
             self.ui.label_30.setText("Block 5 to Block " + str(BlueLine.switchList[0].getCurrPosition()))
+
         #else:
             #ERROR WINDOW
 
@@ -198,8 +250,6 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
             self.ui.label_55.setText("---")
             self.ui.label_68.setStyleSheet("border: 1px solid black; background-color: rgb(238, 246, 255);")
             self.ui.label_68.setText("")
-
-        return
 
 
     #Method for block info
@@ -216,6 +266,137 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         self.ui.label_25.setText("Cumulative Elevation: " + str(blockObj.getCumElevation()*3.28) + " ft")
         self.ui.label_26.setText("Occupancy: " + str(blockObj.getOccupancy()) )
         self.ui.label_27.setText("Status: " + str(blockObj.getStatus()) )
+
+
+    #Method for train interface
+    def TrainInterface(self):
+        trainNumber = self.ui.comboBox_14.currentText()
+
+        trainDestination = DemoSchedule.trainList[int(trainNumber)-1].getDestination()
+
+        if(trainDestination == "Station B"):
+            self.Authority = 10
+        else:
+            self.Authority = 15
+
+        trainAuthority = BlueLine.stationList[int(trainNumber)].getAssocBlockNum()
+        self.ui.label_85.setText("Authority: Block " + str(trainAuthority) )
+        self.ui.label_83.setText("Suggested Speed: " + str(50) + "kph")
+
+    #Method for block interface
+    def BlockInterfaceButtons(self, inputText):
+        blockObj = BlueLine.getBlock(int(inputText))
+
+        #Initialize button functionality
+        if(blockObj.getOccupancy() == 0):
+            self.ui.pushButton_21.setText("Set Occupied")
+        else:
+            self.ui.pushButton_21.setText("Set Unoccupied")
+
+        if(blockObj.getStatus() == 1):
+            self.ui.pushButton_22.setText("Close Block")
+        else:
+            self.ui.pushButton_22.setText("Open Block")
+
+
+    def BlockInterfaceDecide1(self):
+        if(self.ui.pushButton_21.text() == "Set Occupied"):
+            BlueLine.getBlock(int(self.ui.comboBox_10.currentText())).setOccupancy(1)
+            self.ui.pushButton_21.setText("Set Unoccupied")
+             #self.ui.label_37.setStyleSheet("background-color: rgb(55, 115, 255);")
+        else:
+            BlueLine.getBlock(int(self.ui.comboBox_10.currentText())).setOccupancy(0)
+            self.ui.pushButton_21.setText("Set Occupied")
+
+
+    def BlockInterfaceDecide2(self):
+        blockNumber = self.ui.comboBox_10.currentText()
+
+        if(self.ui.pushButton_22.text() == "Close Block"):
+            BlueLine.CloseBlock(int(blockNumber))
+            self.BlockClosureInterface(blockNumber)
+            self.ui.pushButton_22.setText("Open Block")
+            #self.ui.label_37.setStyleSheet("background-color: rgb(55, 115, 255);")
+        else:
+            BlueLine.OpenBlock(int(blockNumber))
+            self.BlockReopenInterface(blockNumber)
+            self.ui.pushButton_22.setText("Close Block")
+
+            #self.ui.label_37.setStyleSheet("background-color: rgb(255, 142, 142);")
+
+
+    #Method for switch interface
+    def SwitchInterface(self):
+        BlueLine.ToggleSwitchPosition(5)
+        self.ui.label_30.setText("Block 5 to Block " + str(BlueLine.switchList[0].getCurrPosition()))
+
+        if(self.ui.pushButton_23.text() == "Block 5 to Block 6"):
+            self.ui.pushButton_23.setText("Block 5 to Block 11")
+            self.ui.label_54.setStyleSheet("border: 2px solid black; font-weight: bold; background-color: rgb(238, 246, 255);")
+            self.ui.label_54.setText("---")
+            self.ui.label_53.setStyleSheet("border: 1px solid black; background-color: rgb(238, 246, 255);")
+            self.ui.label_53.setText("")
+            self.ui.label_55.setStyleSheet("border: 2px solid black; font-weight: bold; background-color: rgb(238, 246, 255);")
+            self.ui.label_55.setText("---")
+            self.ui.label_68.setStyleSheet("border: 1px solid black; background-color: rgb(238, 246, 255);")
+            self.ui.label_68.setText("")
+        else:
+            self.ui.pushButton_23.setText("Block 5 to Block 6")
+            self.ui.label_53.setStyleSheet("border: 2px solid black; font-weight: bold; background-color: rgb(238, 246, 255);")
+            self.ui.label_53.setText("---")
+            self.ui.label_54.setStyleSheet("border: 1px solid black; background-color: rgb(238, 246, 255);")
+            self.ui.label_54.setText("")
+            self.ui.label_68.setStyleSheet("border: 2px solid black; font-weight: bold; background-color: rgb(238, 246, 255);")
+            self.ui.label_68.setText("---")
+            self.ui.label_55.setStyleSheet("border: 1px solid black; background-color: rgb(238, 246, 255);")
+            self.ui.label_55.setText("")
+
+    def ComputeThroughput(self):
+        global gblSeconds
+
+        if(self.ui.lineEdit_2.text() == ''):
+            BlueLine.stationList[0].setTicketSales = 0
+        else:
+            BlueLine.stationList[0].setTicketSales = int(self.ui.lineEdit_2.text())
+
+        if(self.ui.lineEdit_3.text() == ''):
+            BlueLine.stationList[1].setTicketSales = 0
+        else:
+            BlueLine.stationList[1].setTicketSales = int(self.ui.lineEdit_3.text())
+
+        LineThroughput = (BlueLine.stationList[0].setTicketSales + BlueLine.stationList[1].setTicketSales) / (gblSeconds/3600)
+
+        self.ui.label_7.setText(str(round(LineThroughput,2)))
+
+    def timerCallback(self):
+        global gblSeconds
+
+        print("\n" + str(gblSeconds))
+        gblSeconds += 1
+        
+        if(gblSeconds % 10 == 0):
+            self.ComputeThroughput()
+
+        #Convert python time to excel time
+        hour = int(gblSeconds / 3600)
+        minute = int( (gblSeconds - 3600*hour)/60 )
+        seconds = int(gblSeconds - 3600*hour - 60*minute)
+        exlTime = str(hour).zfill(2) + ':' + str(minute).zfill(2) + ':' + str(seconds).zfill(2)
+
+        self.ui.label_74.setText("Time: " + exlTime)
+
+        
+
+        for trainObj in DemoSchedule.trainList:
+            print("Departure Time: " + str(trainObj.getDepartureTime()))
+            if(gblSeconds == trainObj.getDepartureTime()):
+                self.ui.tableWidget_2.setItem(trainObj.getNumber(), 3, QTableWidgetItem("Dispatched"))
+
+        self.utimer.start(1000)
+
+
+
+
 
         
 

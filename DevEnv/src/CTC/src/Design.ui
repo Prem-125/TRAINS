@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
+ <class>CTCOffice</class>
+ <widget class="QMainWindow" name="CTCOffice">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>1253</width>
-    <height>988</height>
+    <height>1028</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>CTC Office GUI</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>20</y>
+      <y>50</y>
       <width>291</width>
       <height>41</height>
      </rect>
@@ -45,7 +45,7 @@ background-color: rgb(30, 106, 220);</string>
     <property name="geometry">
      <rect>
       <x>320</x>
-      <y>20</y>
+      <y>50</y>
       <width>301</width>
       <height>41</height>
      </rect>
@@ -72,7 +72,7 @@ background-color: rgb(30, 106, 220);</string>
     <property name="geometry">
      <rect>
       <x>630</x>
-      <y>20</y>
+      <y>50</y>
       <width>301</width>
       <height>41</height>
      </rect>
@@ -99,7 +99,7 @@ background-color: rgb(30, 106, 220);</string>
     <property name="geometry">
      <rect>
       <x>940</x>
-      <y>20</y>
+      <y>50</y>
       <width>291</width>
       <height>41</height>
      </rect>
@@ -119,20 +119,20 @@ background-color: rgb(30, 106, 220);</string>
 background-color: rgb(30, 106, 220);</string>
     </property>
     <property name="text">
-     <string>Ariel Transit View</string>
+     <string>Test Environment</string>
     </property>
    </widget>
    <widget class="QStackedWidget" name="stackedWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>70</y>
+      <y>100</y>
       <width>1231</width>
       <height>861</height>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="page">
      <widget class="QLabel" name="label_13">
@@ -2388,9 +2388,9 @@ background-color: rgb(30, 106, 220);</string>
      <widget class="QFrame" name="frame_2">
       <property name="geometry">
        <rect>
-        <x>20</x>
+        <x>590</x>
         <y>20</y>
-        <width>1191</width>
+        <width>621</width>
         <height>821</height>
        </rect>
       </property>
@@ -2409,7 +2409,7 @@ background-color: rgb(30, 106, 220);</string>
       <widget class="QLabel" name="label_32">
        <property name="geometry">
         <rect>
-         <x>320</x>
+         <x>30</x>
          <y>360</y>
          <width>71</width>
          <height>41</height>
@@ -2439,7 +2439,7 @@ background-color: rgb(30, 106, 220);</string>
       <widget class="QLabel" name="label_37">
        <property name="geometry">
         <rect>
-         <x>390</x>
+         <x>100</x>
          <y>370</y>
          <width>41</width>
          <height>21</height>
@@ -2469,7 +2469,7 @@ background-color: rgb(30, 106, 220);</string>
       <widget class="QLabel" name="label_38">
        <property name="geometry">
         <rect>
-         <x>430</x>
+         <x>140</x>
          <y>370</y>
          <width>41</width>
          <height>21</height>
@@ -2499,7 +2499,7 @@ background-color: rgb(30, 106, 220);</string>
       <widget class="QLabel" name="label_39">
        <property name="geometry">
         <rect>
-         <x>470</x>
+         <x>180</x>
          <y>370</y>
          <width>41</width>
          <height>21</height>
@@ -2529,7 +2529,7 @@ background-color: rgb(30, 106, 220);</string>
       <widget class="QLabel" name="label_40">
        <property name="geometry">
         <rect>
-         <x>510</x>
+         <x>220</x>
          <y>370</y>
          <width>41</width>
          <height>21</height>
@@ -2559,7 +2559,7 @@ background-color: rgb(30, 106, 220);</string>
       <widget class="QLabel" name="label_41">
        <property name="geometry">
         <rect>
-         <x>550</x>
+         <x>260</x>
          <y>370</y>
          <width>41</width>
          <height>21</height>
@@ -2589,7 +2589,7 @@ background-color: rgb(30, 106, 220);</string>
       <widget class="QLabel" name="label_42">
        <property name="geometry">
         <rect>
-         <x>610</x>
+         <x>320</x>
          <y>350</y>
          <width>41</width>
          <height>21</height>
@@ -2619,7 +2619,7 @@ background-color: rgb(30, 106, 220);</string>
       <widget class="QLabel" name="label_43">
        <property name="geometry">
         <rect>
-         <x>640</x>
+         <x>350</x>
          <y>330</y>
          <width>41</width>
          <height>21</height>
@@ -2649,7 +2649,7 @@ background-color: rgb(30, 106, 220);</string>
       <widget class="QLabel" name="label_44">
        <property name="geometry">
         <rect>
-         <x>670</x>
+         <x>380</x>
          <y>310</y>
          <width>41</width>
          <height>21</height>
@@ -2679,7 +2679,7 @@ background-color: rgb(30, 106, 220);</string>
       <widget class="QLabel" name="label_45">
        <property name="geometry">
         <rect>
-         <x>700</x>
+         <x>410</x>
          <y>290</y>
          <width>41</width>
          <height>21</height>
@@ -2709,7 +2709,7 @@ background-color: rgb(30, 106, 220);</string>
       <widget class="QLabel" name="label_47">
        <property name="geometry">
         <rect>
-         <x>730</x>
+         <x>440</x>
          <y>270</y>
          <width>41</width>
          <height>21</height>
@@ -2739,7 +2739,7 @@ background-color: rgb(30, 106, 220);</string>
       <widget class="QLabel" name="label_48">
        <property name="geometry">
         <rect>
-         <x>610</x>
+         <x>320</x>
          <y>390</y>
          <width>41</width>
          <height>21</height>
@@ -2769,7 +2769,7 @@ background-color: rgb(30, 106, 220);</string>
       <widget class="QLabel" name="label_49">
        <property name="geometry">
         <rect>
-         <x>640</x>
+         <x>350</x>
          <y>410</y>
          <width>41</width>
          <height>21</height>
@@ -2799,7 +2799,7 @@ background-color: rgb(30, 106, 220);</string>
       <widget class="QLabel" name="label_50">
        <property name="geometry">
         <rect>
-         <x>670</x>
+         <x>380</x>
          <y>430</y>
          <width>41</width>
          <height>21</height>
@@ -2829,7 +2829,7 @@ background-color: rgb(30, 106, 220);</string>
       <widget class="QLabel" name="label_51">
        <property name="geometry">
         <rect>
-         <x>700</x>
+         <x>410</x>
          <y>450</y>
          <width>41</width>
          <height>21</height>
@@ -2859,7 +2859,7 @@ background-color: rgb(30, 106, 220);</string>
       <widget class="QLabel" name="label_52">
        <property name="geometry">
         <rect>
-         <x>730</x>
+         <x>440</x>
          <y>470</y>
          <width>41</width>
          <height>21</height>
@@ -2889,7 +2889,7 @@ background-color: rgb(30, 106, 220);</string>
       <widget class="QLabel" name="label_53">
        <property name="geometry">
         <rect>
-         <x>590</x>
+         <x>300</x>
          <y>360</y>
          <width>21</width>
          <height>21</height>
@@ -2909,10 +2909,10 @@ background-color: rgb(30, 106, 220);</string>
         <enum>QFrame::Box</enum>
        </property>
        <property name="lineWidth">
-        <number>1</number>
+        <number>2</number>
        </property>
        <property name="text">
-        <string/>
+        <string>---</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -2921,7 +2921,7 @@ background-color: rgb(30, 106, 220);</string>
       <widget class="QLabel" name="label_54">
        <property name="geometry">
         <rect>
-         <x>590</x>
+         <x>300</x>
          <y>380</y>
          <width>21</width>
          <height>21</height>
@@ -2951,7 +2951,7 @@ background-color: rgb(30, 106, 220);</string>
       <widget class="QLabel" name="label_33">
        <property name="geometry">
         <rect>
-         <x>770</x>
+         <x>480</x>
          <y>260</y>
          <width>101</width>
          <height>31</height>
@@ -2978,7 +2978,7 @@ background-color: rgb(30, 106, 220);</string>
       <widget class="QLabel" name="label_34">
        <property name="geometry">
         <rect>
-         <x>770</x>
+         <x>480</x>
          <y>470</y>
          <width>101</width>
          <height>31</height>
@@ -3003,13 +3003,639 @@ background-color: rgb(30, 106, 220);</string>
        </property>
       </widget>
      </widget>
+     <widget class="QLabel" name="label_94">
+      <property name="geometry">
+       <rect>
+        <x>40</x>
+        <y>640</y>
+        <width>191</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Station A Ticket Count: </string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_2">
+      <property name="geometry">
+       <rect>
+        <x>220</x>
+        <y>650</y>
+        <width>131</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QGroupBox" name="groupBox_5">
+      <property name="geometry">
+       <rect>
+        <x>40</x>
+        <y>190</y>
+        <width>501</width>
+        <height>131</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="title">
+       <string>Train Signaling</string>
+      </property>
+      <widget class="QLabel" name="label_82">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>30</y>
+         <width>81</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Train ID:</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="comboBox_14">
+       <property name="geometry">
+        <rect>
+         <x>100</x>
+         <y>40</y>
+         <width>151</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="insertPolicy">
+        <enum>QComboBox::InsertAtBottom</enum>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_13">
+       <property name="geometry">
+        <rect>
+         <x>270</x>
+         <y>40</y>
+         <width>211</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 246, 219);</string>
+       </property>
+       <property name="text">
+        <string>View Train Information</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_83">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>80</y>
+         <width>121</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Suggest Speed:</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_85">
+       <property name="geometry">
+        <rect>
+         <x>270</x>
+         <y>80</y>
+         <width>121</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Authority:</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QPushButton" name="pushButton_20">
+      <property name="geometry">
+       <rect>
+        <x>360</x>
+        <y>610</y>
+        <width>161</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255, 246, 219);</string>
+      </property>
+      <property name="text">
+       <string>Import Track Layout</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_91">
+      <property name="geometry">
+       <rect>
+        <x>40</x>
+        <y>140</y>
+        <width>501</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="cursor">
+       <cursorShape>UpArrowCursor</cursorShape>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(197, 220, 255);</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Box</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Plain</enum>
+      </property>
+      <property name="lineWidth">
+       <number>1</number>
+      </property>
+      <property name="text">
+       <string>Track Controller Interface</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_90">
+      <property name="geometry">
+       <rect>
+        <x>40</x>
+        <y>560</y>
+        <width>501</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="cursor">
+       <cursorShape>UpArrowCursor</cursorShape>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(197, 220, 255);</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Box</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Plain</enum>
+      </property>
+      <property name="lineWidth">
+       <number>1</number>
+      </property>
+      <property name="text">
+       <string>Track Model Interface</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_19">
+      <property name="geometry">
+       <rect>
+        <x>360</x>
+        <y>690</y>
+        <width>161</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255, 246, 219);</string>
+      </property>
+      <property name="text">
+       <string>Set Ticket Sales</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_89">
+      <property name="geometry">
+       <rect>
+        <x>40</x>
+        <y>600</y>
+        <width>261</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Track Layout: BlueLineLayout.xls</string>
+      </property>
+     </widget>
+     <widget class="QGroupBox" name="groupBox_6">
+      <property name="geometry">
+       <rect>
+        <x>40</x>
+        <y>380</y>
+        <width>501</width>
+        <height>171</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="title">
+       <string>Track Signaling</string>
+      </property>
+      <widget class="QLabel" name="label_92">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>30</y>
+         <width>81</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Block ID:</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_93">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>110</y>
+         <width>81</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Switch ID:</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="comboBox_16">
+       <property name="geometry">
+        <rect>
+         <x>110</x>
+         <y>120</y>
+         <width>151</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="insertPolicy">
+        <enum>QComboBox::InsertAtBottom</enum>
+       </property>
+       <item>
+        <property name="text">
+         <string>1</string>
+        </property>
+       </item>
+      </widget>
+      <widget class="QPushButton" name="pushButton_21">
+       <property name="geometry">
+        <rect>
+         <x>280</x>
+         <y>40</y>
+         <width>201</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 246, 219);</string>
+       </property>
+       <property name="text">
+        <string>Set Occupied</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_22">
+       <property name="geometry">
+        <rect>
+         <x>280</x>
+         <y>80</y>
+         <width>201</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 246, 219);</string>
+       </property>
+       <property name="text">
+        <string>Close Block</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_23">
+       <property name="geometry">
+        <rect>
+         <x>280</x>
+         <y>120</y>
+         <width>201</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 246, 219);</string>
+       </property>
+       <property name="text">
+        <string>Block 5 to Block 6</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="comboBox_10">
+       <property name="geometry">
+        <rect>
+         <x>110</x>
+         <y>40</y>
+         <width>151</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="insertPolicy">
+        <enum>QComboBox::InsertAtBottom</enum>
+       </property>
+       <item>
+        <property name="text">
+         <string>1</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>2</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>3</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>4</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>5</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>6</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>7</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>8</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>9</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>10</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>11</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>12</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>13</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>14</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>15</string>
+        </property>
+       </item>
+      </widget>
+     </widget>
+     <widget class="QLabel" name="label_95">
+      <property name="geometry">
+       <rect>
+        <x>40</x>
+        <y>680</y>
+        <width>191</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Station B Ticket Count: </string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_3">
+      <property name="geometry">
+       <rect>
+        <x>220</x>
+        <y>690</y>
+        <width>131</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+     </widget>
     </widget>
+   </widget>
+   <widget class="QLabel" name="label_74">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>0</y>
+      <width>221</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Time: </string>
+    </property>
    </widget>
    <zorder>stackedWidget</zorder>
    <zorder>pushButton</zorder>
    <zorder>pushButton_2</zorder>
    <zorder>pushButton_3</zorder>
    <zorder>pushButton_6</zorder>
+   <zorder>label_74</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -3022,6 +3648,11 @@ background-color: rgb(30, 106, 220);</string>
    </property>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionExternal_Module_Interface">
+   <property name="text">
+    <string>External Module Interface</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>
