@@ -3,7 +3,7 @@ import unittest
 
 class TestTrainController(unittest.TestCase):
 	def setUp(self):
-		self.func = TrainControllerSW()
+		self.func = TrainController()
 	def test_power(self):
 		self.func.set_commanded_speed(10)
 		self.func.set_current_speed(1)
@@ -39,7 +39,7 @@ class TestTrainController(unittest.TestCase):
 		self.func.vitalFault()
 		self.assertTrue(self.func.e_brake)
 
-if __name__ == '__main__:'
+if __name__ == '__main__':
 	unittest.main()
 
 
