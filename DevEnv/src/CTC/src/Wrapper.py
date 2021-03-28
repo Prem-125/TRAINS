@@ -1,17 +1,19 @@
 import sys
 import time
-import TransitSystem
+from CTC.src.TransitSystem import *
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
-from UI import Ui_CTCOffice
+from CTC.src.UI import Ui_CTCOffice
+from signals import signals
+
 
 
 #Initialize track layout
-BlueLine = TransitSystem.Trackline("Blue", "BlueLineLayout.xls", 0)
+BlueLine = Trackline("Blue", "C:/Users/aurisb/Documents/TRAINS/DevEnv/src/BlueLineLayout.xls", 0)
 
 #Declare Schedule
-DemoSchedule = TransitSystem.Schedule()
+DemoSchedule = Schedule()
 
 #Seconds global variable
 gblSeconds = 0
@@ -373,7 +375,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
         print("\n" + str(gblSeconds))
         gblSeconds += 1
-        
+        signals.test.emit(gblSeconds)
         if(gblSeconds % 10 == 0):
             self.ComputeThroughput()
 
