@@ -6,6 +6,9 @@ from PySide6.QtGui import *
 from CTC.src.Wrapper import MainWindow as CTC_Office
 from CTC.src.Wrapper import *
 from TrackModel.src.TrackModel import MainWindow as TrackModel
+from TrainControllerSW.src.TrainControllerSW import MainWindow as TrainControllerSWModule
+from TrainControllerSW.src import *
+
 #from src.UI.window_manager import window_list
 
 """
@@ -20,6 +23,8 @@ def start():
     CTC.show()
     TM = TrackModel()
     TM.show()
+    TCSW = TrainControllerSWModule()
+    TCSW.show()
     sys.exit(app.exec_())
     
 if __name__ == "__main__":

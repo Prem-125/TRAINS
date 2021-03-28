@@ -1,7 +1,8 @@
 import sys, time
 from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtCore import QFile, QTimer
-from UI import Ui_TrainControllerSW
+#from TrainControllerSW.src.TCSWUI import Ui_TrainControllerSW
+from TCSWUI import Ui_TrainControllerSW
 from simple_pid import PID
 
 
