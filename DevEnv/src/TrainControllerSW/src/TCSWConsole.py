@@ -23,3 +23,6 @@ class TCSWConsole:
         
         print("appended")
         self.number_of_trains += 1
+
+    ##console makes a bunch of instances of stephen's train model class, stephen's train model class has an associated instance of the traincontroller class.
+    ##stephen's constructor will take in a boolean whether to make it a hardware or software controller
