@@ -17,7 +17,7 @@ class Ui_CTCOffice(object):
     def setupUi(self, CTCOffice):
         if not CTCOffice.objectName():
             CTCOffice.setObjectName(u"CTCOffice")
-        CTCOffice.resize(1253, 1055)
+        CTCOffice.resize(1253, 1034)
         self.actionExternal_Module_Interface = QAction(CTCOffice)
         self.actionExternal_Module_Interface.setObjectName(u"actionExternal_Module_Interface")
         self.centralwidget = QWidget(CTCOffice)
