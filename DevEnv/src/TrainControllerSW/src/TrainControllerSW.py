@@ -10,11 +10,12 @@ from simple_pid import PID
 ############################################# START NEW CODE
 class TrainController:
     def __init__(self, commanded_speed = 0.0, current_speed = 0.0, authority = 0.0, TrainID = 0.0):
-        print("TrainController")
+        
+        #setting important variables
         self.train_ID = TrainID
         self.is_auto = True
-        #Vital Info To Speed Regulator
-                        #SpeedRegulator.__init__(self)
+
+        #sending vital info to SpeedRegulator
         self.SR = SpeedRegulator(self)
         self.SR.commanded_speed = commanded_speed
         self.SR.current_speed = current_speed
@@ -129,6 +130,9 @@ class MainWindow(QMainWindow, TrainController):
         self.ui.serviceBrake.pressed.connect(TrainController.SR.OnSBrakeOn)
         self.ui.serviceBrake.released.connect(TrainController.SR.OnSBrakeOff)
         self.ui.emergencyBrake.pressed.connect(TrainController.SR.OnEBrakeOn)
+        self.ui.trainNumber.setPlainText(str(TrainController.train_ID))
+        #self.ui.emergencyBrake.pressed.connect(TrainController.SR.IncreaseSetpoint)
+        #self.ui.D.pressed.connect(TrainController.SR.DecreaseSetpoint)
 
 
 
