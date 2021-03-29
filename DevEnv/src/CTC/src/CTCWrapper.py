@@ -24,6 +24,10 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         self.ui.StackControlButton2.clicked.connect(self.SetStack1Index1)
         self.ui.StackControlButton3.clicked.connect(self.SetStack1Index2)
 
+        #Define functionality of radio buttons and combo boxes in manual scheduler
+        self.ui.StationRadioButton.clicked.connect(self.SetManDispStations)
+        self.ui.BlockRadioButton.clicked.connect(self.SetManDispBlocks)
+
         #Define user navigation buttons in stacked widget of track map page
         self.ui.GreenLineButton1.clicked.connect(self.SetGreenMap)
         self.ui.RedLineButton1.clicked.connect(self.SetRedMap)
@@ -41,7 +45,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         self.ui.TrackComboBox4.currentTextChanged.connect(self.StatusTrackSections)
         self.ui.SectionComboBox4.currentTextChanged.connect(self.StatusTrackBlocks)
 
-        #DEefine switch status informational display
+        #Define switch status informational display
         self.ui.TrackComboBox5.currentTextChanged.connect(self.StatusSwitchNums)
 
         #Set global clock
@@ -60,6 +64,67 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
     def SetStack1Index2(self):
         self.ui.StackedWidget1.setCurrentIndex(2)
+
+    #Method to fill destination combo box with stations in manual scheduler
+    def SetManDispStations(self):
+        #Determine which track line is currently being viewed
+        if(str(self.ui.TrackComboBox1.currentText()) == "Green"): #Green line is being viewed
+            #Create list of Green line stations
+            green_line_stations = ["Glenbury", "Dormont", "Mt Lebanon", "Poplar", "Castle Shannon",
+                                    "Overbrook", "Inglewood", "Central", "Whited", "Edgebrook",
+                                    "Pioneer", "South Bank"]
+            
+            #Clear contents of destination combo box
+            self.ui.DestComboBox1.clear()
+
+            #Populate destination combo box
+            for station_name in green_line_stations:
+                self.ui.DestComboBox1.addItem(station_name)
+
+        elif(str(self.ui.TrackComboBox1.currentText()) == "Red"): #Red line is being viewed
+            #Create list of Red line stations
+            red_line_stations = ["Shadyside", "Swissville", "Penn Station", "Steel Plaza",
+                                 "First Ave", "Station Sqaure", "South Hills Junc."]
+
+            #Clear contents of destination combo box
+            self.ui.DestComboBox1.clear()
+
+            #Populate destination combo box
+            for station_name in red_line_stations:
+                self.ui.DestComboBox1.addItem(station_name)
+
+        #End if-elif block
+    #End method
+
+    #Method to fill destination combo box with blocks in manual scheduler
+    def SetManDispBlocks(self):
+         #Determine which track line is currently being viewed
+        if(str(self.ui.TrackComboBox1.currentText()) == "Green"): #Green line is being viewed
+            #Create list of Green line blocks
+            green_line_blocks = list(range(1,151))
+
+            #Clear contents of destination combo box
+            self.ui.DestComboBox1.clear()
+
+            #Populate destination combo box
+            for block_num in green_line_blocks:
+                self.ui.DestComboBox1.addItem(str(block_num))
+
+        elif(str(self.ui.TrackComboBox1.currentText()) == "Red"): #Red line is being viewed
+            #Create list of Green line blocks
+            red_line_blocks = list(range(1,77))
+
+            #Clear contents of destination combo box
+            self.ui.DestComboBox1.clear()
+
+            #Populate destination combo box
+            for block_num in red_line_blocks:
+                self.ui.DestComboBox1.addItem(str(block_num))
+        
+        #End if-elif block
+    #End methods
+
+
 
     #Methods to modify map information
     def SetGreenMap(self):
@@ -226,7 +291,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
     #Method to set track section combo box in closure tab of maintenance mode
     def CloseTabTrackSections(self):
         #Determine which track line is currently being viewed
-        if(str(self.ui.TrackComboBox2.currentText()) == "Green"): #Green line is being view
+        if(str(self.ui.TrackComboBox2.currentText()) == "Green"): #Green line is being viewed
             #Create list of Green track sections
             green_track_sections = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", 
                                     "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]

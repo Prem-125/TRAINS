@@ -131,8 +131,6 @@ class Ui_CTCOffice(object):
         self.TimePromptLabel1.setGeometry(QRect(10, 150, 221, 41))
         self.TimePromptLabel1.setFont(font2)
         self.DestComboBox1 = QComboBox(self.ManGroupBox)
-        self.DestComboBox1.addItem("")
-        self.DestComboBox1.addItem("")
         self.DestComboBox1.setObjectName(u"DestComboBox1")
         self.DestComboBox1.setGeometry(QRect(160, 120, 251, 31))
         self.DestComboBox1.setFont(font2)
@@ -5100,9 +5098,9 @@ class Ui_CTCOffice(object):
 
         self.retranslateUi(CTCOffice)
 
-        self.StackedWidget1.setCurrentIndex(1)
-        self.StackedWidget2.setCurrentIndex(0)
-        self.BlockStatusTab.setCurrentIndex(0)
+        self.StackedWidget1.setCurrentIndex(0)
+        self.StackedWidget2.setCurrentIndex(1)
+        self.BlockStatusTab.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(CTCOffice)
@@ -5133,9 +5131,7 @@ class Ui_CTCOffice(object):
         self.ManGroupBox.setTitle(QCoreApplication.translate("CTCOffice", u"Manual Scheduling", None))
         self.DestPromptLabel1.setText(QCoreApplication.translate("CTCOffice", u"Select Destination:", None))
         self.TimePromptLabel1.setText(QCoreApplication.translate("CTCOffice", u"Input Arrival Time:", None))
-        self.DestComboBox1.setItemText(0, QCoreApplication.translate("CTCOffice", u"Station B", None))
-        self.DestComboBox1.setItemText(1, QCoreApplication.translate("CTCOffice", u"Station C", None))
-
+        self.DestComboBox1.setCurrentText("")
         self.TimeLineEdit1.setText("")
         self.TimeLineEdit1.setPlaceholderText(QCoreApplication.translate("CTCOffice", u"(00:00:00)", None))
         self.ManDispButton.setText(QCoreApplication.translate("CTCOffice", u"Dispatch", None))

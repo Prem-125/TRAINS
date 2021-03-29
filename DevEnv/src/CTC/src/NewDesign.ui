@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="page">
      <widget class="QTableWidget" name="SchedTable">
@@ -414,16 +414,9 @@
        <property name="styleSheet">
         <string notr="true">background-color: rgb(255, 255, 255);</string>
        </property>
-       <item>
-        <property name="text">
-         <string>Station B</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Station C</string>
-        </property>
-       </item>
+       <property name="currentText">
+        <string/>
+       </property>
       </widget>
       <widget class="QLineEdit" name="TimeLineEdit1">
        <property name="geometry">
@@ -694,7 +687,7 @@
        <enum>QFrame::Box</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="page_4">
        <widget class="QLabel" name="label_828">
@@ -9001,7 +8994,7 @@
        <string notr="true"/>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="tabsClosable">
        <bool>false</bool>
