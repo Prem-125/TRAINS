@@ -6,9 +6,7 @@ from PySide6.QtGui import *
 from CTC.src.Wrapper import MainWindow as CTC_Office
 from CTC.src.Wrapper import *
 from TrackModel.src.TrackModel import MainWindow as TrackModel
-from TrainControllerSW.src.TrainControllerSW import MainWindow as TrainControllerSWModule
-from TrainControllerSW.src import *
-
+from TrainControllerSW.src.TCSWConsole import TCSWConsole as TCSWConsole
 #from src.UI.window_manager import window_list
 
 """
@@ -19,12 +17,12 @@ def open_modules():
 """
 def start():
     app = QApplication()
-    CTC = CTC_Office()
-    CTC.show()
-    TM = TrackModel()
-    TM.show()
-    TCSW = TrainControllerSWModule()
-    TCSW.show()
+    #CTC = CTC_Office()
+    #CTC.show()
+    #TM = TrackModel()
+    #TM.show()
+    TrainConsole = TCSWConsole()
+
     sys.exit(app.exec_())
     
 if __name__ == "__main__":

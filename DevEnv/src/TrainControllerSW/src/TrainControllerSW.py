@@ -1,24 +1,17 @@
 import sys, time
 from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtCore import QFile, QTimer
-#from TrainControllerSW.src.TCSWUI import Ui_TrainControllerSW
-from TCSWUI import Ui_TrainControllerSW
+from TrainControllerSW.src.UI import Ui_TrainControllerSW
 from simple_pid import PID
 
-
-class MainWindow(QMainWindow):
-    def __init__(self):
-        super(MainWindow, self).__init__()
-        self.ui = Ui_TrainControllerSW()
-        self.ui.setupUi(self)
-        TC = TrainController()
 
 
 
 ############################################# START NEW CODE
 class TrainController:
-    def __init__(self, commanded_speed = 0.0, current_speed = 0.0, authority = 0.0):
+    def __init__(self, commanded_speed = 0.0, current_speed = 0.0, authority = 0.0, TrainID = 0.0):
         print("TrainController")
+        self.train_ID = TrainID
         self.is_auto = True
         #Vital Info To Speed Regulator
                         #SpeedRegulator.__init__(self)
@@ -31,6 +24,11 @@ class TrainController:
         self.SR.emergency_brake = False
         self.SR.kp = 0
         self.SR.ki = 0
+        self.UI = MainWindow(self)
+        self.UI.show()
+
+        #all my connections
+
 
 
     #SPEED REGULATOR SETTERS
@@ -99,6 +97,39 @@ class SpeedRegulator(TrainController):
         # send power here
         print(self.power)
         print("Got to end of pidLoop:")
+
+    def get_power(self):
+        print(self.power)
+
+    def OnSBrakeOn(self):
+        self.service_brake = True
+        #TODO: emit service brake
+        print("Service Brake: " + str(self.service_brake))
+    
+    def OnSBrakeOff(self):
+        self.service_brake = False
+        #TODO: emit service brake
+        print("Service Brake: " + str(self.service_brake))
+        
+    def OnEBrakeOn(self):
+        self.emergency_brake = True
+        #TODO: emit service brake
+        print("Emergency Brake: " + str(self.emergency_brake))
+
+    
+    
+
+
+
+class MainWindow(QMainWindow, TrainController):
+    def __init__(self, TrainController):
+        super(MainWindow, self).__init__()
+        self.ui = Ui_TrainControllerSW()
+        self.ui.setupUi(self)
+        self.ui.serviceBrake.pressed.connect(TrainController.SR.OnSBrakeOn)
+        self.ui.serviceBrake.released.connect(TrainController.SR.OnSBrakeOff)
+        self.ui.emergencyBrake.pressed.connect(TrainController.SR.OnEBrakeOn)
+
 
 
 if __name__ == "__main__":
