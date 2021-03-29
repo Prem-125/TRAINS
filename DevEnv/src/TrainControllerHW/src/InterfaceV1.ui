@@ -26,6 +26,7 @@
     <font>
      <pointsize>12</pointsize>
     </font>
+
    </property>
    <property name="verticalScrollBarPolicy">
     <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -51,6 +52,7 @@
      <pointsize>12</pointsize>
     </font>
    </property>
+
    <property name="verticalScrollBarPolicy">
     <enum>Qt::ScrollBarAlwaysOff</enum>
    </property>
@@ -435,6 +437,7 @@
      <pointsize>12</pointsize>
     </font>
    </property>
+
    <property name="verticalScrollBarPolicy">
     <enum>Qt::ScrollBarAlwaysOff</enum>
    </property>
@@ -547,7 +550,7 @@
     <string/>
    </property>
   </widget>
-  <widget class="QCheckBox" name="sigFail">
+   <widget class="QCheckBox" name="sigFail">
    <property name="geometry">
     <rect>
      <x>730</x>

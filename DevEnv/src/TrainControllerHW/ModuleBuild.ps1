@@ -7,3 +7,4 @@ pyinstaller --name="TrainControllerHW-GUI" --windowed --onefile src/TrainControl
 
 #stackoverflow step
 cp -recurse -force ..\..\lib\site-packages\PyQt6\Qt\plugins\platforms .\dist
+

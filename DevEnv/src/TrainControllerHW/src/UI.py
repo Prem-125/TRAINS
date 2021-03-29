@@ -24,6 +24,7 @@ class Ui_TrainModelInterface(object):
         font = QFont()
         font.setPointSize(12)
         self.PowerVal.setFont(font)
+
         self.PowerVal.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.PowerVal.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.PowerVal.setReadOnly(True)
@@ -252,6 +253,7 @@ class Ui_TrainModelInterface(object):
         self.label_20.setGeometry(QRect(840, 180, 111, 20))
         self.label_20.setFont(font)
 
+
         self.retranslateUi(TrainModelInterface)
 
         QMetaObject.connectSlotsByName(TrainModelInterface)
@@ -317,5 +319,6 @@ class Ui_TrainModelInterface(object):
         self.label_18.setText(QCoreApplication.translate("TrainModelInterface", u"m / s", None))
         self.label_19.setText(QCoreApplication.translate("TrainModelInterface", u"m / s", None))
         self.label_20.setText(QCoreApplication.translate("TrainModelInterface", u"Meters", None))
+
     # retranslateUi
 
