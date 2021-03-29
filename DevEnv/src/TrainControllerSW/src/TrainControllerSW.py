@@ -9,14 +9,14 @@ from simple_pid import PID
 
 ############################################# START NEW CODE
 class TrainController:
-    def __init__(self, commanded_speed = 0.0, current_speed = 0.0, authority = 0.0, TrainID = 0.0):
+    def __init__(self, TrainModel, commanded_speed = 0.0, current_speed = 0.0, authority = 0.0, TrainID = 0.0):
         
         #setting important variables
         self.train_ID = TrainID
         self.is_auto = True
 
         #sending vital info to SpeedRegulator
-        self.SR = SpeedRegulator(self)
+        self.SR = SpeedRegulator(self, commanded_speed, current_speed, authority, self.train_ID)
         self.SR.commanded_speed = commanded_speed
         self.SR.current_speed = current_speed
         self.SR.authority = authority
@@ -25,13 +25,19 @@ class TrainController:
         self.SR.emergency_brake = False
         self.SR.kp = 0
         self.SR.ki = 0
+        self.TrainModelRef = TrainModel
+
+        #UI Stuff
         self.UI = MainWindow(self)
         self.UI.show()
 
         #all my connections
 
 
-
+    #communicating with train model
+    def sendServiceBrake(self):
+        self.TrainModelRef.s_brake_on()
+    
     #SPEED REGULATOR SETTERS
     def set_commanded_speed(self, commanded_speed):
         self.SR.commanded_speed = commanded_speed
@@ -60,9 +66,9 @@ class TrainController:
         return self.SR.power
 
 
-class SpeedRegulator(TrainController):
+class SpeedRegulator():
 
-    def __init__(self, TrainController, commanded_speed = 0, current_speed = 0, authority = 0):
+    def __init__(self, TrainController, commanded_speed = 0, current_speed = 0, authority = 0, train_ID = 0):
         self.commanded_speed = commanded_speed
         self.current_speed = current_speed
         self.authority = authority
@@ -72,6 +78,8 @@ class SpeedRegulator(TrainController):
         self.kp = 0.0
         self.ki = 0.0
         self.power = 0.0
+        self.train_ID = train_ID
+        self.TrainController = TrainController
         print("SpeedRegulator")
 
         #setting up the PID Loop
@@ -104,13 +112,15 @@ class SpeedRegulator(TrainController):
 
     def OnSBrakeOn(self):
         self.service_brake = True
-        #TODO: emit service brake
-        print("Service Brake: " + str(self.service_brake))
+        #DONE: emit service brake
+        self.TrainController.sendServiceBrake()
+        print("Train ID: " + str(self.train_ID) + "Service Brake: " + str(self.service_brake))
     
     def OnSBrakeOff(self):
         self.service_brake = False
         #TODO: emit service brake
         print("Service Brake: " + str(self.service_brake))
+        
         
     def OnEBrakeOn(self):
         self.emergency_brake = True
@@ -122,7 +132,7 @@ class SpeedRegulator(TrainController):
 
 
 
-class MainWindow(QMainWindow, TrainController):
+class MainWindow(QMainWindow):
     def __init__(self, TrainController):
         super(MainWindow, self).__init__()
         self.ui = Ui_TrainControllerSW()

@@ -1,7 +1,7 @@
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtCore import QFile
-from UI import Ui_MainWindow
+from TrainModel.src.UI import Ui_MainWindow
 
 class Train:
 
