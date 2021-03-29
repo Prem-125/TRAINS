@@ -1,27 +1,22 @@
 import sys, time
 from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtCore import QFile, QTimer
-from UI import Ui_TrainControllerSW
+from TrainControllerSW.src.UI import Ui_TrainControllerSW
 from simple_pid import PID
 
-
-class MainWindow(QMainWindow):
-    def __init__(self):
-        super(MainWindow, self).__init__()
-        self.ui = Ui_TrainControllerSW()
-        self.ui.setupUi(self)
-        TC = TrainController()
 
 
 
 ############################################# START NEW CODE
 class TrainController:
-    def __init__(self, commanded_speed = 0.0, current_speed = 0.0, authority = 0.0):
-        print("TrainController")
+    def __init__(self, TrainModel, commanded_speed = 0.0, current_speed = 0.0, authority = 0.0, TrainID = 0.0):
+        
+        #setting important variables
+        self.train_ID = TrainID
         self.is_auto = True
-        #Vital Info To Speed Regulator
-                        #SpeedRegulator.__init__(self)
-        self.SR = SpeedRegulator(self)
+
+        #sending vital info to SpeedRegulator
+        self.SR = SpeedRegulator(self, commanded_speed, current_speed, authority, self.train_ID)
         self.SR.commanded_speed = commanded_speed
         self.SR.current_speed = current_speed
         self.SR.authority = authority
@@ -30,8 +25,19 @@ class TrainController:
         self.SR.emergency_brake = False
         self.SR.kp = 0
         self.SR.ki = 0
+        self.TrainModelRef = TrainModel
+
+        #UI Stuff
+        self.UI = MainWindow(self)
+        self.UI.show()
+
+        #all my connections
 
 
+    #communicating with train model
+    def sendServiceBrake(self):
+        self.TrainModelRef.s_brake_on()
+    
     #SPEED REGULATOR SETTERS
     def set_commanded_speed(self, commanded_speed):
         self.SR.commanded_speed = commanded_speed
@@ -60,9 +66,9 @@ class TrainController:
         return self.SR.power
 
 
-class SpeedRegulator(TrainController):
+class SpeedRegulator():
 
-    def __init__(self, TrainController, commanded_speed = 0, current_speed = 0, authority = 0):
+    def __init__(self, TrainController, commanded_speed = 0, current_speed = 0, authority = 0, train_ID = 0):
         self.commanded_speed = commanded_speed
         self.current_speed = current_speed
         self.authority = authority
@@ -72,6 +78,8 @@ class SpeedRegulator(TrainController):
         self.kp = 0.0
         self.ki = 0.0
         self.power = 0.0
+        self.train_ID = train_ID
+        self.TrainController = TrainController
         print("SpeedRegulator")
 
         #setting up the PID Loop
@@ -98,6 +106,44 @@ class SpeedRegulator(TrainController):
         # send power here
         print(self.power)
         print("Got to end of pidLoop:")
+
+    def get_power(self):
+        print(self.power)
+
+    def OnSBrakeOn(self):
+        self.service_brake = True
+        #DONE: emit service brake
+        self.TrainController.sendServiceBrake()
+        print("Train ID: " + str(self.train_ID) + "Service Brake: " + str(self.service_brake))
+    
+    def OnSBrakeOff(self):
+        self.service_brake = False
+        #TODO: emit service brake
+        print("Service Brake: " + str(self.service_brake))
+        
+        
+    def OnEBrakeOn(self):
+        self.emergency_brake = True
+        #TODO: emit service brake
+        print("Emergency Brake: " + str(self.emergency_brake))
+
+    
+    
+
+
+
+class MainWindow(QMainWindow):
+    def __init__(self, TrainController):
+        super(MainWindow, self).__init__()
+        self.ui = Ui_TrainControllerSW()
+        self.ui.setupUi(self)
+        self.ui.serviceBrake.pressed.connect(TrainController.SR.OnSBrakeOn)
+        self.ui.serviceBrake.released.connect(TrainController.SR.OnSBrakeOff)
+        self.ui.emergencyBrake.pressed.connect(TrainController.SR.OnEBrakeOn)
+        self.ui.trainNumber.setPlainText(str(TrainController.train_ID))
+        #self.ui.emergencyBrake.pressed.connect(TrainController.SR.IncreaseSetpoint)
+        #self.ui.D.pressed.connect(TrainController.SR.DecreaseSetpoint)
+
 
 
 if __name__ == "__main__":
