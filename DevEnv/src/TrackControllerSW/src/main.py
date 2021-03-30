@@ -60,6 +60,7 @@ class MainWindow(QMainWindow):
                 self.commandedSpeed[x] = 0
             else
                 self.commandedSpeed[x] = int(float(self.suggestedSpeed[x]) * 0.621371)
+        
 
     def CalcAuthFromBlock(self):
         for x in range(15):
@@ -201,7 +202,8 @@ class MainWindow(QMainWindow):
         self.AuthorityDisp()
         self.SugSpeedDisp()
         self.ControlSwitch()
-                     
+            
+            
     #gets the Track Model Inputs
     def getTMInputs(self):
         if(self.ui.TMBlockInput.text() == "1"):
