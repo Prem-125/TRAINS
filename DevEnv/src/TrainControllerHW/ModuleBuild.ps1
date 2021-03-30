@@ -3,7 +3,7 @@
 
 
 #installing py
-pyinstaller --name="TrainControllerHW-GUI" --windowed --onefile src/TrainControllerHW-GUI.py
+pyinstaller --name="TrainControllerHWInterface" --windowed --onefile src/TrainControllerHWInterface.py
 
 #stackoverflow step
 cp -recurse -force ..\..\lib\site-packages\PyQt6\Qt\plugins\platforms .\dist

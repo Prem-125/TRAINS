@@ -1,31 +1,24 @@
 import sys
 import serial
 import time
-from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox
 from PySide6.QtCore import QFile, QTimer
-from UI import Ui_TrainModelInterface
+from .UI import Ui_TrainControllerHWInterface
 
-class MainWindow(QMainWindow):
-	def __init__(self):
-		super(MainWindow, self).__init__()
-		self.ui = Ui_TrainModelInterface()
+class TrainControllerHWInterface(QMainWindow):
+	def __init__(self,train_model,initalTC=25769816839, current_speed= 0, trainID=1):
+		super(TrainControllerHWInterface, self).__init__()
+		self.train_model = train_model
+		self.ui = Ui_TrainControllerHWInterface()
 		self.ui.setupUi(self)
 		self.utimer = QTimer()
 		self.utimer.timeout.connect(self.timerCallback)
-		self.utimer.start(500)
-		self.testval = 0
-		self.arduino = serial.Serial(port='COM3', baudrate=115200,timeout=1)
-		self.ui.tcButton.clicked.connect(self.getTCInfo)
-		self.ui.beaconButton.clicked.connect(self.getBeaconInfo)
-		self.ui.speedButton.clicked.connect(self.getCurSpeed)
 		self.power = 0
-		self.cmdSpeed = ''
-		self.curSpeed = ''
-		self.authority = ''
+		self.curSpeed = current_speed
 		self.encodedB=0
 		self.nFlag=0
 		self.eol = '\n'.encode('utf-8')
-		self.encodedTC=0
+		self.encodedTC=initalTC
 		self.rawToggle = 0
 		self.sBrakePull = False
 		self.EBrakePull = False
@@ -33,9 +26,30 @@ class MainWindow(QMainWindow):
 		self.RDoorOpen = False
 		self.IntLightsOn = False
 		self.ExtLightsOn = False
+		self.connectArduino()
+		self.run=False
+
+
+
+	def connectArduino(self):
+		try:
+			self.arduino = serial.Serial(port='COM3', baudrate=115200,timeout=1)
+			self.run=True
+			self.utimer.start(500)
+			self.show()
+
+		except:
+			msg = QMessageBox()
+			msg.setIcon(QMessageBox.Critical)
+
+			msg.setText("The Arduino does not appear to be connected, please ensure it is connected and powered on. Also please make sure it is associated to COM3 in device manager. Then press Ok to retry.")
+			msg.setWindowTitle("Connection Error")
+			msg.setStandardButtons(QMessageBox.Ok)
+			msg.buttonClicked.connect(self.connectArduino)
+			retval = msg.exec_()
+
 		
 	def timerCallback(self):
-		#self.arduino.write(str(self.testval).encode('utf-8')+ self.eol)
 		#self.serialWrite()
 		self.serialRead()
 		...
@@ -61,6 +75,7 @@ class MainWindow(QMainWindow):
 				print(status)
 				self.power = float(status)
 				self.ui.PowerVal.setPlainText(str(round(self.power/1000.0 , 2))+ " kW")
+				self.train_model.set_power(self.power)
 			elif(status ==3):
 				raw = self.arduino.readline()
 				status = raw.decode('ascii').strip('\r\n')
@@ -71,6 +86,8 @@ class MainWindow(QMainWindow):
 				status = raw.decode('ascii').strip('\r\n')
 				print(status)
 				self.ui.TemperatureVal.setPlainText(status + "°F")
+
+
 	def serialWrite(self):
 		self.arduino.reset_output_buffer()
 		self.arduino.write(str(self.nFlag).encode('utf-8')+ self.eol)
@@ -81,47 +98,19 @@ class MainWindow(QMainWindow):
 
 		
 		
-	def getTCInfo(self):
-		self.cmdSpeed= self.ui.CommSpeedVal.toPlainText()
-		self.curSpeed= self.ui.CurSpeedVal.toPlainText()
-		self.authority= self.ui.AuthVal.toPlainText()
-		cmdInt= int(float(self.cmdSpeed))
-		cmdFloat= int(((float(self.cmdSpeed)-cmdInt)*10))
-		authInt= int(float(self.authority))
-		authFloat= int(((float(self.authority)-authInt)*10))
-		if(self.ui.sigFail.checkState()):
-			self.encodedTC = (cmdInt-6 & 255)
-		else:
-			self.encodedTC = (cmdInt & 255)
-		self.encodedTC += (cmdFloat & 15) << 8
-		self.encodedTC += (authInt & 255) << 12
-		self.encodedTC += (authFloat & 15)<< 20
-		self.encodedTC += ((cmdInt + cmdFloat + authFloat + authInt) & 1023) << 24
-		
-		#print(bin(cmdInt))
-		#print(self.encodedTC)
+	def sendTCInfo(self):		
 		print(bin(self.encodedTC))
 		self.nFlag|=2
 		#print(self.cmdSpeed)
 		self.arduino.write(str(2).encode('utf-8')+ self.eol)
 		self.arduino.write(str(self.encodedTC).encode('utf-8')+ self.eol)
 
-	def getBeaconInfo(self):
-		beaconNum= self.ui.stationSel.currentIndex()
-		print(int(self.ui.stationComing.checkState()))
-		self.encodedB = int(self.ui.stationComing.checkState()  )>> 1
-		print(bin(self.encodedB))
-		self.encodedB += (int(self.ui.BLDoor.checkState()) >> 1) << 1
-		self.encodedB += (int(self.ui.BRDoor.checkState()) >> 1) << 2
-		self.encodedB += (int(self.ui.BExtLight.checkState()) >> 1) << 3
-		self.encodedB += (beaconNum & 31) << 4
-		print(bin(self.encodedB))		
-		self.nFlag|=1
+	def sendBeaconInfo(self):
 		self.arduino.write(str(3).encode('utf-8')+ self.eol)
 		self.arduino.write(str(self.encodedB).encode('utf-8')+ self.eol)
 
 	
-	def getCurSpeed(self):
+	def sendCurSpeed(self):
 		self.curSpeed= self.ui.CurSpeedVal.toPlainText()
 		self.arduino.write(str(1).encode('utf-8')+ self.eol)
 		self.arduino.write(self.curSpeed.encode('utf-8')+ self.eol)
@@ -137,33 +126,48 @@ class MainWindow(QMainWindow):
 	def updateToggleDisp(self):
 		if(self.ExtLightsOn):
 			self.ui.ELightVal.setPlainText("ON")
+			self.train_model.t_lights_on()
 		else:
 			self.ui.ELightVal.setPlainText("OFF")
+			self.train_model.t_lights_off()
+
 		if(self.IntLightsOn):
 			self.ui.ILightVal.setPlainText("ON")
+			self.train_model.c_lights_on()
 		else:
 			self.ui.ILightVal.setPlainText("OFF")
+			self.train_model.c_lights_off()
+
 		if(self.sBrakePull):
 			self.ui.SBrakeVal.setPlainText("ACTIVE")
+			self.train_model.s_brake_on()
 		else:
 			self.ui.SBrakeVal.setPlainText("INACTIVE")
+			self.train_model.s_brake_off()
+
 		if(self.RDoorOpen):
 			self.ui.RDoorVal.setPlainText("OPEN")
+			self.train_model.open_right_doors()
 		else:
 			self.ui.RDoorVal.setPlainText("CLOSE")
+			self.train_model.close_right_doors()
 		if(self.LDoorOpen):
 			self.ui.LDoorVal.setPlainText("OPEN")
+			self.train_model.open_left_doors()
 		else:
 			self.ui.LDoorVal.setPlainText("CLOSE")
+			self.train_model.close_left_doors()
+
 		if(self.EBrakePull):
 			self.ui.EBrakeVal.setPlainText("ACTIVE")
+			self.train_model.emergency_brake()
 		else:
 			self.ui.EBrakeVal.setPlainText("INACTIVE")
+			self.train_model.emergency_brake()
+
 
 
 if __name__ == "__main__":
 	app = QApplication(sys.argv)
-
-	window = MainWindow()
-	window.show()
+	window = TrainControllerHWInterface()
 	sys.exit(app.exec_())
