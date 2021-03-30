@@ -134,6 +134,7 @@ class SpeedRegulator():
         self.TrainController.SendServiceBrakeOn()
         self.TrainController.DisplayUpdate()
         print("Train ID: " + str(self.train_ID) + "Service Brake: " + str(self.service_brake))
+        print("Hi ben")
     
     def OnSBrakeOff(self):
         self.service_brake = False
