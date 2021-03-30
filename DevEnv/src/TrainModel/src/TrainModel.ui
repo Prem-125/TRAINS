@@ -28,7 +28,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>2</number>
    </property>
    <widget class="QWidget" name="passenger">
     <attribute name="title">
@@ -58,34 +58,13 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton">
-     <property name="geometry">
-      <rect>
-       <x>40</x>
-       <y>270</y>
-       <width>661</width>
-       <height>81</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background-color: rgb(255, 9, 1);</string>
-     </property>
-     <property name="text">
-      <string>Emergency Brake</string>
-     </property>
-    </widget>
     <widget class="QGroupBox" name="groupBox">
      <property name="geometry">
       <rect>
        <x>450</x>
-       <y>40</y>
+       <y>70</y>
        <width>251</width>
-       <height>191</height>
+       <height>251</height>
       </rect>
      </property>
      <property name="font">
@@ -135,8 +114,8 @@
      <widget class="QLabel" name="Door_label_14">
       <property name="geometry">
        <rect>
-        <x>40</x>
-        <y>70</y>
+        <x>30</x>
+        <y>110</y>
         <width>81</width>
         <height>21</height>
        </rect>
@@ -153,8 +132,8 @@
      <widget class="QLabel" name="leftDoorsOutput_4">
       <property name="geometry">
        <rect>
-        <x>130</x>
-        <y>70</y>
+        <x>120</x>
+        <y>110</y>
         <width>51</width>
         <height>20</height>
        </rect>
@@ -171,8 +150,8 @@
      <widget class="QLabel" name="label_94">
       <property name="geometry">
        <rect>
-        <x>40</x>
-        <y>100</y>
+        <x>30</x>
+        <y>170</y>
         <width>81</width>
         <height>21</height>
        </rect>
@@ -189,8 +168,8 @@
      <widget class="QLabel" name="Beacon">
       <property name="geometry">
        <rect>
-        <x>120</x>
-        <y>100</y>
+        <x>110</x>
+        <y>170</y>
         <width>111</width>
         <height>21</height>
        </rect>
@@ -202,24 +181,6 @@
       </property>
       <property name="text">
        <string/>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_95">
-      <property name="geometry">
-       <rect>
-        <x>70</x>
-        <y>130</y>
-        <width>81</width>
-        <height>21</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>12</pointsize>
-       </font>
-      </property>
-      <property name="text">
-       <string>Route:</string>
       </property>
      </widget>
      <widget class="QLabel" name="routeOutput">
@@ -247,7 +208,7 @@
        <x>50</x>
        <y>70</y>
        <width>341</width>
-       <height>181</height>
+       <height>251</height>
       </rect>
      </property>
      <property name="autoFillBackground">
@@ -1637,13 +1598,13 @@
      <property name="title">
       <string>Controller Inputs</string>
      </property>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
         <x>330</x>
         <y>80</y>
-        <width>60</width>
-        <height>52</height>
+        <width>63</width>
+        <height>54</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -1690,13 +1651,13 @@
        <string>Left Doors:</string>
       </property>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
         <x>140</x>
         <y>80</y>
-        <width>60</width>
-        <height>52</height>
+        <width>63</width>
+        <height>54</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
@@ -1743,13 +1704,13 @@
        <string>Right Doors:</string>
       </property>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
         <x>130</x>
         <y>260</y>
         <width>84</width>
-        <height>52</height>
+        <height>54</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -1855,7 +1816,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
         <x>270</x>
@@ -1915,10 +1876,6 @@
     <zorder>speedLimit</zorder>
     <zorder>accLimit</zorder>
     <zorder>decLimit</zorder>
-    <zorder>doorsOpen</zorder>
-    <zorder>doorsClosed</zorder>
-    <zorder>cLightsOn</zorder>
-    <zorder>cLightsOff</zorder>
     <zorder>spinBox</zorder>
     <zorder>label_10</zorder>
     <zorder>label_98</zorder>
@@ -1929,17 +1886,10 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="tLightsGroup"/>
-  <buttongroup name="brakeFailureGroup"/>
-  <buttongroup name="engineFailGroup">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="circuitFailureGroup"/>
   <buttongroup name="rightDoorsGroup"/>
-  <buttongroup name="cLightsGroup"/>
-  <buttongroup name="leftDoorsGroup"/>
   <buttongroup name="serviceBrakeGroup"/>
+  <buttongroup name="leftDoorsGroup"/>
+  <buttongroup name="tLightsGroup"/>
+  <buttongroup name="cLightsGroup"/>
  </buttongroups>
 </ui>
