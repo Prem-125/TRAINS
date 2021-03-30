@@ -31,6 +31,8 @@ class TrainController:
         self.UI = MainWindow(self)
         self.UI.show()
 
+
+
         self.DisplayUpdate()
 
         #all my connections
@@ -103,16 +105,14 @@ class SpeedRegulator():
         #setting up the PID Loop
         self.pid = PID(self.kp, self.ki, 0)
         self.pid.output_limits = (0, 120000)
-        self.pidTimer = QTimer()
-        self.pidTimer.timeout.connect(self.pidLoop(TrainController))
-        self.pidTimer.start(1000)
+
         print("Created the timer")
 
 
     #pidLoop: used to calculate power
-    def pidLoop(self, TrainController):
+    def pidLoop(self):
         print("In PID")
-        if(TrainController.is_auto and ((not self.service_brake ) and ( not self.emergency_brake))):
+        if(self.TrainController.is_auto and ((not self.service_brake ) and ( not self.emergency_brake))):
             self.pid.setpoint = self.commanded_speed
             self.power = self.pid(self.current_speed, dt = 1)
         elif(not(self.setpoint_speed == 0) and not self.service_brake and not self.emergency_brake):
@@ -134,7 +134,6 @@ class SpeedRegulator():
         self.TrainController.SendServiceBrakeOn()
         self.TrainController.DisplayUpdate()
         print("Train ID: " + str(self.train_ID) + "Service Brake: " + str(self.service_brake))
-        print("Hi ben")
     
     def OnSBrakeOff(self):
         self.service_brake = False
@@ -183,6 +182,11 @@ class MainWindow(QMainWindow):
         self.ui.trainNumber.setPlainText(str(self.TrainController.train_ID))
         self.ui.speedDownButton.clicked.connect(self.TrainController.SR.DecreaseSetpoint)
         self.ui.speedUpButton.clicked.connect(self.TrainController.SR.IncreaseSetpoint)
+
+
+        self.pidTimer = QTimer()
+        self.pidTimer.timeout.connect(self.TrainController.SR.pidLoop())
+        self.pidTimer.start(1000)
 
 
         
