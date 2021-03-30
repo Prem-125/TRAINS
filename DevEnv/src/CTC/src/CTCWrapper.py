@@ -6,18 +6,17 @@ from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 
-#Global variable to serve as system-wide clock
-gbl_seconds = 0
-gbl_centiseconds = 0
-
 #Load in track layout
 GreenLine = TrackLine("C:/Users/fjfat/SoftwareDevelopment/TRAINS/DevEnv/src/CTC/src/TrackLayout.xls", 2)
 
 RedLine = TrackLine("C:/Users/fjfat/SoftwareDevelopment/TRAINS/DevEnv/src/CTC/src/TrackLayout.xls", 1)
 
+#Declare a schedule object
+CTCSchedule = Schedule()
+
 """
 for blockObj in GreenLine.block_list:
-    print("\nBlock " + str(blockObj.number))
+    print("\nBlock " + str(blockObj.number) + " MinTraversalTime = " + str(blockObj.min_traveral_time) )
     
 for switchObj in GreenLine.switch_list:
     print("\nSwitch: Root = " + str(switchObj.root) + " Branch1 = " + str(switchObj.branch_1) + " Branch2 = " + str(switchObj.branch_2))
@@ -55,7 +54,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         self.ui.BlockRadioButton.clicked.connect(self.SetManDispBlocks)
 
         #Define connection for manual dispatch button
-        """self.ui.ManDispButton.clicked.connect(self.GUIManualDispatch)"""
+        self.ui.ManDispButton.clicked.connect(self.GUIManualDispatch)
 
         #Define user navigation buttons in stacked widget of track map page
         self.ui.GreenLineButton1.clicked.connect(self.SetGreenMap)
@@ -155,7 +154,6 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         #End if-elif block
     #End method
 
-    """
     #Method to initiate manual dispatch and update scheduler accordingly
     def GUIManualDispatch(self):
         #Obtain track line on which train is to be dispatched
@@ -171,16 +169,45 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         parsed_input_time = input_time.split(":")
         train_arrival_time = int(parsed_input_time[0])*3600 + int(parsed_input_time[1])*60 + int(parsed_input_time[2])
 
-        #If destination is expressed as a station, conver to corresponding block number
+        #If destination is expressed as a station, convert to corresponding block number
         if(self.ui.StationRadioButton.isChecked()):
             if(track_line_name == "Green"):
-                block_index = block_list.index(train_destination)
-                print("\n" + str(block_index) + "\n")
-            return
+                for StationObj in GreenLine.station_list:
+                    if(StationObj.name == train_destination):
+                        block_destination = StationObj.block_num
+
+            elif(track_line_name == "Red"):
+                for StationObj in RedLine.station_list:
+                    if(StationObj.name == train_destination):
+                        block_destination = StationObj.block_num
+
+        else:
+            block_destination = int(train_destination)
 
         #Call back-end function for manual dispatch
-        success = ManualSchedule(block_destination, train_arrival_time, TrackLineObj)
-    """
+        if(track_line_name == "Green"):
+            success = CTCSchedule.ManualSchedule(block_destination, train_arrival_time, GreenLine)
+        if(track_line_name == "Red"):
+            success = CTCSchedule.ManualSchedule(block_destination, train_arrival_time, RedLine)
+
+        #If train could not be scheduled, display pop-up window and return to calling environment
+        if(not success):
+            #Create error message box
+            ErrorMsg = QMessageBox()
+            ErrorMsg.setWindowTitle("Dispatch Failed")
+            ErrorMsg.setText("ERROR: The dispatch request could not be fullfilled\nCheck to ensure travel paramters are valid")
+            ErrorMsg.setIcon(QMessageBox.Critical)
+
+            MsgWin = ErrorMsg.exec()
+
+            return
+        #End if
+
+        print("Train Number " + str(CTCSchedule.train_list[0].number) )
+        print("Train Destination: Block " + str(CTCSchedule.train_list[0].destination))
+        print("Track Line: " + CTCSchedule.train_list[0].track_line)
+        print("Arrival Time: " + str(CTCSchedule.train_list[0].arrival_time))
+        print("Departure Time: " + str(CTCSchedule.train_list[0].departure_time))
 
     #Methods to modify map information
     def SetGreenMap(self):
