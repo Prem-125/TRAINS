@@ -32,6 +32,9 @@ class TrainController:
         self.UI.show()
 
 
+        self.stationArray = ("Shadyside","Herron Ave","Swissville","Penn Station","Steel Plaza","First Ave","Station Square","South Hills Junction", 
+                            "Pioneer","Edgebrook","Whited","South Bank","Central","Inglewood","Overbrook","Glenburry","Dormont","Mt Lebanon", "Poplar","Castle Shannon")
+
 
         self.DisplayUpdate()
 
@@ -54,13 +57,40 @@ class TrainController:
         self.UI.DisplayUpdate()
 
     def set_track_circuit(self, TrackInt):
-        ...
+        self.decodeTC(TrackInt)
+
+    def decodeTC(self, TrackInt):
+        tempCmdInt = self.TrackInt & 255
+        tempCmdFloat = (self.TrackInt >> 8) & 15
+        tempAuthInt = (self.TrackInt >> 12) & 255
+        tempAuthFloat= (self.TrackInt >> 20) & 15
+        tempCheckSum = (self.TrackInt >> 24) & 1023
+        if(tempCheckSum != tempCmdInt+ tempCmdFloat + tempAuthInt + tempAuthFloat):
+            print("Signal Pickup Failure")
+            self.UI.textBrowser_15.setStyleSheet(u"background-color: rgb(255, 0, 0);")
+            self.VitalFault()
+        else:
+            self.set_commanded_speed(tempCmdFloat/100 + tempCmdInt)
+            self.set_authority(tempAuthFloat/100 + tempAuthInt)
 
     def set_beacon(self, BeaconInt):
-        ...
+        self.DecodeBeacon(BeaconInt)
 
-    
+    def DecodeBeacon(self, BeaconInt):
+        self.upcoming_station = (self.BeaconInt & 1)
+        self.left_doors_open = (self.BeaconInt >> 1)&1
+        self.right_doors_open = (self.BeaconInt >> 2)&1
+        self.exterior_lights_on = (self.BeaconInt >> 3)&1
+        self.station = self.stationArray[((self.BeaconInt >> 4) & 31)]
+        #self.buildAnnouncement()
+        if(self.autoMode):
+            ...
+            #self.onAnnouncement()
+        self.DisplayUpdate()
 
+        
+    def VitalFault(self):
+        self.SR.OnEBrakeOn()
     #SPEED REGULATOR SETTERS
     def set_commanded_speed(self, commanded_speed):
         self.SR.commanded_speed = commanded_speed
@@ -69,6 +99,8 @@ class TrainController:
         self.SR.current_speed = current_speed
     
     def set_authority(self, authority):
+        if(authority == 0):
+            self.set_service_brake(True)
         self.SR.authority = authority
 
     def set_setpoint_speed(self, setpoint_speed):
@@ -126,7 +158,7 @@ class SpeedRegulator():
             self.power = self.pid(self.current_speed, dt = 1)
         else:
             self.pid.setpoint=0
-            self.power= 0
+            self.power = 0
         # send power here
         print(self.power)
         print("Got to end of pidLoop:")
