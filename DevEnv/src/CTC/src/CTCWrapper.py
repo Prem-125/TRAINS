@@ -1,6 +1,7 @@
 import sys
 import time
 from UI import *
+from CTCBackEnd import *
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
@@ -8,6 +9,18 @@ from PySide6.QtGui import *
 #Global variable to serve as system-wide clock
 gbl_seconds = 0
 gbl_centiseconds = 0
+
+#Load in track layout
+GreenLine = TrackLine("C:/Users/fjfat/SoftwareDevelopment/TRAINS/DevEnv/src/CTC/src/TrackLayout.xls", 2)
+
+for blockObj in GreenLine.block_list:
+    print("\nBlock " + str(blockObj.number))
+    
+for switchObj in GreenLine.switch_list:
+    print("\nSwitch: Root = " + str(switchObj.root) + " Branch1 = " + str(switchObj.branch_1) + "Branch2 = " + str(switchObj.branch_2))
+
+for stationObj in GreenLine.station_list:
+    print("\nStation: Root = " + str(stationObj.block_num) + " Name = " + str(stationObj.name) )
 
 #Define MainWindow class
 class MainWindow(QMainWindow): #Subclass of QMainWindow
@@ -28,6 +41,9 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         self.ui.StationRadioButton.clicked.connect(self.SetManDispStations)
         self.ui.BlockRadioButton.clicked.connect(self.SetManDispBlocks)
 
+        #Define connection for manual dispatch button
+        """self.ui.ManDispButton.clicked.connect(self.GUIManualDispatch)"""
+
         #Define user navigation buttons in stacked widget of track map page
         self.ui.GreenLineButton1.clicked.connect(self.SetGreenMap)
         self.ui.RedLineButton1.clicked.connect(self.SetRedMap)
@@ -38,8 +54,10 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         self.ui.SectionComboBox2.currentTextChanged.connect(self.CloseTabTrackBlocks)
         self.ui.TrackComboBox3.currentTextChanged.connect(self.ReopenTabTrackSections)
         self.ui.SectionComboBox3.currentTextChanged.connect(self.ReopenTabTrackBlocks)
-        #self.ui.CloseBlockButton.clicked.connect(self.GUICloseBlock)
+        """
+        self.ui.CloseBlockButton.clicked.connect(self.GUICloseBlock)
         #self.ui.ReopenBlockButton.clicked.connect(self.GUIOpenBlock)
+        """
 
         #Define block status informational display
         self.ui.TrackComboBox4.currentTextChanged.connect(self.StatusTrackSections)
@@ -122,9 +140,34 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                 self.ui.DestComboBox1.addItem(str(block_num))
         
         #End if-elif block
-    #End methods
+    #End method
 
+    """
+    #Method to initiate manual dispatch and update scheduler accordingly
+    def GUIManualDispatch(self):
+        #Obtain track line on which train is to be dispatched
+        track_line_name = str(self.ui.TrackComboBox1.currentText())
 
+        #Obtain train destination
+        train_destination = str(self.ui.DestComboBox1.currentText())
+
+        #Obtain train arrival time
+        input_time = str(self.ui.TimeLineEdit1.text())
+
+        #Convert input time to seconds
+        parsed_input_time = input_time.split(":")
+        train_arrival_time = int(parsed_input_time[0])*3600 + int(parsed_input_time[1])*60 + int(parsed_input_time[2])
+
+        #If destination is expressed as a station, conver to corresponding block number
+        if(self.ui.StationRadioButton.isChecked()):
+            if(track_line_name == "Green"):
+                block_index = block_list.index(train_destination)
+                print("\n" + str(block_index) + "\n")
+            return
+
+        #Call back-end function for manual dispatch
+        success = ManualSchedule(block_destination, train_arrival_time, TrackLineObj)
+    """
 
     #Methods to modify map information
     def SetGreenMap(self):
@@ -963,14 +1006,14 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
     #End method
 
             
-"""
+    """
     #Method to close block at the request of the dispatcher
     def GUICloseBlock(self):
         #Initialize temporary variables to hold details of block to be closed
         track_line = self.ui.TrackComboBox2.currentText()
         track_section = self.ui.SectionComboBox2.currentText()
         block_num = self.ui.BlockComboBox1.currentText()
-"""
+    """
 
 
 #End MainWindow class definition
