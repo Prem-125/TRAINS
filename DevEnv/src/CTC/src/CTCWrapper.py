@@ -173,12 +173,12 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         if(self.ui.StationRadioButton.isChecked()):
             if(track_line_name == "Green"):
                 for StationObj in GreenLine.station_list:
-                    if(StationObj.name == train_destination):
+                    if(StationObj.name == train_destination.upper()):
                         block_destination = StationObj.block_num
 
             elif(track_line_name == "Red"):
                 for StationObj in RedLine.station_list:
-                    if(StationObj.name == train_destination):
+                    if(StationObj.name == train_destination.upper()):
                         block_destination = StationObj.block_num
 
         else:
