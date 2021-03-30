@@ -31,13 +31,66 @@ class TrainController:
         self.UI = MainWindow(self)
         self.UI.show()
 
+
+        self.stationArray = ("Shadyside","Herron Ave","Swissville","Penn Station","Steel Plaza","First Ave","Station Square","South Hills Junction", 
+                            "Pioneer","Edgebrook","Whited","South Bank","Central","Inglewood","Overbrook","Glenburry","Dormont","Mt Lebanon", "Poplar","Castle Shannon")
+
+
+        self.DisplayUpdate()
+
         #all my connections
 
 
-    #communicating with train model
-    def sendServiceBrake(self):
+    #COMMUNICATING WITH CORRESPONDING TRAIN MODEL
+    def SendServiceBrakeOn(self):
         self.TrainModelRef.s_brake_on()
     
+    def SendServiceBrakeOff(self):
+        self.TrainModelRef.s_brake_off()
+
+    def SendEmergencyBrakeOn(self):
+        self.TrainModelRef.emergency_brake()
+
+
+    #UPDATING THE UI
+    def DisplayUpdate(self):
+        self.UI.DisplayUpdate()
+
+    def set_track_circuit(self, TrackInt):
+        self.decodeTC(TrackInt)
+
+    def decodeTC(self, TrackInt):
+        tempCmdInt = self.TrackInt & 255
+        tempCmdFloat = (self.TrackInt >> 8) & 15
+        tempAuthInt = (self.TrackInt >> 12) & 255
+        tempAuthFloat= (self.TrackInt >> 20) & 15
+        tempCheckSum = (self.TrackInt >> 24) & 1023
+        if(tempCheckSum != tempCmdInt+ tempCmdFloat + tempAuthInt + tempAuthFloat):
+            print("Signal Pickup Failure")
+            self.UI.textBrowser_15.setStyleSheet(u"background-color: rgb(255, 0, 0);")
+            self.VitalFault()
+        else:
+            self.set_commanded_speed(tempCmdFloat/100 + tempCmdInt)
+            self.set_authority(tempAuthFloat/100 + tempAuthInt)
+
+    def set_beacon(self, BeaconInt):
+        self.DecodeBeacon(BeaconInt)
+
+    def DecodeBeacon(self, BeaconInt):
+        self.upcoming_station = (self.BeaconInt & 1)
+        self.left_doors_open = (self.BeaconInt >> 1)&1
+        self.right_doors_open = (self.BeaconInt >> 2)&1
+        self.exterior_lights_on = (self.BeaconInt >> 3)&1
+        self.station = self.stationArray[((self.BeaconInt >> 4) & 31)]
+        #self.buildAnnouncement()
+        if(self.autoMode):
+            ...
+            #self.onAnnouncement()
+        self.DisplayUpdate()
+
+        
+    def VitalFault(self):
+        self.SR.OnEBrakeOn()
     #SPEED REGULATOR SETTERS
     def set_commanded_speed(self, commanded_speed):
         self.SR.commanded_speed = commanded_speed
@@ -46,6 +99,8 @@ class TrainController:
         self.SR.current_speed = current_speed
     
     def set_authority(self, authority):
+        if(authority == 0):
+            self.set_service_brake(True)
         self.SR.authority = authority
 
     def set_setpoint_speed(self, setpoint_speed):
@@ -64,6 +119,9 @@ class TrainController:
     #SPEED REGULATOR GETTERS
     def get_power(self):
         return self.SR.power
+
+    #SPEED REGULATOR BUTTONS
+    
 
 
 class SpeedRegulator():
@@ -85,16 +143,14 @@ class SpeedRegulator():
         #setting up the PID Loop
         self.pid = PID(self.kp, self.ki, 0)
         self.pid.output_limits = (0, 120000)
-        self.pidTimer = QTimer()
-        self.pidTimer.timeout.connect(self.pidLoop(TrainController))
-        self.pidTimer.start(1000)
+
         print("Created the timer")
 
 
     #pidLoop: used to calculate power
-    def pidLoop(self, TrainController):
+    def pidLoop(self):
         print("In PID")
-        if(TrainController.is_auto and ((not self.service_brake ) and ( not self.emergency_brake))):
+        if(self.TrainController.is_auto and ((not self.service_brake ) and ( not self.emergency_brake))):
             self.pid.setpoint = self.commanded_speed
             self.power = self.pid(self.current_speed, dt = 1)
         elif(not(self.setpoint_speed == 0) and not self.service_brake and not self.emergency_brake):
@@ -102,7 +158,7 @@ class SpeedRegulator():
             self.power = self.pid(self.current_speed, dt = 1)
         else:
             self.pid.setpoint=0
-            self.power= 0
+            self.power = 0
         # send power here
         print(self.power)
         print("Got to end of pidLoop:")
@@ -113,19 +169,37 @@ class SpeedRegulator():
     def OnSBrakeOn(self):
         self.service_brake = True
         #DONE: emit service brake
-        self.TrainController.sendServiceBrake()
+        self.TrainController.SendServiceBrakeOn()
+        self.TrainController.DisplayUpdate()
         print("Train ID: " + str(self.train_ID) + "Service Brake: " + str(self.service_brake))
     
     def OnSBrakeOff(self):
         self.service_brake = False
-        #TODO: emit service brake
+        #DONE: emit service brake
+        self.TrainController.SendServiceBrakeOff()
+        self.TrainController.DisplayUpdate()
         print("Service Brake: " + str(self.service_brake))
         
         
     def OnEBrakeOn(self):
         self.emergency_brake = True
-        #TODO: emit service brake
+        self.TrainController.SendEmergencyBrakeOn()
+        self.TrainController.DisplayUpdate()
+        #DONE: emit service brake
         print("Emergency Brake: " + str(self.emergency_brake))
+
+    def IncreaseSetpoint(self):
+        if(self.setpoint_speed < self.commanded_speed):
+            self.setpoint_speed = self.setpoint_speed + 1
+            print("Increasing setpoint speed")
+        self.TrainController.DisplayUpdate()
+
+    def DecreaseSetpoint(self):
+        if(self.setpoint_speed > 0):
+            self.setpoint_speed = self.setpoint_speed - 1
+            print("Decreasing setpoint speed")
+        self.TrainController.DisplayUpdate()
+        
 
     
     
@@ -135,15 +209,52 @@ class SpeedRegulator():
 class MainWindow(QMainWindow):
     def __init__(self, TrainController):
         super(MainWindow, self).__init__()
+        self.TrainController = TrainController
         self.ui = Ui_TrainControllerSW()
         self.ui.setupUi(self)
-        self.ui.serviceBrake.pressed.connect(TrainController.SR.OnSBrakeOn)
-        self.ui.serviceBrake.released.connect(TrainController.SR.OnSBrakeOff)
-        self.ui.emergencyBrake.pressed.connect(TrainController.SR.OnEBrakeOn)
-        self.ui.trainNumber.setPlainText(str(TrainController.train_ID))
-        #self.ui.emergencyBrake.pressed.connect(TrainController.SR.IncreaseSetpoint)
-        #self.ui.D.pressed.connect(TrainController.SR.DecreaseSetpoint)
 
+        #Button To Function Connections
+        self.ui.serviceBrake.pressed.connect(self.TrainController.SR.OnSBrakeOn)
+        self.ui.serviceBrake.released.connect(self.TrainController.SR.OnSBrakeOff)
+        self.ui.emergencyBrake.pressed.connect(self.TrainController.SR.OnEBrakeOn)
+        self.ui.trainNumber.setPlainText(str(self.TrainController.train_ID))
+        self.ui.speedDownButton.clicked.connect(self.TrainController.SR.DecreaseSetpoint)
+        self.ui.speedUpButton.clicked.connect(self.TrainController.SR.IncreaseSetpoint)
+
+
+        self.pidTimer = QTimer()
+        self.pidTimer.timeout.connect(self.TrainController.SR.pidLoop)
+        self.pidTimer.start(1000)
+
+
+        
+    def DisplayUpdate(self):
+        self.ui.setPointSpeedVal.display(self.TrainController.SR.setpoint_speed)
+        self.ui.commandedSpeedVal.display(self.TrainController.SR.commanded_speed)
+        self.ui.authority.display(self.TrainController.SR.authority)
+        self.ui.actualSpeedVal.display(self.TrainController.SR.current_speed)
+
+        if(self.TrainController.SR.service_brake):
+            self.ui.textBrowser_9.setPlainText("S Brake Active")
+            self.ui.textBrowser_11.setPlainText("S Brake Active")
+        else:
+            self.ui.textBrowser_9.setPlainText("S Brake Inactive")
+            self.ui.textBrowser_11.setPlainText("S Brake Inactive")
+
+        if(self.TrainController.SR.emergency_brake):
+            self.ui.textBrowser_8.setPlainText("E Brake Active")
+            self.ui.textBrowser_10.setPlainText("E Brake Active")
+        else:
+            self.ui.textBrowser_8.setPlainText("E Brake Inactive")
+            self.ui.textBrowser_10.setPlainText("E Brake Inactive")
+
+
+    #stephen cals TC.get power and TC.set track circuit and TC.set current speed and TC.set beacon
+
+    #need set beacon, set track circuit functions for stephen to call and for us to decode
+            #in here, make sure 0 authority = service brake and thus no power
+    #add auto mode functionality
+    #add things for KP and Ki
 
 
 if __name__ == "__main__":
