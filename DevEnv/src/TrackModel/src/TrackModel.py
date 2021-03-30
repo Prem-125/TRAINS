@@ -6,7 +6,7 @@ from UI import Ui_Dialog
 #extra imported items
 import csv
 import ast
-
+import random
 
 #i currently need to change the function to that of which will match the coding standards
 
@@ -29,12 +29,12 @@ class Switch:
 	def set_y_stem(self, newy_stem):
 		self.y_stem=newy_stem
 
-	def set_y_zero(self):
+	def get_y_zero(self):
 		return self.y_zero
 	def set_y_zero(self, newy_Zero):
 		self.y_zero=newy_Zero
 
-	def set_y_one(self):
+	def get_y_one(self):
 		return self.y_one
 	def set_y_one(self, newy_One):
 		self.y_one=newy_One
@@ -42,8 +42,8 @@ class Switch:
 #track class
 class Track:
 
-	switchList = [Switch()]
-	switchNum = 0
+	switch_list = [Switch()]
+	switch_num = 0
 	
 	def _init_(self):	
 		self.line = line
@@ -53,245 +53,262 @@ class Track:
 		self.grade = grade
 		self.infrastructure=infrastructure
 		self.elevation=elevation
-		self.elevationC=elevationC
-		self.stationSide=stationSide
-		self.speedLimit = speedLimit
-		self.commandSpeed = commandSpeed #float w 2 decimal points
+		self.elevation_c=elevation_c
+		self.station_side=station_side
+		self.speed_limit = speed_limit
+		self.commanded_speed = commanded_speed #float w 2 decimal points
 		self.beacon = beacon
-		self.signalLight = signalLight
+		self.signal_light = signal_light
 		self.occupied = occupied
-		self.heaterStatus= heaterStatus
-		self.connectionTrackA = connectionTrackA
-		self.connectionTrackB = connectionTrackB
+		self.heater_status= heater_status
+		self.connection_track_a = connection_track_a
+		self.connection_track_b = connection_track_b
 		
-		self.railCondition = railCondition
-		self.circuitCondition = circuitCondition
-		self.powerCondition = powerCondition
-		self.ambientTemp = ambientTemp
+		self.rail_condition = rail_condition
+		self.circuit_condition = circuit_condition
+		self.power_condition = power_condition
+		self.ambient_temp = ambient_temp
 		self.authority = authority
 		
 		
 		#station variables
-		self.ticketCount = ticketCount
-		self.isStation = isStation
-		self.stationName = stationName
+		self.ticket_count = ticket_count
+		self.is_station = is_station
+		self.station_name = station_name
+		self.boarding_count = boarding_count
 		
 		#crossing Variables
-		self.isCrossing = isCrossing
+		self.is_crossing = is_crossing
 		
 		#branch variable
-		self.isBranch = isBranch
+		self.is_branch = is_branch
 		
 		#swithc variable
-		self.isSwitch = isSwitch
-		self.isSwitchLeg = isSwitchLeg
+		self.is_switch = is_switch
+		self.is_switch_leg = is_switch_leg
 		
 	#set and get functions for each variable 
 	#make output signal variable for each module and have an update function to update them all
-	def getLine(self):
+	def get_line(self):
 		return self.line
-	def setLine(self, inLine):
-		self.line=inLine
+	def set_line(self, in_line):
+		self.line=in_line
 	
-	def getSection(self):
+	def get_section(self):
 		return self.section
-	def setSection(self, inSec):
-		self.section=inSec
+	def set_section(self, in_sec):
+		self.section=in_sec
 		
-	def getBlock(self):
+	def get_block(self):
 		return self.block
-	def setBlock(self, inBlock):
-		self.block=inBlock
+	def set_block(self, in_block):
+		self.block=in_block
 	
-	def getLength(self):
+	def get_length(self):
 		return self.length
-	def setLength(self, inLength):
-		self.length=inLength
+	def set_length(self, in_length):
+		self.length=in_length
 	
-	def getGrade(self):
+	def get_grade(self):
 		return self.grade
-	def setGrade(self, inGrade):
-		self.grade=inGrade
+	def set_grade(self, in_grade):
+		self.grade=in_grade
 
-	def getInfrastructure(self):
-		return self.connectionTrackB
-	def setInfrastructure(self, inInfra):
-		self.infrastructure=inInfra
-		self.infraParse()
+	def get_infrastructure(self):
+		return self.connection_track_b
+	def set_infrastructure(self, in_infra):
+		self.infrastructure=in_infra
+		self.infra_parse()
 		#do more
 		
-	def getStationSide(self):
-		return self.stationSide
-	def setStationSide(self, inSide):
-		self.stationSide=inSide
+	def get_station_side(self):
+		return self.station_side
+	def set_station_side(self, in_side):
+		self.station_side=in_side
 		
-	def getElevation(self):
+	def get_elevation(self):
 		return self.elevation
-	def setElevation(self, inElevation):
-		self.elevation=inElevation
+	def set_elevation(self, in_elevation):
+		self.elevation=in_elevation
 		
-	def getElevationC(self):
-		return self.elevationC
-	def setElevationC(self, inElevationC):
-		self.elevationC=inElevationC
+	def get_elevation_c(self):
+		return self.elevation_c
+	def set_elevation_c(self, in_elevation_c):
+		self.elevation_c=in_elevation_c
 
-	def getSpeedLimit(self):
-		return self.speedLimit
-	def setSpeedLimit(self, inSpeedLimit):
-		self.speedLimit=inSpeedLimit
+	def get_speed_limit(self):
+		return self.speed_limit
+	def set_speed_limit(self, in_speed_limit):
+		self.speed_limit=in_speed_limit
 		
-	def getCommandedSpeed(self):
-		return self.commandSpeed
-	def setCommandedSpeed(self, inCommandedSpeed):
-		self.commandSpeed=inCommandedSpeed
+	def get_commanded_speed(self):
+		return self.commanded_speed
+	def set_commanded_speed(self, in_commanded_speed):
+		self.commanded_speed=in_commanded_speed
 
-	def getBeacon(self):
+	def get_beacon(self):
 		return self.beacon
-	def setBeacon(self, inBeacon):
-		self.beacon=inBeacon
+	def set_beacon(self, in_beacon):
+		self.beacon=in_beacon
 
-	def getSignalLight(self):
-		return self.signalLight
-	def setSignalLight(self, inSignalLight):
-		self.signalLight=inSignalLight
+	def get_signal_light(self):
+		return self.signal_light
+	def set_signal_light(self, in_signal_light):
+		self.signal_light=in_signal_light
 		
-	def getOccupied(self):
+	def get_occupied(self):
 		return self.occupied
-	def setOccupied(self, inOccupied):
-		self.occupied=inOccupied
+	def set_occupied(self, in_occupied):
+		self.occupied=in_occupied
 
-	def getConnectionTrackA(self):
-		return self.connectionTrackA
-	def setConnectionTrackA(self, inTrackA):
-		self.connectionTrackA=inTrackA
+	def get_connection_track_a(self):
+		return self.connection_track_a
+	def set_connection_track_a(self, in_track_a):
+		self.connection_track_a=in_track_a
 		
-	def getConnectionTrackB(self):
-		return self.connectionTrackB
-	def setConnectionTrackB(self, inTrackB):
-		self.connectionTrackB=inTrackB
+	def get_connection_track_b(self):
+		return self.connection_track_b
+	def set_connection_track_b(self, in_track_b):
+		self.connection_track_b=in_track_b
 
-	def getHeaterStatus(self):
-		return self.heaterStatus
-	def setHeaterStatus(self, inHeat):
-		self.heaterStatus=inHeat
+	def get_heater_status(self):
+		return self.heater_status
+	def set_heater_status(self, in_heat):
+		self.heater_status=in_heat
 	
-	def getRailCondition(self):
-		return self.railCondition
-	def setRailCondition(self, inCondition):
-		self.railCondition=inCondition
+	def get_rail_condition(self):
+		return self.rail_condition
+	def set_rail_condition(self, in_condition):
+		self.rail_condition=in_condition
 
-	def getCircuitCondition(self):
-		return self.circuitCondition
-	def setCircuitCondition(self, inCondition):
-		self.circuitCondition=inCondition
+	def get_circuit_condition(self):
+		return self.circuit_condition
+	def set_circuit_condition(self, in_condition):
+		self.circuit_condition=in_condition
 
-	def getPowerCondition(self):
-		return self.powerCondition
-	def setPowerCondition(self, inCondition):
-		self.powerCondition=inCondition
+	def get_power_condition(self):
+		return self.power_condition
+	def set_power_condition(self, in_condition):
+		self.power_condition=in_condition
 
-	def getAmbientTemp(self):
-		return self.ambientTemp
-	def setAmbientTemp(self, inCondition):
-		self.ambientTemp=inCondition
+	def get_ambient_temp(self):
+		return self.ambient_temp
+	def set_ambient_temp(self, inCondition):
+		self.ambient_temp=inCondition
 
-	def getAuthority(self):
+	def get_authority(self):
 		return self.authority
-	def setAuthority(self, inCondition):
-		self.authority=inCondition
+	def set_authority(self, in_condition):
+		self.authority=in_condition
 		
-	def getTicketCount(self):
-		return self.ticketCount
-	def setTicketCount(self, inCondition):
-		self.ticketCount=inCondition
+	def get_ticket_count(self):
+		return self.ticket_count
+	def set_ticket_count(self, in_condition):
+		self.ticket_count=in_condition
 
-	def getIsStation(self):
-		return self.isStation
-	def setIsStation(self, inCondition):
-		self.isStation=inCondition		
+	def get_is_station(self):
+		return self.is_station
+	def set_is_station(self, in_condition):
+		self.is_station=in_condition		
 	
-	def getStationName(self):
-		return self.stationName
-	def setStationName(self, inCondition):
-		self.stationName=inCondition
+	def get_station_name(self):
+		return self.station_name
+	def set_station_name(self, in_condition):
+		self.station_name=in_condition
 	
-	def getIsCrossing(self):
-		return self.isCrossing
-	def setIsCrossing(self, inCondition):
-		self.isCrossing=inCondition
+	def get_is_crossing(self):
+		return self.is_crossing
+	def set_is_crossing(self, in_condition):
+		self.is_crossing=in_condition
 
-	def getIsBranch(self):
-		return self.isBranch
-	def setIsBranch(self, inCondition):
-		self.isBranch=inCondition
+	def get_is_branch(self):
+		return self.is_branch
+	def set_is_branch(self, in_condition):
+		self.is_branch=in_condition
 	
-	def getIsSwitch(self):
-		return self.isSwitch
-	def setIsSwitch(self, inCondition):
-		self.isSwitch=inCondition	
+	def get_is_switch(self):
+		return self.is_switch
+	def set_is_switch(self, in_condition):
+		self.is_switch=in_condition	
 
-	def getIsSwitchLeg(self):
-		return self.isSwitchLeg
-	def setIsSwitchLeg(self, inCondition):
-		self.isSwitchLeg=inCondition		
+	def get_is_switch_leg(self):
+		return self.is_switch_leg
+	def set_is_switch_leg(self, in_condition):
+		self.is_switch_leg=in_condition	
+
+	def get_boarding_count(self):
+		return self.boarding_count
+	def set_boarding_count(self, in_condition):
+		self.boarding_count=in_condition
 	
 	#function parse the infrastructure input
-	def infraParse(self):
+	def infra_parse(self):
 		#print(self.infrastructure)
 		#if there is no infrastructure, exit the function
 		if self.infrastructure == '':
-			self.setIsStation(False)
-			self.setIsSwitch(False)
-			self.setIsBranch(False)
+			self.set_is_station(False)
+			self.set_is_switch(False)
+			self.set_is_branch(False)
 			
 			return None
 	
 		#this list contains atributes of infrastructure such a station/undergorund
-		listAtrib=self.infrastructure.split(';')
+		list_atrib=self.infrastructure.split(';')
 		
 		#if there is only one atribute
-		if len(listAtrib) == 1:
+		if len(list_atrib) == 1:
 			#split up atribute by the spacing
-			atrib=listAtrib[0].split(' ')	
+			atrib=list_atrib[0].split(' ')	
 			#print(atrib)
 				
 			#check to see if atribute is a station:
 			if(atrib[0] == 'Station'):
-				self.setIsStation(True)
-				self.setStationName(atrib[0]+' '+atrib[1])
-				sampleString = self.getStationName()
-				#print(sampleString)
-				self.setBeacon('Welcome to ' + sampleString)
-				#print(self.getBeacon())
-				#print("Station is" ,self.getStationName())
+				self.set_is_station(True)
+				self.set_station_name(atrib[0]+' '+atrib[1])
+				sample_string = self.get_station_name()
+				#print(sample_string)
+				self.set_beacon('Welcome to ' + sample_string)
+				self.generate_random_ticket()
+				self.generate_boarding()
+				#print(self.get_beacon())
+				#print("Station is" ,self.get_station_name())
 			else:
-				self.setIsStation(False)
+				self.set_is_station(False)
 			
 			#check to see if atribute is a swtich
 			if(atrib[0] == 'Switch'):	
 				#check to see if it is the stem of the swtich
 				if (len(atrib) > 5):
-					self.setIsSwitch(True)
-					Track.switchNum+=1
-					#print("stem is ", self.getBlock())
-					Track.switchList.append(Switch())
-					Track.switchList[Track.switchNum].set_y_stem(self.getBlock())
-					y_ZeroIn = int(atrib[3])
-					y_OneIn = int(atrib[8])
-					Track.switchList[Track.switchNum].set_switch_position(False)
-					Track.switchList[Track.switchNum].set_y_zero(y_ZeroIn)
-					Track.switchList[Track.switchNum].set_y_one(y_OneIn)
-					#print("zero is ", Track.switchList[Track.switchNum].set_y_zero(), " and one is ", Track.switchList[Track.switchNum].set_y_one(), "and switch position is", Track.switchList[Track.switchNum].get_switch_position())
-					self.setIsSwitchLeg(False)
+					self.set_is_switch(True)
+					Track.switch_num+=1
+					#print("stem is ", self.get_block())
+					Track.switch_list.append(Switch())
+					Track.switch_list[Track.switch_num].set_y_stem(self.get_block())
+					y_zero_in = int(atrib[3])
+					y_one_in = int(atrib[8])
+					Track.switch_list[Track.switch_num].set_switch_position(False)
+					Track.switch_list[Track.switch_num].set_y_zero(y_zero_in)
+					Track.switch_list[Track.switch_num].set_y_one(y_one_in)
+					#print("zero is ", Track.switch_list[Track.switch_num].set_y_zero(), " and one is ", Track.switch_list[Track.switch_num].set_y_one(), "and switch position is", Track.switch_list[Track.switch_num].get_switch_position())
+					self.set_is_switch_leg(False)
 					
 				else: 
-					self.setIsSwitch(False)
-					self.setIsSwitchLeg(True)
+					self.set_is_switch(False)
+					self.set_is_switch_leg(True)
 					
 			else:
-				self.setIsSwitch(False)
-				self.setIsSwitchLeg(False)
+				self.set_is_switch(False)
+				self.set_is_switch_leg(False)
 				
+	#function to generate a random amount of tickets
+	def generate_random_ticket(self):
+		self.set_ticket_count(random.randint(1,30))
+		self.generate_boarding()
+		
+	#function to generate the amount of people boarding
+	def generate_boarding(self):
+		self.set_boarding_count(random.randint(1, self.get_ticket_count()))
+		
 
 #Code for the UI
 class MainWindow(QMainWindow):
@@ -301,32 +318,32 @@ class MainWindow(QMainWindow):
 		self.ui.setupUi(self)
 		
 		#global instance variables
-		self.trackList = [Track()]
-		self.numLines = 0
-		self.currentBlock = 0
+		self.track_list = [Track()]
+		self.num_lines = 0
+		self.current_block = 0
 		
 		#if load track button is pressed
-		self.ui.getTrackFileBTN.clicked.connect(self.loadTrack)
+		self.ui.getTrackFileBTN.clicked.connect(self.load_track)
 		
 		#if get track is pressed then update all relvant information
-		self.ui.getTrackBTN.clicked.connect(self.getTrackInfo)
+		self.ui.getTrackBTN.clicked.connect(self.get_track_info)
 		
 		#if toggle heater is pressed 
-		self.ui.heaterToggleBTN.clicked.connect(self.toggleHeater)
+		self.ui.heaterToggleBTN.clicked.connect(self.toggle_heater)
 		
 		#if button pressed then update the temperature
-		self.ui.setTempBTN.clicked.connect(self.setTrackTemperature)
+		self.ui.setTempBTN.clicked.connect(self.set_track_temperature)
 	
 		#if buttons pressed cause a failure respective to the button
-		self.ui.breakRailBTN.clicked.connect(self.causeRailFail)
-		self.ui.breakCircuitBTN.clicked.connect(self.causeCircuitFail)
-		self.ui.breakPowerBTN.clicked.connect(self.causePowerFail)
+		self.ui.breakRailBTN.clicked.connect(self.cause_rail_fail)
+		self.ui.breakCircuitBTN.clicked.connect(self.cause_circuit_fail)
+		self.ui.breakPowerBTN.clicked.connect(self.cause_power_fail)
 	
 		#if button pressed swap switch
-		self.ui.waySwitchBTN.clicked.connect(self.swapSwitch)
+		self.ui.waySwitchBTN.clicked.connect(self.swap_switch)
 	
 	#function to load track from a file
-	def loadTrack(self):
+	def load_track(self):
 		#if self.upTrackBlue.getChecked()==true
 		inputFileName=self.ui.lineEdit.text();
 		#open csv reader for inputFile
@@ -343,66 +360,66 @@ class MainWindow(QMainWindow):
 			self.ui.trackFileValid.setText("Valid File")
 			csv_reader = csv.reader(csv_file, delimiter=',')
 			
-			#because python indexs by zero, i want a dummie object at trackList[0] since the file indexs the tracks by 1
+			#because python indexs by zero, i want a dummie object at track_list[0] since the file indexs the tracks by 1
 				
 			#assign every variable to each instance
-			self.numLines=0
+			self.num_lines=0
 			for row in csv_reader:
-				#because python indexs by zero, i want a dummie object at trackList[0] since the file indexs the tracks by 1
-				#skip adding any values to track object at trackList[0]
-				if self.numLines ==0:
-					self.trackList.append(Track())	
-					self.numLines+=1
+				#because python indexs by zero, i want a dummie object at track_list[0] since the file indexs the tracks by 1
+				#skip adding any values to track object at track_list[0]
+				if self.num_lines ==0:
+					self.track_list.append(Track())	
+					self.num_lines+=1
 				else:
 					if(len(row) == 0):
 						continue
 					
 					#add information to each track object
 					#print(row)
-					self.trackList.append(Track())
-					self.trackList[self.numLines].setLine(row[0])
-					self.trackList[self.numLines].setSection(row[1])
-					self.trackList[self.numLines].setBlock(int(row[2]))
-					self.trackList[self.numLines].setLength(row[3])
-					self.trackList[self.numLines].setGrade(row[4])
-					self.trackList[self.numLines].setSpeedLimit(row[5])
+					self.track_list.append(Track())
+					self.track_list[self.num_lines].set_line(row[0])
+					self.track_list[self.num_lines].set_section(row[1])
+					self.track_list[self.num_lines].set_block(int(row[2]))
+					self.track_list[self.num_lines].set_length(row[3])
+					self.track_list[self.num_lines].set_grade(row[4])
+					self.track_list[self.num_lines].set_speed_limit(row[5])
 					
-					self.trackList[self.numLines].setStationSide(row[7])
-					self.trackList[self.numLines].setElevation(row[8])
-					self.trackList[self.numLines].setElevationC(row[9])
+					self.track_list[self.num_lines].set_station_side(row[7])
+					self.track_list[self.num_lines].set_elevation(row[8])
+					self.track_list[self.num_lines].set_elevation_c(row[9])
 					
 					#add base default values for each object 
-					self.trackList[self.numLines].setHeaterStatus(False)
-					self.trackList[self.numLines].setRailCondition(True)
-					self.trackList[self.numLines].setCircuitCondition(True)
-					self.trackList[self.numLines].setPowerCondition(True)
-					self.trackList[self.numLines].setAmbientTemp(70)
+					self.track_list[self.num_lines].set_heater_status(False)
+					self.track_list[self.num_lines].set_rail_condition(True)
+					self.track_list[self.num_lines].set_circuit_condition(True)
+					self.track_list[self.num_lines].set_power_condition(True)
+					self.track_list[self.num_lines].set_ambient_temp(70)
 					
 					#temporary simulated signals from wayside
-					self.trackList[self.numLines].setCommandedSpeed(35)
-					self.trackList[self.numLines].setAuthority(137)
-					self.trackList[self.numLines].setSignalLight('Go')
-					self.trackList[self.numLines].setBeacon('Have a nice day!')
-					self.trackList[self.numLines].setTicketCount(17)
-					self.trackList[self.numLines].setOccupied(False)
-					self.trackList[self.numLines].setIsCrossing(False)
-					self.trackList[self.numLines].setIsBranch(False)
-					self.trackList[self.numLines].setIsSwitchLeg(False)
+					self.track_list[self.num_lines].set_commanded_speed(35)
+					self.track_list[self.num_lines].set_authority(137)
+					self.track_list[self.num_lines].set_signal_light('Go')
+					self.track_list[self.num_lines].set_beacon('Have a nice day!')
+					#self.track_list[self.num_lines].set_ticket_count(17)
+					self.track_list[self.num_lines].set_occupied(False)
+					self.track_list[self.num_lines].set_is_crossing(False)
+					self.track_list[self.num_lines].set_is_branch(False)
+					self.track_list[self.num_lines].set_is_switch_leg(False)
 					
-					#self.trackList[self.numLines].setConnectionTrackA(self.trackList[0])
-					#self.trackList[self.numLines].setConnectionTrackB(self.trackList[0])
+					#self.track_list[self.num_lines].set_connection_track_a(self.track_list[0])
+					#self.track_list[self.num_lines].set_connection_track_b(self.track_list[0])
 					
 					#load infrastructure
-					self.trackList[self.numLines].setInfrastructure(row[6])
+					self.track_list[self.num_lines].set_infrastructure(row[6])
 					
-					#print(self.trackList[self.numLines].getBlock())
-					self.numLines+=1
+					#print(self.track_list[self.num_lines].get_block())
+					self.num_lines+=1
 					
 					
 		#close the opened file
 		csv_file.close()			
 			
-	def getTrackInfo(self):
+	def get_track_info(self):
 		#get the text inputted by the user and check to see if it's a number
 		try :
 			inputTrackBlock=int(self.ui.trackSelector.text())
@@ -410,77 +427,81 @@ class MainWindow(QMainWindow):
 			print("Inputted Track Block Not a Number")
 			self.ui.trackSelectorValid.setText("Invalid Input\nNot a Number")
 		
-		if(inputTrackBlock > self.numLines):
+		print("numlines:", self.num_lines)
+		print("inputblock:", inputTrackBlock)
+		
+		if(inputTrackBlock > self.num_lines):
 			print("Input Track Block too High")
 			self.ui.trackSelectorValid.setText("Invalid Input\nBlock Number Too High")
+
 		
 		#otherwise it is a valid input and update everything
 		self.ui.trackSelectorValid.setText("Valid Input")
-		self.currentBlock=inputTrackBlock
-		self.updateTrackInfo(inputTrackBlock)
+		self.current_block=inputTrackBlock
+		self.update_track_info(inputTrackBlock)
 	
 		# deafult update every output for block1
-		#self.updateTrackInfo(1)
+		#self.update_track_info(1)
 	
 	
-	def causeRailFail(self):
+	def cause_rail_fail(self):
 		#toggle status
-		temp = not self.trackList[self.currentBlock].getRailCondition()
+		temp = not self.track_list[self.current_block].get_rail_condition()
 		
 		if(temp == False):
-			self.trackList[self.currentBlock].setRailCondition(False)
-			self.trackList[self.currentBlock].setSignalLight('Stop')
-			self.updateTrackInfo(self.currentBlock)
-			print("CAUTION! RAIL FAILURE ON BLOCK ", self.currentBlock) 
+			self.track_list[self.current_block].set_rail_condition(False)
+			self.track_list[self.current_block].set_signal_light('Stop')
+			self.update_track_info(self.current_block)
+			print("CAUTION! RAIL FAILURE ON BLOCK ", self.current_block) 
 		else:
-			self.trackList[self.currentBlock].setRailCondition(True)
+			self.track_list[self.current_block].set_rail_condition(True)
 			#make sure to send go if all track conditions are good
-			if(self.trackList[self.currentBlock].getCircuitCondition() == True) and (self.trackList[self.currentBlock].getPowerCondition() == True):
-				self.trackList[self.currentBlock].setSignalLight('Go')
-			self.updateTrackInfo(self.currentBlock)
-			print("RAIL Fixed on BLOCK ", self.currentBlock) 
+			if(self.track_list[self.current_block].get_circuit_condition() == True) and (self.track_list[self.current_block].get_power_condition() == True):
+				self.track_list[self.current_block].set_signal_light('Go')
+			self.update_track_info(self.current_block)
+			print("RAIL Fixed on BLOCK ", self.current_block) 
 
-	def causeCircuitFail(self):
+	def cause_circuit_fail(self):
 		#toggle status
-		temp = not self.trackList[self.currentBlock].getCircuitCondition()
+		temp = not self.track_list[self.current_block].get_circuit_condition()
 		
 		if(temp == False):
-			self.trackList[self.currentBlock].setCircuitCondition(False)
-			self.trackList[self.currentBlock].setSignalLight('Stop')
-			self.updateTrackInfo(self.currentBlock)
-			print("CAUTION! CIRCUIT FAILURE ON BLOCK ", self.currentBlock) 
+			self.track_list[self.current_block].set_circuit_condition(False)
+			self.track_list[self.current_block].set_signal_light('Stop')
+			self.update_track_info(self.current_block)
+			print("CAUTION! CIRCUIT FAILURE ON BLOCK ", self.current_block) 
 		else:
-			self.trackList[self.currentBlock].setCircuitCondition(True)
+			self.track_list[self.current_block].set_circuit_condition(True)
 			#make sure to send go if all track conditions are good
-			if(self.trackList[self.currentBlock].getRailCondition() == True) and (self.trackList[self.currentBlock].getPowerCondition() == True):
-				self.trackList[self.currentBlock].setSignalLight('Go')
-			self.updateTrackInfo(self.currentBlock)
-			print("CIRCUIT Fixed on BLOCK ", self.currentBlock) 
+			if(self.track_list[self.current_block].get_rail_condition() == True) and (self.track_list[self.current_block].get_power_condition() == True):
+				self.track_list[self.current_block].set_signal_light('Go')
+			self.update_track_info(self.current_block)
+			print("CIRCUIT Fixed on BLOCK ", self.current_block) 
 
-	def causePowerFail(self):
+	def cause_power_fail(self):
 		#toggle status
-		temp = not self.trackList[self.currentBlock].getPowerCondition()
+		temp = not self.track_list[self.current_block].get_power_condition()
 		
 		if(temp == False):
-			self.trackList[self.currentBlock].setPowerCondition(False)
-			self.trackList[self.currentBlock].setSignalLight('Stop')
-			self.updateTrackInfo(self.currentBlock)
-			print("CAUTION! POWER FAILURE ON BLOCK ", self.currentBlock) 
+			self.track_list[self.current_block].set_power_condition(False)
+			self.track_list[self.current_block].set_signal_light('Stop')
+			self.update_track_info(self.current_block)
+			print("CAUTION! POWER FAILURE ON BLOCK ", self.current_block) 
 		else:
-			self.trackList[self.currentBlock].setPowerCondition(True)
+			self.track_list[self.current_block].set_power_condition(True)
 			#make sure to send go if all track conditions are good
-			if(self.trackList[self.currentBlock].getRailCondition() == True) and (self.trackList[self.currentBlock].getCircuitCondition() == True):
-				self.trackList[self.currentBlock].setSignalLight('Go')
-			self.updateTrackInfo(self.currentBlock)
-			print("POWER Fixed on BLOCK ", self.currentBlock) 
+			if(self.track_list[self.current_block].get_rail_condition() == True) and (self.track_list[self.current_block].get_circuit_condition() == True):
+				self.track_list[self.current_block].set_signal_light('Go')
+			self.update_track_info(self.current_block)
+			print("POWER Fixed on BLOCK ", self.current_block) 
 			
 	
-	def toggleHeater(self):
-		temp = not self.trackList[self.currentBlock].getHeaterStatus()
-		self.trackList[self.currentBlock].setHeaterStatus(temp)		
-		self.updateTrackInfo(self.currentBlock)
+	def toggle_heater(self):
+		temp = not self.track_list[self.current_block].get_heater_status()
+		self.track_list[self.current_block].set_heater_status(temp)		
+		self.update_track_info(self.current_block)
 	
-	def setTrackTemperature(self):
+	def set_track_temperature(self):
 		try :
 			inputTemp=int(self.ui.tempSelector.text())
 		except:
@@ -496,90 +517,92 @@ class MainWindow(QMainWindow):
 			self.ui.tempSelectorValid.setText("Invalid Input\nTemp Too Low")
 	
 		if inputTemp<32:
-			self.trackList[self.currentBlock].setHeaterStatus(True)
+			self.track_list[self.current_block].set_heater_status(True)
 		else:
-			self.trackList[self.currentBlock].setHeaterStatus(False)
+			self.track_list[self.current_block].set_heater_status(False)
 		
-		self.trackList[self.currentBlock].setAmbientTemp(inputTemp)
-		self.updateTrackInfo(self.currentBlock)
+		self.track_list[self.current_block].set_ambient_temp(inputTemp)
+		self.update_track_info(self.current_block)
 	
-	def swapSwitch(self): #change this to be inside the swtich class
-		if(self.trackList[self.currentBlock].getIsSwitch() == True):
-			temp = not self.trackList[self.currentBlock].switchList[Track.switchNum].get_switch_position()
-			self.trackList[self.currentBlock].switchList[Track.switchNum].set_switch_position(temp)
-			self.updateTrackInfo(self.currentBlock)
+	def swap_switch(self): #change this to be inside the swtich class
+		if(self.track_list[self.current_block].get_is_switch() == True):
+			temp = not self.track_list[self.current_block].switch_list[Track.switch_num].get_switch_position()
+			self.track_list[self.current_block].switch_list[Track.switch_num].set_switch_position(temp)
+			self.update_track_info(self.current_block)
 	
-	def updateTrackInfo(self,blckNum):
+	def update_track_info(self,blckNum):
 		
 		print("-----------------------------------------------------------------------------------")
 		#update any connections
 		#make track connections
 		i=1
-		while (i <= self.numLines-1):
-			#print(self.trackList[i].getBlock())
-			if self.trackList[i].getIsSwitch()==False and  self.trackList[i].getIsSwitchLeg()==False :						
+		while (i <= self.num_lines-1):
+			#print(self.track_list[i].get_block())
+			if self.track_list[i].get_is_switch()==False and  self.track_list[i].get_is_switch_leg()==False :						
 				if i == 1:
-					self.trackList[i].setConnectionTrackA(None)
-					self.trackList[i].setConnectionTrackB(self.trackList[i+1])
+					self.track_list[i].set_connection_track_a(None)
+					self.track_list[i].set_connection_track_b(self.track_list[i+1])
 				
-				if i == self.numLines or self.trackList[i].getIsStation()==True:
-					self.trackList[i].setConnectionTrackA(self.trackList[i-1])
-					self.trackList[i].setConnectionTrackB(None)
+				if i == self.num_lines or self.track_list[i].get_is_station()==True:
+					self.track_list[i].set_connection_track_a(self.track_list[i-1])
+					self.track_list[i].set_connection_track_b(None)
 				else:
-					self.trackList[i].setConnectionTrackA(self.trackList[i-1])
-					self.trackList[i].setConnectionTrackB(self.trackList[i+1])
+					self.track_list[i].set_connection_track_a(self.track_list[i-1])
+					self.track_list[i].set_connection_track_b(self.track_list[i+1])
 								
 			else:
 				#print('d')
-				if self.trackList[i].switchList[Track.switchNum].get_switch_position() == False:
+				if self.track_list[i].switch_list[Track.switch_num].get_switch_position() == False:
 					#print('h')
-					self.trackList[i].setConnectionTrackA(self.trackList[Track.switchList[1].get_y_stem()])
-					self.trackList[i].setConnectionTrackB(self.trackList[Track.switchList[1].set_y_zero()])
-					self.trackList[Track.switchList[1].set_y_one()].setConnectionTrackA(None)
+					self.track_list[i].set_connection_track_a(self.track_list[Track.switch_list[1].get_y_stem()])
+					self.track_list[i].set_connection_track_b(self.track_list[Track.switch_list[1].get_y_zero()])
+					self.track_list[Track.switch_list[1].get_y_one()].set_connection_track_a(None)
 				
-				if self.trackList[i].switchList[Track.switchNum].get_switch_position() == True:
-					self.trackList[i].setConnectionTrackA(self.trackList[Track.switchList[1].get_y_stem()])
-					self.trackList[i].setConnectionTrackB(self.trackList[Track.switchList[1].set_y_one()])
-					self.trackList[Track.switchList[1].set_y_zero()].setConnectionTrackA(None)				
+				if self.track_list[i].switch_list[Track.switch_num].get_switch_position() == True:
+					self.track_list[i].set_connection_track_a(self.track_list[Track.switch_list[1].get_y_stem()])
+					self.track_list[i].set_connection_track_b(self.track_list[Track.switch_list[1].get_y_one()])
+					self.track_list[Track.switch_list[1].get_y_zero()].set_connection_track_a(None)				
 				
 				
 			
-			print(self.trackList[i].getBlock()," Con A = ", self.trackList[i].getConnectionTrackA(), "Con B = ",self.trackList[i].getConnectionTrackB())
+			print(self.track_list[i].get_block()," Con A = ", self.track_list[i].get_connection_track_a(), "Con B = ",self.track_list[i].get_connection_track_b())
 			
 			i+=1
 		
 		#update every label with relevant information
-		self.ui.selTrackSection.setText(str(self.trackList[blckNum].getLine()))
+		self.ui.selTrackSection.setText(str(self.track_list[blckNum].get_line()))
 		
 		
-		self.ui.selTrackSpeed.display(self.trackList[blckNum].getSpeedLimit())
+		self.ui.selTrackSpeed.display(self.track_list[blckNum].get_speed_limit())
 		
-		self.ui.selTrackGrade.setText(str(self.trackList[blckNum].getGrade()))
-		self.ui.selTrackHeater.setText(str(self.trackList[blckNum].getHeaterStatus()))
+		self.ui.selTrackGrade.setText(str(self.track_list[blckNum].get_grade()))
+		self.ui.selTrackHeater.setText(str(self.track_list[blckNum].get_heater_status()))
 		
-		if(self.trackList[blckNum].getIsStation() == True):
-			self.ui.selTrackStation.setText(self.trackList[blckNum].getStationName())	
+		if(self.track_list[blckNum].get_is_station() == True):
+			self.ui.selTrackStation.setText(self.track_list[blckNum].get_station_name())	
 			#CTC outputs
-			self.ui.ctcTicketO.display(self.trackList[blckNum].getTicketCount())
+			self.ui.ctcTicketO.display(self.track_list[blckNum].get_ticket_count())
 			self.ui.ctcTrackUpO.setText("Tickets Updated")
+			self.ui.train_people_boarding.display(self.track_list[blckNum].get_boarding_count())
 		else:
 			self.ui.selTrackStation.setText('Not a Station')
 			self.ui.ctcTicketO.display(0)
+			self.ui.train_people_boarding.display(0)
 			self.ui.ctcTrackUpO.setText("Not a Station")
 			
-		if(self.trackList[blckNum].getIsCrossing() == True):
+		if(self.track_list[blckNum].get_is_crossing() == True):
 			self.ui.selTrackCross.setText('Yes')
 		else:
 			self.ui.selTrackCross.setText('No')
 		
-		if(self.trackList[blckNum].getIsCrossing() == True):
+		if(self.track_list[blckNum].get_is_crossing() == True):
 			self.ui.selTrackBranch.setText('Yes')
 		else:
 			self.ui.selTrackBranch.setText('No')	
 
-		if(self.trackList[blckNum].getIsSwitch() == True):
+		if(self.track_list[blckNum].get_is_switch() == True):
 			self.ui.selTrackSW.setText('Yes')
-			self.ui.waySwitch.setText(str(self.trackList[blckNum].getConnectionTrackB().getBlock()))
+			self.ui.waySwitch.setText(str(self.track_list[blckNum].get_connection_track_b().get_block()))
 			#SET CONNECTIONS BOYOY
 		else:
 			self.ui.selTrackSW.setText('No')	
@@ -587,42 +610,42 @@ class MainWindow(QMainWindow):
 		
 		
 		#railStatus
-		self.ui.selTrackRailStat.setText(str(self.trackList[blckNum].getRailCondition()))
-		self.ui.selTrackCircStat.setText(str(self.trackList[blckNum].getCircuitCondition()))
-		self.ui.selTrackPowerStat.setText(str(self.trackList[blckNum].getPowerCondition()))
+		self.ui.selTrackRailStat.setText(str(self.track_list[blckNum].get_rail_condition()))
+		self.ui.selTrackCircStat.setText(str(self.track_list[blckNum].get_circuit_condition()))
+		self.ui.selTrackPowerStat.setText(str(self.track_list[blckNum].get_power_condition()))
 		
 	
 		
 		#railSignal
-		if(self.trackList[blckNum].getSignalLight() == 'Go'):
+		if(self.track_list[blckNum].get_signal_light() == 'Go'):
 			self.ui.sigGo.setChecked(True)
 			self.ui.sigSlow.setChecked(False)
 			self.ui.sigStop.setChecked(False)
-		elif(self.trackList[blckNum].getSignalLight() == 'Slow'):
+		elif(self.track_list[blckNum].get_signal_light() == 'Slow'):
 			self.ui.sigGo.setChecked(False)
 			self.ui.sigSlow.setChecked(True)
 			self.ui.sigStop.setChecked(False)
-		elif(self.trackList[blckNum].getSignalLight() == 'Stop'):
+		elif(self.track_list[blckNum].get_signal_light() == 'Stop'):
 			self.ui.sigGo.setChecked(False)
 			self.ui.sigSlow.setChecked(False)
 			self.ui.sigStop.setChecked(True)
 		
 		#temperature
-		self.ui.ambTemp.display(self.trackList[blckNum].getAmbientTemp())
+		self.ui.ambTemp.display(self.track_list[blckNum].get_ambient_temp())
 		
 		#wayside input
-		self.ui.wayCommandedSpeed.display(self.trackList[blckNum].getCommandedSpeed())
-		self.ui.wayAuthority.display(self.trackList[blckNum].getAuthority())
-		self.ui.waySignal.setText(self.trackList[blckNum].getSignalLight())
+		self.ui.wayCommandedSpeed.display(self.track_list[blckNum].get_commanded_speed())
+		self.ui.wayAuthority.display(self.track_list[blckNum].get_authority())
+		self.ui.waySignal.setText(self.track_list[blckNum].get_signal_light())
 		
 		#train outputs
-		self.ui.trainSpeedLimitO.display(self.trackList[blckNum].getSpeedLimit())
-		self.ui.trainAuthorityO.display(self.trackList[blckNum].getAuthority())
-		self.ui.trainBeaconO.setText(self.trackList[blckNum].getBeacon())
+		self.ui.trainSpeedLimitO.display(self.track_list[blckNum].get_speed_limit())
+		self.ui.trainAuthorityO.display(self.track_list[blckNum].get_authority())
+		self.ui.trainBeaconO.setText(self.track_list[blckNum].get_beacon())
 	
 		
 		#Wayside outputs
-		self.ui.wayOccupiedO.setText(str(self.trackList[blckNum].getOccupied()))
+		self.ui.wayOccupiedO.setText(str(self.track_list[blckNum].get_occupied()))
 		
 		
 if __name__ == "__main__":
