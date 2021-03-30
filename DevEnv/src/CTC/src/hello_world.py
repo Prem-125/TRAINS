@@ -2,6 +2,8 @@ import sys
 import random
 from PySide6 import QtCore, QtWidgets, QtGui
 
+import UI
+
 class MyWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
@@ -20,7 +22,7 @@ class MyWidget(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def magic(self):
-        self.text.setText("Test123")
+        self.text.setText("Test Successful")
 		
 		
 if __name__ == "__main__":

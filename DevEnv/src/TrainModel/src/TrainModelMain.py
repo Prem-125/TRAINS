@@ -62,6 +62,7 @@ class MainWindow(QMainWindow):
 		self.powerTimer.start(1000) 
 
 
+
 	def open_left_doors(self):
 		self.ui.leftDoorsOutput.setText("Open")
 		self.ui.leftDoorsOutput_4.setText("Open")
@@ -206,11 +207,13 @@ class MainWindow(QMainWindow):
    		self.ui.serviceBreakOuput.setText("Off")
    		self.set_velocity()
 
+
    	def	set_track_circuit(self,TrackInt)
    		self.train_controller.set_track_circuit(TrackInt)
 
    	def	set_beacon(self,BeaconInt)
    		self.train_controller.set_beacon(BeaconInt)												  
+
 
 
 
@@ -231,9 +234,11 @@ class MainWindow(QMainWindow):
 		else:
 			self.train.velocity = calcVelocity
 		self.ui.veloOutput.setText(str(round(self.train.velocity*2.23694,2))+ " mph")
+    
 	def get_power(self):
 		self.train.power = self.train_controller.get_power()
 		self.set_velocity()
+    
 	def set_speed_limit(self, text):
 		self.train.spdLimit = float(text)
 		self.train.spdLimit =self.train.spdLimit * .44704
