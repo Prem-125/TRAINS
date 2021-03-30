@@ -53,7 +53,13 @@ class TrainController:
     def DisplayUpdate(self):
         self.UI.DisplayUpdate()
 
+    def set_track_circuit(self, TrackInt):
+        ...
 
+    def set_beacon(self, BeaconInt):
+        ...
+
+    
 
     #SPEED REGULATOR SETTERS
     def set_commanded_speed(self, commanded_speed):
@@ -185,7 +191,7 @@ class MainWindow(QMainWindow):
 
 
         self.pidTimer = QTimer()
-        self.pidTimer.timeout.connect(self.TrainController.SR.pidLoop())
+        self.pidTimer.timeout.connect(self.TrainController.SR.pidLoop)
         self.pidTimer.start(1000)
 
 
@@ -209,6 +215,14 @@ class MainWindow(QMainWindow):
         else:
             self.ui.textBrowser_8.setPlainText("E Brake Inactive")
             self.ui.textBrowser_10.setPlainText("E Brake Inactive")
+
+
+    #stephen cals TC.get power and TC.set track circuit and TC.set current speed and TC.set beacon
+
+    #need set beacon, set track circuit functions for stephen to call and for us to decode
+            #in here, make sure 0 authority = service brake and thus no power
+    #add auto mode functionality
+    #add things for KP and Ki
 
 
 if __name__ == "__main__":
