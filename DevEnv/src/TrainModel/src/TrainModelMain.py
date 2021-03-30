@@ -9,10 +9,11 @@ from PySide6.QtCore import QFile
 from TrainModel.src.UI import Ui_MainWindow
 from TrainModel.src.Train import Train as TrainModel
 from TrainControllerSW.src.TrainControllerSW import TrainController as TrainControllerSW
+from TrainControllerHW.src.TrainControllerHWInterface import TrainControllerHWInterface as TrainControllerHW
 
 
 class MainWindow(QMainWindow):
-	# self.train= Train()
+	
 	def __init__(self, commanded_speed, current_speed, authority, soft_or_hard, trainID):
 		super(MainWindow, self).__init__()
 		self.ui = Ui_MainWindow()
@@ -23,8 +24,7 @@ class MainWindow(QMainWindow):
 		if(soft_or_hard):
 			self.train_controller = TrainControllerSW(self, commanded_speed, current_speed, authority, trainID)
 		else:
-			#Hardware controller 
-			...
+			self.train_controller = TrainControllerHW(self,trainID = trainID)
 
 
 		self.ui.pwrInput.textChanged.connect(self.set_power)

@@ -10,7 +10,7 @@ from signals import signals
 
 
 #Initialize track layout
-BlueLine = Trackline("Blue", "C:/Users/aurisb/Documents/TRAINS/DevEnv/src/BlueLineLayout.xls", 0)
+BlueLine = Trackline("Blue", "./BlueLineLayout.xls", 0)
 
 #Declare Schedule
 DemoSchedule = Schedule()
