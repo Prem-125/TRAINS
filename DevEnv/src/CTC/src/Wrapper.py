@@ -10,7 +10,7 @@ from signals import signals
 
 
 #Initialize track layout
-BlueLine = Trackline("Blue", "./BlueLineLayout.xls", 0)
+BlueLine = Trackline("Blue", "./DevEnv/src/CTC/BlueLineLayout.xls", 0) #./BlueLineLayout.xls
 
 #Declare Schedule
 DemoSchedule = Schedule()

@@ -31,13 +31,28 @@ class TrainController:
         self.UI = MainWindow(self)
         self.UI.show()
 
+        self.DisplayUpdate()
+
         #all my connections
 
 
-    #communicating with train model
-    def sendServiceBrake(self):
+    #COMMUNICATING WITH CORRESPONDING TRAIN MODEL
+    def SendServiceBrakeOn(self):
         self.TrainModelRef.s_brake_on()
     
+    def SendServiceBrakeOff(self):
+        self.TrainModelRef.s_brake_off()
+
+    def SendEmergencyBrakeOn(self):
+        self.TrainModelRef.emergency_brake()
+
+
+    #UPDATING THE UI
+    def DisplayUpdate(self):
+        self.UI.DisplayUpdate()
+
+
+
     #SPEED REGULATOR SETTERS
     def set_commanded_speed(self, commanded_speed):
         self.SR.commanded_speed = commanded_speed
@@ -64,6 +79,9 @@ class TrainController:
     #SPEED REGULATOR GETTERS
     def get_power(self):
         return self.SR.power
+
+    #SPEED REGULATOR BUTTONS
+    
 
 
 class SpeedRegulator():
@@ -113,19 +131,37 @@ class SpeedRegulator():
     def OnSBrakeOn(self):
         self.service_brake = True
         #DONE: emit service brake
-        self.TrainController.sendServiceBrake()
+        self.TrainController.SendServiceBrakeOn()
+        self.TrainController.DisplayUpdate()
         print("Train ID: " + str(self.train_ID) + "Service Brake: " + str(self.service_brake))
     
     def OnSBrakeOff(self):
         self.service_brake = False
-        #TODO: emit service brake
+        #DONE: emit service brake
+        self.TrainController.SendServiceBrakeOff()
+        self.TrainController.DisplayUpdate()
         print("Service Brake: " + str(self.service_brake))
         
         
     def OnEBrakeOn(self):
         self.emergency_brake = True
-        #TODO: emit service brake
+        self.TrainController.SendEmergencyBrakeOn()
+        self.TrainController.DisplayUpdate()
+        #DONE: emit service brake
         print("Emergency Brake: " + str(self.emergency_brake))
+
+    def IncreaseSetpoint(self):
+        if(self.setpoint_speed < self.commanded_speed):
+            self.setpoint_speed = self.setpoint_speed + 1
+            print("Increasing setpoint speed")
+        self.TrainController.DisplayUpdate()
+
+    def DecreaseSetpoint(self):
+        if(self.setpoint_speed > 0):
+            self.setpoint_speed = self.setpoint_speed - 1
+            print("Decreasing setpoint speed")
+        self.TrainController.DisplayUpdate()
+        
 
     
     
@@ -135,15 +171,39 @@ class SpeedRegulator():
 class MainWindow(QMainWindow):
     def __init__(self, TrainController):
         super(MainWindow, self).__init__()
+        self.TrainController = TrainController
         self.ui = Ui_TrainControllerSW()
         self.ui.setupUi(self)
-        self.ui.serviceBrake.pressed.connect(TrainController.SR.OnSBrakeOn)
-        self.ui.serviceBrake.released.connect(TrainController.SR.OnSBrakeOff)
-        self.ui.emergencyBrake.pressed.connect(TrainController.SR.OnEBrakeOn)
-        self.ui.trainNumber.setPlainText(str(TrainController.train_ID))
-        #self.ui.emergencyBrake.pressed.connect(TrainController.SR.IncreaseSetpoint)
-        #self.ui.D.pressed.connect(TrainController.SR.DecreaseSetpoint)
 
+        #Button To Function Connections
+        self.ui.serviceBrake.pressed.connect(self.TrainController.SR.OnSBrakeOn)
+        self.ui.serviceBrake.released.connect(self.TrainController.SR.OnSBrakeOff)
+        self.ui.emergencyBrake.pressed.connect(self.TrainController.SR.OnEBrakeOn)
+        self.ui.trainNumber.setPlainText(str(self.TrainController.train_ID))
+        self.ui.speedDownButton.clicked.connect(self.TrainController.SR.DecreaseSetpoint)
+        self.ui.speedUpButton.clicked.connect(self.TrainController.SR.IncreaseSetpoint)
+
+
+        
+    def DisplayUpdate(self):
+        self.ui.setPointSpeedVal.display(self.TrainController.SR.setpoint_speed)
+        self.ui.commandedSpeedVal.display(self.TrainController.SR.commanded_speed)
+        self.ui.authority.display(self.TrainController.SR.authority)
+        self.ui.actualSpeedVal.display(self.TrainController.SR.current_speed)
+
+        if(self.TrainController.SR.service_brake):
+            self.ui.textBrowser_9.setPlainText("S Brake Active")
+            self.ui.textBrowser_11.setPlainText("S Brake Active")
+        else:
+            self.ui.textBrowser_9.setPlainText("S Brake Inactive")
+            self.ui.textBrowser_11.setPlainText("S Brake Inactive")
+
+        if(self.TrainController.SR.emergency_brake):
+            self.ui.textBrowser_8.setPlainText("E Brake Active")
+            self.ui.textBrowser_10.setPlainText("E Brake Active")
+        else:
+            self.ui.textBrowser_8.setPlainText("E Brake Inactive")
+            self.ui.textBrowser_10.setPlainText("E Brake Inactive")
 
 
 if __name__ == "__main__":
