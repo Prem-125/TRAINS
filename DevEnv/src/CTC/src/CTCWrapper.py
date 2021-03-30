@@ -13,14 +13,27 @@ gbl_centiseconds = 0
 #Load in track layout
 GreenLine = TrackLine("C:/Users/fjfat/SoftwareDevelopment/TRAINS/DevEnv/src/CTC/src/TrackLayout.xls", 2)
 
+RedLine = TrackLine("C:/Users/fjfat/SoftwareDevelopment/TRAINS/DevEnv/src/CTC/src/TrackLayout.xls", 1)
+
+"""
 for blockObj in GreenLine.block_list:
     print("\nBlock " + str(blockObj.number))
     
 for switchObj in GreenLine.switch_list:
-    print("\nSwitch: Root = " + str(switchObj.root) + " Branch1 = " + str(switchObj.branch_1) + "Branch2 = " + str(switchObj.branch_2))
+    print("\nSwitch: Root = " + str(switchObj.root) + " Branch1 = " + str(switchObj.branch_1) + " Branch2 = " + str(switchObj.branch_2))
 
 for stationObj in GreenLine.station_list:
     print("\nStation: Root = " + str(stationObj.block_num) + " Name = " + str(stationObj.name) )
+
+for blockObj in RedLine.block_list:
+    print("\nBlock " + str(blockObj.number))
+    
+for switchObj in RedLine.switch_list:
+    print("\nSwitch: Root = " + str(switchObj.root) + " Branch1 = " + str(switchObj.branch_1) + " Branch2 = " + str(switchObj.branch_2))
+
+for stationObj in RedLine.station_list:
+    print("\nStation: Root = " + str(stationObj.block_num) + " Name = " + str(stationObj.name) )
+"""
 
 #Define MainWindow class
 class MainWindow(QMainWindow): #Subclass of QMainWindow
