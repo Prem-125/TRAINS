@@ -13,7 +13,7 @@ class TrainController:
         
         #setting important variables
         self.train_ID = TrainID
-        self.is_auto = True
+        self.is_auto = False
 
         #sending vital info to SpeedRegulator
         self.SR = SpeedRegulator(self, commanded_speed, current_speed, authority, self.train_ID)
@@ -23,8 +23,7 @@ class TrainController:
         self.SR.setpoint_speed = 0.0
         self.SR.service_brake = False
         self.SR.emergency_brake = False
-        self.SR.kp = 0
-        self.SR.ki = 0
+
         self.TrainModelRef = TrainModel
         
         #UI Stuff
@@ -75,9 +74,11 @@ class TrainController:
         else:
             self.set_commanded_speed(tempCmdFloat/100 + tempCmdInt)
             self.set_authority(tempAuthFloat/100 + tempAuthInt)
+        print("Track Circuit Decoded!")
 
     def set_beacon(self, BeaconInt):
         self.DecodeBeacon(BeaconInt)
+        
 
     def DecodeBeacon(self, BeaconInt):
         self.upcoming_station = (self.BeaconInt & 1)
@@ -90,6 +91,7 @@ class TrainController:
             ...
             #self.onAnnouncement()
         self.DisplayUpdate()
+        print("Beacon Decoded!")
 
         
     def VitalFault(self):
@@ -99,6 +101,7 @@ class TrainController:
         self.SR.commanded_speed = commanded_speed
     
     def set_current_speed(self, current_speed):
+        self.SR.pidLoop()
         self.SR.current_speed = current_speed
     
     def set_authority(self, authority):
@@ -150,35 +153,42 @@ class SpeedRegulator():
         self.setpoint_speed = 0.0
         self.service_brake = False
         self.emergency_brake = False
-        self.kp = 0.0
-        self.ki = 0.0
+        self.kp = 1.0
+        self.ki = 1.0
         self.power = 0.0
         self.train_ID = train_ID
         self.TrainController = TrainController
-        print("SpeedRegulator")
+
 
         #setting up the PID Loop
         self.pid = PID(self.kp, self.ki, 0)
         self.pid.output_limits = (0, 120000)
 
-        print("Created the timer")
 
 
     #pidLoop: used to calculate power
     def pidLoop(self):
+        #pid loop called
         print("In PID")
         if(self.TrainController.is_auto and ((not self.service_brake ) and ( not self.emergency_brake))):
             self.pid.setpoint = self.commanded_speed
             self.power = self.pid(self.current_speed, dt = 1)
+            print("In AUTO MOde, going off commanded")
         elif(not(self.setpoint_speed == 0) and not self.service_brake and not self.emergency_brake):
             self.pid.setpoint = self.setpoint_speed
             self.power = self.pid(self.current_speed, dt = 1)
+            print("In MANUAL MOde, going off SETPOINT")
+            print("Self setopint speed is: " + str(self.setpoint_speed))
+            print("Current speed is : " + str(self.current_speed))
+            self.TrainController.DisplayUpdate()
+
         else:
             self.pid.setpoint=0
             self.power = 0
         # send power here
-        print(self.power)
+        #print(self.power)
         print("Got to end of pidLoop:")
+        print("Power:" + str(self.power))
 
     def get_power(self):
         print(self.power)
@@ -240,18 +250,18 @@ class MainWindow(QMainWindow):
         self.ui.automaticMode.toggled.connect(self.TrainController.toggle_is_auto)
         self.ui.updatePID.clicked.connect(self.send_kp_ki)
 
-        self.pidTimer = QTimer()
-        self.pidTimer.timeout.connect(self.TrainController.SR.pidLoop)
-        self.pidTimer.start(1000)
+        #self.pidTimer = QTimer()
+        #self.pidTimer.timeout.connect(self.TrainController.SR.pidLoop)
+        #self.pidTimer.start(1000)
 
 
 
         
     def DisplayUpdate(self):
-        self.ui.setPointSpeedVal.display(self.TrainController.SR.setpoint_speed)
-        self.ui.commandedSpeedVal.display(self.TrainController.SR.commanded_speed)
+        self.ui.setPointSpeedVal.display(self.TrainController.SR.setpoint_speed * 2.23694)
+        self.ui.commandedSpeedVal.display(self.TrainController.SR.commanded_speed * 2.23694)
         self.ui.authority.display(self.TrainController.SR.authority)
-        self.ui.actualSpeedVal.display(self.TrainController.SR.current_speed)
+        self.ui.actualSpeedVal.display(self.TrainController.SR.current_speed * 2.23694)
 
         if(self.TrainController.SR.service_brake):
             self.ui.textBrowser_9.setPlainText("S Brake Active")

@@ -5,7 +5,7 @@ import math
 import time 
 
 from PySide6.QtWidgets import QApplication, QMainWindow
-from PySide6.QtCore import QFile
+from PySide6.QtCore import QFile, QTimer
 from TrainModel.src.UI import Ui_MainWindow
 from TrainModel.src.Train import Train as TrainModel
 from TrainControllerSW.src.TrainControllerSW import TrainController as TrainControllerSW
@@ -27,7 +27,7 @@ class MainWindow(QMainWindow):
 			self.train_controller = TrainControllerHW(self,trainID = trainID)
 
 
-		self.ui.pwrInput.textChanged.connect(self.set_power)
+		self.ui.pwrInput.textChanged.connect(self.get_power)
 		self.ui.speedLimit.textChanged.connect(self.set_speed_limit)
 		#self.ui.speedLimit.textChanged.connect(self.set_velocity)
 		self.ui.leftDoorOpen.clicked.connect(self.open_left_doors)
@@ -56,6 +56,11 @@ class MainWindow(QMainWindow):
 		self.ui.spinBox.valueChanged.connect(self.temp_changed)
 		self.ui.serviceBreakOn.clicked.connect(self.s_brake_on)
 		self.ui.serviceBreakOff.clicked.connect(self.s_brake_off)
+
+		self.powerTimer = QTimer()
+		self.powerTimer.timeout.connect(self.get_power)
+		self.powerTimer.start(1000) 
+
 
 
 	def open_left_doors(self):
@@ -203,7 +208,12 @@ class MainWindow(QMainWindow):
    		self.set_velocity()
 
 
-												  
+	def	set_track_circuit(self,TrackInt):
+		self.train_controller.set_track_circuit(TrackInt)
+
+	def	set_beacon(self,BeaconInt):
+		self.train_controller.set_beacon(BeaconInt)												  
+
 
 
 
@@ -215,6 +225,7 @@ class MainWindow(QMainWindow):
 
 
 	def set_velocity(self):
+
 		calcVelocity = (self.train.power/2  * (1 - .2 * self.train.engineFailure))
 		if((self.train.EmergencyBrake or self.train.serviceBrake) and not self.train.brakeFailure):
 			self.train.velocity = 0
@@ -223,9 +234,12 @@ class MainWindow(QMainWindow):
 		else:
 			self.train.velocity = calcVelocity
 		self.ui.veloOutput.setText(str(round(self.train.velocity*2.23694,2))+ " mph")
-	def set_power(self, text):
-		self.train.power = float(text)
+		self.train_controller.set_current_speed(self.train.velocity)
+	
+	def get_power(self):
+		self.train.power = self.train_controller.get_power()
 		self.set_velocity()
+	
 	def set_speed_limit(self, text):
 		self.train.spdLimit = float(text)
 		self.train.spdLimit =self.train.spdLimit * .44704
