@@ -60,9 +60,6 @@ class Station:
         self.name = station_name
         #Initialize instance variable to hold block number to which station is belongs
         self.block_num = assoc_block_num
-
-        #Initialize instance varialbe to hold the total number of tickets sold at the station
-        self.ticket_sales = 0
     #End constructor
 
 #End Station class definition
@@ -98,6 +95,13 @@ class TrackLine:
 
         #Initialize block composition of TrackLine
         self.TrackSetup(filepath, sheet_index)
+
+        #Initialize instance variable to hold the total number of tickets sold on track line
+        self.ticket_sales = 0
+
+        #Initialize instance variable to hold track line throughput
+        self.throughput = 0
+
     #End contructor
 
     #Define method to establish track layout
@@ -211,6 +215,16 @@ class TrackLine:
         exl_workbook.release_resources()
 
     #End method
+
+    #Method to compute throughput
+    def ComputeThroughput(new_ticket_sales):
+        #Add new ticket sales to total ticket sales
+        ticket_sales += new_ticket_sales
+
+        #Recompute throughput
+        self.throughput = ticket_sales / gbl_centiseconds / 36000
+
+        return self.throughput
 
 #End TrackLine class definition
 

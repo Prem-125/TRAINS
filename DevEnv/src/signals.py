@@ -9,7 +9,7 @@ from PySide6.QtCore import QObject, Signal
 # pylint: disable=too-few-public-methods
 class SignalsClass(QObject):
     """Class to hold all the signals"""
-    test = Signal(int) # Current day, hours, minutes, seconds
+    station_ticket_sales = Signal(str, int) # Current day, hours, minutes, seconds
 
 #trackSelector <- linebox for track model QLineEdit
 
