@@ -1,7 +1,9 @@
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtCore import QFile
-from UI import Ui_Dialog
+from TrackModel.src.UI import Ui_Dialog
+from signals import signals
+
 
 #extra imported items
 import csv
@@ -340,10 +342,14 @@ class MainWindow(QMainWindow):
 		self.ui.breakPowerBTN.clicked.connect(self.cause_power_fail)
 	
 		#if button pressed swap switch
-		self.ui.waySwitchBTN.clicked.connect(self.swap_switch)
-	
+
+		self.ui.waySwitchBTN.clicked.connect(self.swapSwitch)
+		signals.test.connect(self.signalTest)
 	#function to load track from a file
-	def load_track(self):
+	def signalTest(self,input):
+		self.ui.trackFileValid.setText(str(input))
+	def loadTrack(self):
+
 		#if self.upTrackBlue.getChecked()==true
 		inputFileName=self.ui.lineEdit.text();
 		#open csv reader for inputFile
