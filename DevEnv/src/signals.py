@@ -10,7 +10,8 @@ from PySide6.QtCore import QObject, Signal
 class SignalsClass(QObject):
     """Class to hold all the signals"""
     test = Signal(int) # Current day, hours, minutes, seconds
-
+    TC_signal = Signal(int,int)
+    Beacon_signal = Signal(int,int)
 #trackSelector <- linebox for track model QLineEdit
 
 

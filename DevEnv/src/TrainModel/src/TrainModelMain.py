@@ -135,6 +135,22 @@ class MainWindow(QMainWindow):
 			self.ui.pushButton.setStyleSheet("background-color : red")
 			self.ui.pushButton.setText("Emergency Brake")
 		self.set_velocity()
+
+	def emergency_brake_on(self):
+		self.train.EmergencyBrake = True
+		self.ui.emergencyBreakOuput.setText("On")
+		self.ui.pushButton.setStyleSheet("background-color : green")
+		self.ui.pushButton.setText("Turn Off Emergency Brake")
+		
+		#self.set_velocity()
+
+	def emergency_brake_off(self):
+		
+		self.train.EmergencyBrake = False
+		self.ui.emergencyBreakOuput.setText("Off")
+		self.ui.pushButton.setStyleSheet("background-color : red")
+		self.ui.pushButton.setText("Emergency Brake")
+		#self.set_velocity()
 	def engine1_failure(self):
 		if(self.ui.engine1.isChecked()):
 			self.train.engineFailure= self.train.engineFailure + 1
