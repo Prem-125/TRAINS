@@ -309,7 +309,7 @@ class Track:
 	def generate_boarding(self):
 		self.set_boarding_count(random.randint(1, self.get_ticket_count()))
 		
-
+	
 #Code for the UI
 class MainWindow(QMainWindow):
 	def __init__(self):
@@ -397,7 +397,7 @@ class MainWindow(QMainWindow):
 					
 					#temporary simulated signals from wayside
 					self.track_list[self.num_lines].set_commanded_speed(35)
-					self.track_list[self.num_lines].set_authority(137)
+					self.track_list[self.num_lines].set_authority(137.1)
 					self.track_list[self.num_lines].set_signal_light('Go')
 					self.track_list[self.num_lines].set_beacon('Have a nice day!')
 					#self.track_list[self.num_lines].set_ticket_count(17)
@@ -426,6 +426,7 @@ class MainWindow(QMainWindow):
 		except:
 			print("Inputted Track Block Not a Number")
 			self.ui.trackSelectorValid.setText("Invalid Input\nNot a Number")
+			return 
 		
 		print("numlines:", self.num_lines)
 		print("inputblock:", inputTrackBlock)
@@ -536,6 +537,8 @@ class MainWindow(QMainWindow):
 		#update any connections
 		#make track connections
 		i=1
+		
+		#loop to update all connections in between the tracks
 		while (i <= self.num_lines-1):
 			#print(self.track_list[i].get_block())
 			if self.track_list[i].get_is_switch()==False and  self.track_list[i].get_is_switch_leg()==False :						
@@ -607,6 +610,10 @@ class MainWindow(QMainWindow):
 		else:
 			self.ui.selTrackSW.setText('No')	
 			self.ui.waySwitch.setText('Not a switch')
+		
+		
+		#for occupied blocks
+		
 		
 		
 		#railStatus
