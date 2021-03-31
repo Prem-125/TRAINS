@@ -9,7 +9,7 @@ class TrainDeployer:
         self.number_of_trains = 0 
         self.trains = []
         self.CreateTrains(1, 2, 3, True)
-        self.CreateTrains(3, 2, 1, True)
+      #  self.CreateTrains(3, 2, 1, True)
         
         """
         self.CreateController(3, 2, 1)
@@ -27,7 +27,7 @@ class TrainDeployer:
         self.trains[len(self.trains)-1].show()
         self.number_of_trains = self.number_of_trains + 1
 
-
+   # def SendTC(self,TC, TrainID)
     """
     def CreateController(self, commanded_speed, current_speed, authority):
         temp_controller_pointer = TrainController(commanded_speed, current_speed, authority, len(self.controllers))
