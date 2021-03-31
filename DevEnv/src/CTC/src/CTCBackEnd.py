@@ -73,10 +73,93 @@ class Train:
         #Initialize Block instance variables
         self.number = train_number
         self.destination = block_destination #Block Number
-        self.track_line = TrackLineObj.color  #String
+        self.track_line = TrackLineObj.color #String
         self.arrival_time = train_arrival_time     #Seconds
         self.departure_time = train_departure_time #Seconds
+        
+        #Initialize route queue
+        self.route_queue = []
+        if(track_line == "Green"):
+            self.GenerateGreenRoute()
+        elif(track_line == "Red"):
+            self.GenerateRedRoute()
+        
     #End contructor
+
+    #Method to populate queue structure that specifies train route for Green line
+    def GenerateGreenRoute(self):
+        #Train always begins at yard
+        self.route_queue.append(0)
+
+        #Specify blocks for track sections K through Q
+        for block_num in range(63, 101):
+            self.route_queue.append(block_num)
+
+        #Specify blocks for track section N in reverse
+        for block_num in range(85, 76, -1):
+            self.route_queue.append(block_num)
+
+        #Specify blocks for track secionts R through Z
+        for block_num in range(101, 151):
+            self.route_queue.append(block_num)
+
+        #Specify blocks for track sections A through F in reverse
+        for block_num in range(28, 0, -1):
+            self.route_queue.append(block_num)
+        
+        #Specify blocks for track sections D through I
+        for block_num in range(13, 58):
+            self.route_queue.append(block_num)
+
+        #Train ends at yard by default
+        self.route_queue.append(0)
+    #End method
+
+    #Method to populate queue structure that specifies train route for Red line
+    def GenerateRedRoute(self):
+        #Train always begins at yard
+        self.route_queue.append(0)
+
+        #Specify blocks for track sections A, B, C in reverse
+        for block_num in range(9, 0, -1):
+            self.route_queue.append(block_num)
+
+        #Specify blocks for track sections F through N
+        for block_num in range(16, 67):
+            self.route_queue.append(block_num)
+
+        #Specify blocks for part of H, I, and part of J in reverse
+        for block_num in range(52, 42, -1):
+            self.route_queue.append(block_num)
+
+        #Specify blocks for track sections O through Q
+        for block_num in range(67, 72):
+            self.route_queue.append(block_num)
+
+        #Specify blocks for part of H in reverse
+        for block_num in range(38, 31, -1):
+            self.route_queue.append(block_num)
+
+        #Specify blocks for track sections R through T
+        for block_num in range(72, 77):
+            self.route_queue.append(block_num)
+
+        #Specify blocks for F, G, and part of H in reverse
+        for block_num in range(27, 15, -1):
+            self.route_queue.append(block_num)
+
+        #Specify blocks for track sections D and E in reverse
+        for block_num in range(15, 9, -1):
+            self.route_queue.append(block_num)
+
+        #Train ends always ends at yard
+        self.route_queue.append(0)
+    #End Method
+
+
+        
+        
+
 
 #End Train class definition
 
@@ -98,9 +181,6 @@ class TrackLine:
 
         #Initialize instance variable to hold the total number of tickets sold on track line
         self.ticket_sales = 0
-
-        #Initialize instance variable to hold track line throughput
-        self.throughput = 0
 
     #End contructor
 
@@ -219,12 +299,13 @@ class TrackLine:
     #Method to compute throughput
     def ComputeThroughput(new_ticket_sales):
         #Add new ticket sales to total ticket sales
-        ticket_sales += new_ticket_sales
+        self.ticket_sales += new_ticket_sales
 
         #Recompute throughput
-        self.throughput = ticket_sales / gbl_centiseconds / 36000
+        throughput = ticket_sales / gbl_centiseconds / 36000
 
-        return self.throughput
+        return throughput
+    #End method
 
 #End TrackLine class definition
 
@@ -258,15 +339,15 @@ class Schedule:
         if(train_departure_time < 0):
             return False
 
+        """
         #Determine if specified destination is valid
         if(TrackLineObj.color == "Green"):
             if(block_destination < 1 or block_destination > 150):
-                print("HIT2")
                 return False
         elif(TrackLineObj.color == "Red"):
             if(block_destination < 1 or block_destination > 76):
-                print("HIT3")
                 return False
+        """
         
         #If travel parameters have been verified, add train object to the schedule's train list
         self.train_list.append( Train(train_number, block_destination, TrackLineObj, train_arrival_time, train_departure_time) )
@@ -307,7 +388,8 @@ class Schedule:
                 for i in range(77, 86):
                     travel_time += TrackLineObj.block_list[i-1].min_traveral_time
 
-                for i in range(1, block_destination):
+                #Sections A through F are initially travelled in reverse
+                for i in range(28, block_destination, -1):
                     travel_time += TrackLineObj.block_list[i-1].min_traveral_time
 
             #Destination is located on sections G through J
@@ -334,6 +416,7 @@ class Schedule:
         elif(TrackLineObj.color == "Red"):
             #Destination is located on sections A through C
             if(block_destination >= 1 and block_destination <= 9):
+                #Sections A through C are initially travelled in reverse
                 for i in range(9, block_destination, -1):
                     travel_time += TrackLineObj.block_list[i-1].min_traveral_time
 

@@ -204,6 +204,9 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
             return
         #End if
 
+        #Inform Train Deployer of newly created train object
+        signals.train_creation.emit(CTCSchedule.train_list[-1].number)
+
         print("Train Number " + str(CTCSchedule.train_list[0].number) )
         print("Train Destination: Block " + str(CTCSchedule.train_list[0].destination))
         print("Track Line: " + CTCSchedule.train_list[0].track_line)
@@ -1051,10 +1054,13 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
     #Method to determine and display updated throughput
     def DisplayThroughput(track_line_name, new_ticket_sales):
-        if(track_line_name == "Blue"):
+        if(track_line_name == "Green"):
             updated_throughput = GreenLine.ComputeThroughput(new_ticket_sales)
             self.ui.ThroughputLabel1.setText(str(updated_throughput))
-        #End if
+        elif(track_line_name == "Red"):
+            updated_throughput = RedLine.ComputeThroughput(new_ticket_sales)
+            self.ui.ThroughputLabel1.setText(str(updated_throughput))
+        #End if-elif block
     #End method
 
     #C:/Users/fjfat/SoftwareDevelopment/TRAINS/DevEnv/src/TrackModel/src/BlueLine.txt
