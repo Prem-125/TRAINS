@@ -26,7 +26,7 @@ class TrainController:
         self.SR.kp = 0
         self.SR.ki = 0
         self.TrainModelRef = TrainModel
-
+        
         #UI Stuff
         self.UI = MainWindow(self)
         self.UI.show()
@@ -51,6 +51,9 @@ class TrainController:
     def SendEmergencyBrakeOn(self):
         self.TrainModelRef.emergency_brake()
 
+    def toggle_is_auto(self):
+        self.is_auto = not(self.is_auto)
+        print("Auto mode: " + str(self.is_auto))
 
     #UPDATING THE UI
     def DisplayUpdate(self):
@@ -100,14 +103,28 @@ class TrainController:
     
     def set_authority(self, authority):
         if(authority == 0):
-            self.set_service_brake(True)
+            self.AuthorityHandler()
+        else:
+            self.set_service_brake(false)
         self.SR.authority = authority
+
+    def AuthorityHandler(self):
+        if(self.SR.authority == 0 && upcoming_station):
+            #this is the equivalent of my station handler.
+            self.set_service_brake(True)
+        else
+            #when authority is false 
+            self.set_service_brake(True)
 
     def set_setpoint_speed(self, setpoint_speed):
         self.SR.setpoint_speed = setpoint_speed
     
     def set_service_brake(self, s_brake):
-        self.SR.service_brake = s_brake
+        if(s_brake):
+            self.SR.OnSBrakeOn()
+        else:
+            self.SR.OnSBrakeOff()
+
     
     def set_emergency_brake(self, e_brake):
         self.SR.emergency_brake = e_brake
@@ -220,11 +237,13 @@ class MainWindow(QMainWindow):
         self.ui.trainNumber.setPlainText(str(self.TrainController.train_ID))
         self.ui.speedDownButton.clicked.connect(self.TrainController.SR.DecreaseSetpoint)
         self.ui.speedUpButton.clicked.connect(self.TrainController.SR.IncreaseSetpoint)
-
+        self.ui.automaticMode.toggled.connect(self.TrainController.toggle_is_auto)
+        self.ui.updatePID.clicked.connect(self.send_kp_ki)
 
         self.pidTimer = QTimer()
         self.pidTimer.timeout.connect(self.TrainController.SR.pidLoop)
         self.pidTimer.start(1000)
+
 
 
         
@@ -248,7 +267,9 @@ class MainWindow(QMainWindow):
             self.ui.textBrowser_8.setPlainText("E Brake Inactive")
             self.ui.textBrowser_10.setPlainText("E Brake Inactive")
 
-
+    def send_kp_ki(self):
+        self.TrainController.set_kp_ki(float(self.ui.kpInput.toPlainText()), float(self.ui.kiInput.toPlainText()))
+        print("Sent Kp: " + str(float(self.ui.kpInput.toPlainText())) + "Sent Ki: " + str(float(self.ui.kiInput.toPlainText())))
     #stephen cals TC.get power and TC.set track circuit and TC.set current speed and TC.set beacon
 
     #need set beacon, set track circuit functions for stephen to call and for us to decode
