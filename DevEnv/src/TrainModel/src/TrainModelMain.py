@@ -225,10 +225,11 @@ class MainWindow(QMainWindow):
 
 
 	def	set_track_circuit(self,TrackInt):
-		self.train_controller.set_track_circuit(TrackInt)
+	    self.train_controller.set_track_circuit(TrackInt)
 
 	def	set_beacon(self,BeaconInt):
-		self.train_controller.set_beacon(BeaconInt)												  
+		  self.train_controller.set_beacon(BeaconInt)												  
+
 
 
 

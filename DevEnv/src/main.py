@@ -3,8 +3,8 @@ from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 #from PySide6 import QtWidgets, QtCore
-from CTC.src.Wrapper import MainWindow as CTC_Office
-from CTC.src.Wrapper import *
+from CTC.src.CTCWrapper import MainWindow as CTC_Office
+from CTC.src.CTCWrapper import *
 from TrackModel.src.TrackModel import MainWindow as TrackModel
 from TrainDeployer.src.TrainDeployer import TrainDeployer
 
@@ -18,11 +18,11 @@ def open_modules():
 """
 def start():
     app = QApplication()
-    #CTC = CTC_Office()
-    #CTC.show()
-    #TM = TrackModel()
-    #TM.show()
-    TrainConsole = TrainDeployer()
+    CTC = CTC_Office()
+    CTC.show()
+    TM = TrackModel()
+    TM.show()
+    #TrainConsole = TrainDeployer()
 
     sys.exit(app.exec_())
     
