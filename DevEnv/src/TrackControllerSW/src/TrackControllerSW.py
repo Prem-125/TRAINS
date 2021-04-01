@@ -20,7 +20,7 @@ class MainWindow(QMainWindow):
         self.suggestedSpeed = [0 for i in range(44)]
         self.commandedSpeed = [0 for i in range(44)]
 
-        self.authorityBlock
+        self.authorityBlock = 0
         self.switchState = True
         self.trackOccString = ""
         self.block_offset = 33
