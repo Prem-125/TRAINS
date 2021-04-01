@@ -19,6 +19,7 @@ class MainWindow(QMainWindow):
         self.newAuthority = [0 for i in range(44)]
         self.suggestedSpeed = [0 for i in range(44)]
         self.commandedSpeed = [0 for i in range(44)]
+
         self.authorityBlock
         self.switchState = True
         self.trackOccString = ""
@@ -56,15 +57,15 @@ class MainWindow(QMainWindow):
         self.blockAuthority = blockNum
     #Gets the suggested speed
     def getSugSpeed(self, blockNum):
-
+        pass
     #Gets the commanded speed
     def getComSpeed(self, blockNum):
-
+        pass
     #Update Track Model of the authority and commanded speed
     def setTrackStats(self, blockNum):
-        if(blockNum == blockAuthority)
+        if(blockNum == blockAuthority):
             signals.wayside_to_track.emit(blockNum, 0, 0)
-        else
+        else:
             signals.wayside_to_track.emit(blockNum, 1, commandedSpeed[blockNum])
 
     #Controls the Switch States
