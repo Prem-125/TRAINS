@@ -48,7 +48,7 @@ class MainWindow(QMainWindow):
 		self.ui.announcmentsInput.textChanged.connect(self.set_announcments)
 		self.ui.beacInput.textChanged.connect(self.set_beacon)
 		self.ui.routeInput.textChanged.connect(self.set_route)
-		self.ui.pushButton.clicked.connect(self.emergency_brake)
+		#self.ui.pushButton.clicked.connect(self.emergency_brake)
 		self.ui.circuitFailureOn.clicked.connect(self.circuit_failure_on)
 		self.ui.circuitFailureOff.clicked.connect(self.circuit_failure_off)
 		self.ui.engine1.clicked.connect(self.engine1_failure)

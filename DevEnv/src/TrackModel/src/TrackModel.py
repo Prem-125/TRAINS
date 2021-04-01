@@ -188,12 +188,12 @@ class Track:
 
 	def encode_beacon(self):
 		   #encoding my beacon
-        self.encodedBeacon = int(self.ui.stationUpcoming.checkState()) >> 1
-        print(bin(self.encodedBeacon))
-        self.encodedBeacon += (int(self.ui.leftDoorsFake.checkState()) >> 1) << 1
-        self.encodedBeacon += (int(self.ui.rightDoorsFake.checkState()) >> 1) << 2
-        self.encodedBeacon += (int(self.ui.exteriorLightsFake.checkState()) >> 1) << 3
-        self.encodedBeacon += (beaconNum & 31) << 4
+		self.encodedBeacon = int(self.ui.stationUpcoming.checkState()) >> 1
+		print(bin(self.encodedBeacon))
+		self.encodedBeacon += (int(self.ui.leftDoorsFake.checkState()) >> 1) << 1
+		self.encodedBeacon += (int(self.ui.rightDoorsFake.checkState()) >> 1) << 2
+		self.encodedBeacon += (int(self.ui.exteriorLightsFake.checkState()) >> 1) << 3
+		self.encodedBeacon += (beaconNum & 31) << 4
 
 	def get_connection_track_a(self):
 		return self.connection_track_a
