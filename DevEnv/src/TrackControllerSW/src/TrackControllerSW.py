@@ -104,9 +104,9 @@ class MainWindow(QMainWindow):
             
             if(self.block_open[self.ui_block-self.block_offset] == True):
                 self.ui.BlockStatus.setText("Open")
-                self.ui.Occupancy.setText(str(self.occupancy[ui_block-block_offset]))
-                self.ui.Authority.setText(str(self.authority[ui_block-block_offset]))
-                self.ui.CommandedSpeed.setText(str(self.commanded_speed[ui_block-block_offset]))
+                self.ui.Occupancy.setText(str(self.occupancy[self.ui_block-self.block_offset]))
+                self.ui.Authority.setText(str(self.authority[self.ui_block-self.block_offset]))
+                self.ui.CommandedSpeed.setText(str(self.commanded_speed[self.ui_block-self.block_offset]))
                 self.ui.CrossingStatus.setText("N/A")
                 self.ui.SwitchStatus.setText("N/A")
             else:
