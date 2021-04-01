@@ -26,7 +26,7 @@ class MainWindow(QMainWindow):
 		self.train.trainID = trainID
 
 		if(soft_or_hard):
-			self.train_controller = TrainControllerSW(self, commanded_speed, current_speed, authority, trainID)
+			self.train_controller = TrainControllerSW(self, commanded_speed, current_speed, 1, trainID)
 		else:
 			self.train_controller = TrainControllerHW(self,trainID = trainID)
 
@@ -64,7 +64,7 @@ class MainWindow(QMainWindow):
 		self.powerTimer = QTimer()
 		self.powerTimer.timeout.connect(self.get_power)
 		self.powerTimer.start(100) 
-		self.currPosition = 0
+		self.currPosition = 0.0
 
 		if(line == 'Green'):
 			self.blockLen = 50
@@ -141,25 +141,24 @@ class MainWindow(QMainWindow):
 		self.ui.Beacon.setText(text)
 	def set_announcments(self, text):
 		self.ui.announcmentOutput.setText(text)
-	def emergency_brake(self):
-		if(self.train.EmergencyBrake==False):
-			self.train.EmergencyBrake = True
-			self.ui.emergencyBreakOuput.setText("On")
-			self.ui.pushButton.setStyleSheet("background-color : green")
-			self.ui.pushButton.setText("Turn Off Emergency Brake")
-		else:
-			self.train.EmergencyBrake = False
-			self.ui.emergencyBreakOuput.setText("Off")
-			self.ui.pushButton.setStyleSheet("background-color : red")
-			self.ui.pushButton.setText("Emergency Brake")
-		self.set_velocity()
+	# def emergency_brake(self):
+	# 	if(self.train.EmergencyBrake==False):
+	# 		self.train.EmergencyBrake = True
+	# 		self.ui.emergencyBreakOuput.setText("On")
+	# 		self.ui.pushButton.setStyleSheet("background-color : green")
+	# 		self.ui.pushButton.setText("Turn Off Emergency Brake")
+	# 	else:
+	# 		self.train.EmergencyBrake = False
+	# 		self.ui.emergencyBreakOuput.setText("Off")
+	# 		self.ui.pushButton.setStyleSheet("background-color : red")
+	# 		self.ui.pushButton.setText("Emergency Brake")
+	# 	self.set_velocity()
 
 
 	def emergency_brake_on(self):
 		self.train.EmergencyBrake = True
 		self.ui.emergencyBreakOuput.setText("On")
-		self.ui.pushButton.setStyleSheet("background-color : green")
-		self.ui.pushButton.setText("Turn Off Emergency Brake")
+		#self.ui.pushButton.setText("Turn Off Emergency Brake")
 		
 		#self.set_velocity()
 
@@ -167,8 +166,7 @@ class MainWindow(QMainWindow):
 		
 		self.train.EmergencyBrake = False
 		self.ui.emergencyBreakOuput.setText("Off")
-		self.ui.pushButton.setStyleSheet("background-color : red")
-		self.ui.pushButton.setText("Emergency Brake")
+		#self.ui.pushButton.setText("Emergency Brake")
 		#self.set_velocity()
 
 	def engine1_failure(self):
@@ -270,17 +268,17 @@ class MainWindow(QMainWindow):
 	def set_velocity(self):
 		# find force on train
 		try:
-			force = (self.train.power/self.train.velocity)
+			force = (self.train.power*1000/self.train.velocity)
 			#calculate the force in the opposite direction based on slope of track
 			force -= self.train.fricCoef * self.train.mass * self.train.gravity * math.cos(self.blockSlope)
 		except ZeroDivisionError: #catches if train is stationary 
-			if(not self.train.serviceBrake and not self.train.EmergencyBrake):
-				force = 10 #chose arbitrary amount to get train moving
+			if(not self.train.serviceBrake and not self.train.EmergencyBrake and (self.train.power != 0.0)):
+				force = 1000000 #chose arbitrary amount to get train moving
 				#calculate the force in the opposite direction based on slope of track
 				force -= self.train.fricCoef * self.train.mass * self.train.gravity * math.cos(self.blockSlope)
 			else:
 				force = 0.0
-
+		
 		#find acceleration of the train
 		previousAcc = self.train.acceleration
 		self.train.acceleration = force/self.train.mass
@@ -299,24 +297,29 @@ class MainWindow(QMainWindow):
 			self.train.velocity = self.train.spdLimit
 		else:
 			self.train.velocity = calcVelocity
+
+		if(self.train.velocity<0.0):
+			self.train.velocity = 0.0
+
 		self.ui.veloOutput.setText(str(round(self.train.velocity*2.23694,2))+ " mph")
+
+		self.train_controller.set_current_speed(self.train.velocity)
+
+		disCovered = (self.train.velocity * self.train.samplePeriod)
+
+		self.currPosition += disCovered
+
+		if(self.currPosition > self.blockLen):
+			self.currPosition -= self.blockLen
+			signals.need_new_block.emit(self.blockNum,self.train.trainID)
+		self.train_controller.set_current_speed(self.train.velocity)
+	
 
     
 	def get_power(self):
 		self.train.power = self.train_controller.get_power()
 		self.set_velocity()
     
-		self.train_controller.set_current_speed(self.train.velocity)
-
-		disCovered = (self.train.velocity * self.train.samplePeriod)
-
-		self.train.currPosition += disCovered
-
-		if(self.train.currPosition > self.blockLen):
-			self.train.currPosition -= self.blockLen
-			signals.need_new_block.emit(self.blockNum,self.train.trainID)
-		self.train_controller.set_current_speed(self.train.velocity)
-	
 
 	def set_speed_limit(self, text):
 		self.train.spdLimit = float(text)
@@ -328,7 +331,7 @@ class MainWindow(QMainWindow):
 		self.blockLen = blockLen
 		self.blockNum = blockNum
 		self.blockSlope = blockSlope
-		self.train.currPosition = 0.0
+		self.currPosition = 0.0
 
 	def change_passengers(self, delta):
 		self.train.passengers += delta

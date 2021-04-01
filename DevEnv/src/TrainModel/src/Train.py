@@ -14,7 +14,7 @@ class Train:
 		self.weight = 40.9 #tons
 		self.mass = 37103.86 #40.9 tons to kg
 		self.gravity = 9.8
-		self.sample = .1
+		self.samplePeriod = .1
 		self.trainID = 0
 
 		self.acceleration = 0.0

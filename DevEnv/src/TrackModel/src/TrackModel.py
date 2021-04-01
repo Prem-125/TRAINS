@@ -78,6 +78,7 @@ class Track:
 		self.is_station = is_station
 		self.station_name = station_name
 		self.station_side = station_side
+        
 		self.boarding_count = boarding_count
 		
 		#crossing Variables
@@ -302,23 +303,23 @@ class Track:
 		switch_done = False
 		
 		#if there is only one atribute
-		for i in list_atrib:
+		for i in range(0, len(list_atrib)):
 			#split up atribute by the spacing
-			atrib=list_atrib[i].split()	
+			atrib=list_atrib[i].split(' ')	
 
 			#check to see if atribute is a station:
 			if(atrib[i] == 'STATION'):
 				self.set_is_station(True)
-				self.set_station_name(atrib[0]+' '+atrib[1])
+				self.set_station_name(atrib[i]+' '+atrib[i+1])
 				sample_string = self.get_station_name()
 				#print(sample_string)
 				self.set_beacon('Welcome to ' + sample_string)
 				self.generate_random_ticket()
-				if(station_side == 'Left'):
+				if(self.station_side == 'Left'):
 					self.set_station_side(0)
-				if(station_side == 'Right'):
+				if(self.station_side == 'Right'):
 					self.set_station_side(1)
-				if(station_side == 'Left/Right'):
+				if(self.station_side == 'Left/Right'):
 					self.set_station_side(3)
 				
 				#set the flag
@@ -333,8 +334,8 @@ class Track:
 			#check to see if it is underground
 			if(atrib[i] == 'UNDERGROUND'):
 				self.set_is_underground(True)
-				undergorund_done = True
-			elif undergorund_done == False:
+				underground_done = True
+			elif underground_done == False:
 				self.set_is_underground(False)
 			
 			#check to see if atribute is a swtich
@@ -463,7 +464,7 @@ class MainWindow(QMainWindow):
 						continue
 					
 					#add information to each track object
-					#print(row)
+					print(row)
 					self.track_list.append(Track())
 					self.track_list[self.num_lines].set_line(row[0])
 					self.track_list[self.num_lines].set_section(row[1])

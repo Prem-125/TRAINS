@@ -9,6 +9,7 @@ class TrainDeployer:
         self.number_of_trains = 0 
         self.trains = []
         self.trains.append(None)
+        
         self.CreateTrains("Red", 1)
         #self.CreateTrains(3, 2, 1, True)
 
@@ -78,7 +79,7 @@ class TrainDeployer:
 
 
     def CreateTrains(self,line, id):
-        if(id == 2):
+        if(id == 1):
             #self.trains.insert(id, TrainModel(0, 0, 0, False, line, id)
             self.trains.insert(id,TrainModel(0, 0, 0, False, line, id))
         else:
