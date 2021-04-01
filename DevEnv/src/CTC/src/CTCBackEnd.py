@@ -82,7 +82,10 @@ class Train:
             self.GenerateRedRoute()
 
         #Obtain occupancy from wayside controller
-        signals.CTCOccupancy.connect(self.Position())
+        signals.CTC_occupancy.connect(self.UpdatePosition)
+
+        #Send destination (authority) to track controller TEMPORARY SETUP
+        signals.CTC_authority.emit(self.destination)
         
     #End contructor
 
@@ -154,13 +157,15 @@ class Train:
 
         #Train ends always ends at yard
         self.route_queue.append(0)
-    #End Method
+    #End method
 
     #Method to update position of train
     def UpdatePosition(self, block_num):
         if(block_num == route_queue[1]):
             #Dequeue from list
             route_queue.pop(0)
+        #End if
+    #End method
 
 
     #MUST COMPLETE Each instance of train must respond to occupany conditions of track
@@ -502,12 +507,12 @@ class Schedule:
     #End method
 
     #Define method to check if a scheduled train needs to be dispatched
-    def CheckForDispatch(self):
+    def CheckForDispatch(self, curr_time):
         #Loop through train list to inspect departure times
         for trainObj in self.train_list:
-            if(trainObj.departure_time == gbl_seconds):
+            if(int(trainObj.departure_time) == curr_time):
                 #MUST COMPELTE: Inform Train Deployer of newly created train object
-                #signals.train_creation.emit(trainObj.number)
+                signals.train_creation.emit(trainObj.track_line, trainObj.number)
                 break
 
         

@@ -8,9 +8,11 @@ class TrainDeployer:
     def __init__(self):
         self.number_of_trains = 0 
         self.trains = []
+        self.trains.append(None)
         signals.TC_signal.connect(self.SendTC)
         signals.Beacon_signal.connect(self.SendBeacon)
         signals.train_creation.connect(self.CreateTrains)
+        signals.time_signal.connect(self.PropogateTime)
         #self.CreateTrains(1, 2, 3, True)
         #self.CreateTrains(3, 2, 1, False)
 
@@ -32,12 +34,16 @@ class TrainDeployer:
     def SendBeacon(self,Beacon, TrainID):
         self.trains[TrainID].set_beacon(TC)
 
+    def PropogateTime(self,time):
+        for i in range 1 to self.number_of_trains:
+            self.trains[i].set_time(time)
 
-    def CreateTrains(self, id):
+
+    def CreateTrains(self,line, id):
         if(id == 2):
-            self.trains[id](TrainModel(0, 0, 0, False, id))
+            self.trains.append(TrainModel(0, 0, 0, False, line, id))
         else:
-            self.trains[id](TrainModel(0, 0, 0, True, id))
+            self.trains.append(TrainModel(0, 0, 0, True, line, id))
         self.trains[id].show()
         self.number_of_trains = self.number_of_trains + 1
 

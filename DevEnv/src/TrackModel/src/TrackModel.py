@@ -71,7 +71,7 @@ class Track:
 		self.power_condition = power_condition
 		self.ambient_temp = ambient_temp
 		self.authority = authority
-		
+		self.is_underground = is_underground
 		
 		#station variables
 		self.ticket_count = ticket_count
@@ -174,7 +174,7 @@ class Track:
 		#	if(self.get_is_station() == True):	
 		#		self.generate_random_ticket()
 		self.occupied=in_occupied
-		signal.track_model_occupancy(self.block, self.occupied)
+		signals.track_model_occupancy.emit(self.block, self.occupied)
 		#if the block is becomming occupied, send signal to train model
 		if(in_occupied == True):
 			self.encode_track_circuit_signal()
@@ -226,6 +226,11 @@ class Track:
 		self.ticket_count=in_condition
 		if(self.get_is_station()==True):
 			signals.station_ticket_sales.emit(self.line, self.ticket_count)
+
+	def get_is_underground(self):
+		return self.is_underground
+	def set_is_underground(self, in_condition):
+		self.is_underground = in_condition
 
 	def get_is_station(self):
 		return self.is_station

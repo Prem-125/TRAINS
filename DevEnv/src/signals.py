@@ -18,9 +18,17 @@ class SignalsClass(QObject):
     station_ticket_sales = Signal(str, int) #Parameters are track line name and new ticket sales
 
     #Signal to inform train controller of new train instance
-    train_creation = Signal(int) #Parameter is train number
+    train_creation = Signal(str, int) #Parameter is train number
+
+    #Signals exchanged between CTC and wayside
+    CTC_occupancy = Signal(int) #Paramter is block number
+    CTC_authority = Signal(int) #Paramter is block number
 
     track_model_occupancy = Signal(int, bool)
+    wayside_to_track = Signal(int, int, float)
+    
+    #track_rail_condition = Signal(bool)
+    #track_circuiit_condition = Signal(bool)
     
 
 

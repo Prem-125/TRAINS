@@ -7,6 +7,7 @@ from CTC.src.CTCWrapper import MainWindow as CTC_Office
 from CTC.src.CTCWrapper import *
 from TrackModel.src.TrackModel import MainWindow as TrackModel
 from TrainDeployer.src.TrainDeployer import TrainDeployer
+from TrackControllerSW.src.TrackControllerSW import MainWindow as TrackControllerSW
 
 #from src.UI.window_manager import window_list
 
@@ -22,7 +23,9 @@ def start():
     CTC.show()
     TM = TrackModel()
     TM.show()
-    #TrainConsole = TrainDeployer()
+    TC = TrackControllerSW()
+    TC.show()
+    TrainConsole = TrainDeployer()
 
     sys.exit(app.exec_())
     

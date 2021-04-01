@@ -67,10 +67,10 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         self.ui.SectionComboBox2.currentTextChanged.connect(self.CloseTabTrackBlocks)
         self.ui.TrackComboBox3.currentTextChanged.connect(self.ReopenTabTrackSections)
         self.ui.SectionComboBox3.currentTextChanged.connect(self.ReopenTabTrackBlocks)
-        """
+        
         self.ui.CloseBlockButton.clicked.connect(self.GUICloseBlock)
         #self.ui.ReopenBlockButton.clicked.connect(self.GUIOpenBlock)
-        """
+        
 
         #Define block status informational display
         self.ui.TrackComboBox4.currentTextChanged.connect(self.StatusTrackSections)
@@ -224,9 +224,6 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         self.ui.SchedTable.setItem(numRows, 3, QTableWidgetItem(str(trainObj.number)))
         self.ui.SchedTable.setItem(numRows, 3, QTableWidgetItem(str(trainObj.number)))
         self.ui.SchedTable.setItem(numRows, 4, QTableWidgetItem("Block " + str(trainObj.route_queue[0])))
-
-        #MUST COMPELTE: Inform Train Deployer of newly created train object
-        #signals.train_creation.emit(CTCSchedule.train_list[-1].number)
 
         #MUST COMPLETE: Send authority to track controller as the block number of destination
 
@@ -387,9 +384,13 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         self.ui.SysTimeLabel.setText("Time: " + gui_time)
 
         #Check if a scheduled train needs to be dispatched
-        CTCSchedule.CheckForDispatch()
+        CTCSchedule.CheckForDispatch(self.gbl_seconds)
 
+        #Display throughput to GUI
         self.DisplayThroughput(self.gbl_seconds)
+
+        #Update train positions on schedule table
+        self.UpdateTrainPositions()
 
         #Restart timout period
         self.utimer.start(1000)
@@ -1079,8 +1080,6 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         red_throughput = RedLine.ComputeThroughput(curr_time)
         self.ui.ThroughputLabel2.setText(str(round(green_throughput, 2)))
     #End method
-
-    #C:/Users/fjfat/SoftwareDevelopment/TRAINS/DevEnv/src/TrackModel/src/BlueLine.txt
             
     #Method to close block at the request of the dispatcher
     def GUICloseBlock(self):
@@ -1138,7 +1137,11 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         #End if-elif block
     #End method
 
-    #C:/Users/fjfat/SoftwareDevelopment/TRAINS/DevEnv/src/TrackModel/src/BlueLine.txt
+    #Method to update train positions on scheduling table
+    def UpdateTrainPositions(self):
+        for trainObj in CTCSchedule.train_list:
+            self.ui.SchedTable.setItem(trainObj.number, 4, QTableWidgetItem("Block " + str(trainObj.route_queue[0])))
+    #End method
             
     """
     #Method to close block at the request of the dispatcher

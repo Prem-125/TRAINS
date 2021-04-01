@@ -14,7 +14,7 @@ from TrainControllerHW.src.TrainControllerHWInterface import TrainControllerHWIn
 
 class MainWindow(QMainWindow):
 	
-	def __init__(self, commanded_speed, current_speed, authority, soft_or_hard, trainID):
+	def __init__(self, commanded_speed, current_speed, authority, soft_or_hard, line, trainID):
 		super(MainWindow, self).__init__()
 		self.ui = Ui_MainWindow()
 		self.ui.setupUi(self)
@@ -61,7 +61,17 @@ class MainWindow(QMainWindow):
 		self.powerTimer.timeout.connect(self.get_power)
 		self.powerTimer.start(1000) 
 
+		if(line equals 'Green'):
+			self.blockLen = 50
+			self.blockNum = 58
+		else:
+			self.blockLen = 75
+			self.blockNum = 9
 
+
+	def set_time(self, time):
+		timer = time
+		
 
 	def open_left_doors(self):
 		self.ui.leftDoorsOutput.setText("Open")
@@ -206,6 +216,7 @@ class MainWindow(QMainWindow):
 				self.ui.engineFailureOutput.setText("No")
 				self.ui.engineFailureOutput_4.setText("No")
 		self.set_velocity()
+	
 	def set_authority(self,text):
 		if(self.train.circuitFailure):
 			self.ui.authOutput.setText("???")
@@ -214,6 +225,7 @@ class MainWindow(QMainWindow):
 			self.ui.authOutput.setText(text + " meters") 
 	def temp_changed(self):
    		self.ui.tempOuput.setText(str(self.ui.spinBox.value())+" °F")
+		   
 	def s_brake_on(self):
    		self.train.serviceBrake=True
    		self.ui.serviceBreakOuput.setText("On")
