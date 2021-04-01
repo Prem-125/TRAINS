@@ -20,7 +20,7 @@ class Switch:
 		self.y_zero = y_zero
 		self.y_one = y_one
 	
-	#declare set/get functions
+	#declare set/get functions 
 	def get_switch_position(self):
 		return self.current_switch_pos
 	def set_switch_position(self,pos):
@@ -61,7 +61,7 @@ class Track:
 		self.commanded_speed = commanded_speed #float w 2 decimal points
 		self.beacon = beacon
 		self.signal_light = signal_light
-		self.occupied = occupied
+		self.occupied = False
 		self.heater_status= heater_status
 		self.connection_track_a = connection_track_a
 		self.connection_track_b = connection_track_b
@@ -71,12 +71,13 @@ class Track:
 		self.power_condition = power_condition
 		self.ambient_temp = ambient_temp
 		self.authority = authority
-		
+		self.is_underground = is_underground
 		
 		#station variables
 		self.ticket_count = ticket_count
 		self.is_station = is_station
 		self.station_name = station_name
+		self.station_side = station_side
 		self.boarding_count = boarding_count
 		
 		#crossing Variables
@@ -88,7 +89,14 @@ class Track:
 		#swithc variable
 		self.is_switch = is_switch
 		self.is_switch_leg = is_switch_leg
-		
+
+		#variables for send train model signal
+		self.encoded_TC = encoded_TC
+		self.cmd_Int = cmd_Int
+		self.cmd_Float = cmd_Float
+		self.auth_Int = auth_Int
+		self.auth_Float = auth_Float
+
 	#set and get functions for each variable 
 	#make output signal variable for each module and have an update function to update them all
 	def get_line(self):
@@ -161,7 +169,16 @@ class Track:
 	def get_occupied(self):
 		return self.occupied
 	def set_occupied(self, in_occupied):
+		#every time a train leaves a block with a  station on it, it regenerates the tickets
+		#if(self.get_occupied()==True):
+		#	if(self.get_is_station() == True):	
+		#		self.generate_random_ticket()
 		self.occupied=in_occupied
+		signals.track_model_occupancy.emit(self.block, self.occupied)
+		#if the block is becomming occupied, send signal to train model
+		if(in_occupied == True):
+			self.encode_track_circuit_signal()
+			signal.TC_signal.emit(self.encoded_TC, train)
 
 	def get_connection_track_a(self):
 		return self.connection_track_a
@@ -207,6 +224,13 @@ class Track:
 		return self.ticket_count
 	def set_ticket_count(self, in_condition):
 		self.ticket_count=in_condition
+		if(self.get_is_station()==True):
+			signals.station_ticket_sales.emit(self.line, self.ticket_count)
+
+	def get_is_underground(self):
+		return self.is_underground
+	def set_is_underground(self, in_condition):
+		self.is_underground = in_condition
 
 	def get_is_station(self):
 		return self.is_station
@@ -241,6 +265,7 @@ class Track:
 	def get_boarding_count(self):
 		return self.boarding_count
 	def set_boarding_count(self, in_condition):
+		#print("YA WE ENTERED SET BOARDING COUNT")
 		self.boarding_count=in_condition
 	
 	#function parse the infrastructure input
@@ -260,9 +285,8 @@ class Track:
 		#if there is only one atribute
 		if len(list_atrib) == 1:
 			#split up atribute by the spacing
-			atrib=list_atrib[0].split(' ')	
-			#print(atrib)
-				
+			atrib=list_atrib[0].split()	
+
 			#check to see if atribute is a station:
 			if(atrib[0] == 'Station'):
 				self.set_is_station(True)
@@ -271,7 +295,8 @@ class Track:
 				#print(sample_string)
 				self.set_beacon('Welcome to ' + sample_string)
 				self.generate_random_ticket()
-				self.generate_boarding()
+				#print(atrib)
+				#self.generate_boarding()
 				#print(self.get_beacon())
 				#print("Station is" ,self.get_station_name())
 			else:
@@ -304,13 +329,31 @@ class Track:
 				
 	#function to generate a random amount of tickets
 	def generate_random_ticket(self):
-		self.set_ticket_count(random.randint(1,30))
+		self.set_ticket_count(random.randint(1,40))
 		self.generate_boarding()
 		
 	#function to generate the amount of people boarding
 	def generate_boarding(self):
+		#print("YA WE ENTERED GENERATE BOARDING")
 		self.set_boarding_count(random.randint(1, self.get_ticket_count()))
 		
+	def encode_track_circuit_signal(self):
+		#function to encode a track signal 
+		cmd_Int= int(float(self.get_commanded_speed()))
+		cmd_Float= int(((float(self.get_commanded_speed())-cmd_Int)*10))
+		auth_Int= int(float(self.get_authority()))
+		auth_Float= int(((float(self.get_authority())-auth_Int)*10))
+
+		if(self.get_circuit_condition()==False):
+			self.encoded_TC = (cmd_Int-6 & 255)
+		else:
+			self.encoded_TC = (cmd_Int & 255)
+			self.encoded_TC += (cmd_Float & 15) << 8
+			self.encoded_TC += (auth_Int & 255) << 12
+			self.encoded_TC += (auth_Float & 15)<< 20
+			self.encoded_TC += ((cmd_Int + cmd_Float + auth_Float + auth_Int) & 1023) << 24	
+		#sned the signal 
+		#prem can you rerun the code pls
 
 #Code for the UI
 class MainWindow(QMainWindow):
@@ -343,12 +386,10 @@ class MainWindow(QMainWindow):
 	
 		#if button pressed swap switch
 
-		self.ui.waySwitchBTN.clicked.connect(self.swapSwitch)
-		signals.test.connect(self.signalTest)
+		self.ui.waySwitchBTN.clicked.connect(self.swap_switch)
+
 	#function to load track from a file
-	def signalTest(self,input):
-		self.ui.trackFileValid.setText(str(input))
-	def loadTrack(self):
+	def load_track(self):
 
 		#if self.upTrackBlue.getChecked()==true
 		inputFileName=self.ui.lineEdit.text();
@@ -406,14 +447,15 @@ class MainWindow(QMainWindow):
 					self.track_list[self.num_lines].set_authority(137)
 					self.track_list[self.num_lines].set_signal_light('Go')
 					self.track_list[self.num_lines].set_beacon('Have a nice day!')
-					#self.track_list[self.num_lines].set_ticket_count(17)
-					self.track_list[self.num_lines].set_occupied(False)
 					self.track_list[self.num_lines].set_is_crossing(False)
 					self.track_list[self.num_lines].set_is_branch(False)
 					self.track_list[self.num_lines].set_is_switch_leg(False)
+					self.track_list[self.num_lines].set_occupied(False)
 					
 					#self.track_list[self.num_lines].set_connection_track_a(self.track_list[0])
 					#self.track_list[self.num_lines].set_connection_track_b(self.track_list[0])
+					self.track_list[self.num_lines].set_is_station(False)
+					self.track_list[self.num_lines].set_ticket_count(0)
 					
 					#load infrastructure
 					self.track_list[self.num_lines].set_infrastructure(row[6])
@@ -439,6 +481,7 @@ class MainWindow(QMainWindow):
 		if(inputTrackBlock > self.num_lines):
 			print("Input Track Block too High")
 			self.ui.trackSelectorValid.setText("Invalid Input\nBlock Number Too High")
+			return
 
 		
 		#otherwise it is a valid input and update everything
@@ -653,6 +696,7 @@ class MainWindow(QMainWindow):
 		#Wayside outputs
 		self.ui.wayOccupiedO.setText(str(self.track_list[blckNum].get_occupied()))
 		
+
 		
 if __name__ == "__main__":
 	app = QApplication(sys.argv)

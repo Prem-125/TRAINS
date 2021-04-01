@@ -1,15 +1,16 @@
 import sys
 import time
-from UI import *
-from CTCBackEnd import *
+from signals import signals 
+from CTC.src.UI import *
+from CTC.src.CTCBackEnd import *
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 
 #Load in track layout
-GreenLine = TrackLine("C:/Users/fjfat/SoftwareDevelopment/TRAINS/DevEnv/src/CTC/src/TrackLayout.xls", 2)
+GreenLine = TrackLine("./TrackLayout.xls", 2)
 
-RedLine = TrackLine("C:/Users/fjfat/SoftwareDevelopment/TRAINS/DevEnv/src/CTC/src/TrackLayout.xls", 1)
+RedLine = TrackLine("./TrackLayout.xls", 1)
 
 #Declare a schedule object
 CTCSchedule = Schedule()
@@ -66,10 +67,10 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         self.ui.SectionComboBox2.currentTextChanged.connect(self.CloseTabTrackBlocks)
         self.ui.TrackComboBox3.currentTextChanged.connect(self.ReopenTabTrackSections)
         self.ui.SectionComboBox3.currentTextChanged.connect(self.ReopenTabTrackBlocks)
-        """
+        
         self.ui.CloseBlockButton.clicked.connect(self.GUICloseBlock)
         #self.ui.ReopenBlockButton.clicked.connect(self.GUIOpenBlock)
-        """
+        
 
         #Define block status informational display
         self.ui.TrackComboBox4.currentTextChanged.connect(self.StatusTrackSections)
@@ -82,6 +83,9 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         self.utimer = QTimer()
         self.utimer.timeout.connect(self.timerUpdate)
         self.utimer.start(100)
+
+        #Initialize simulation timers
+        self.gbl_seconds = 0
 
     #End constructor
 
@@ -193,21 +197,42 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         #If train could not be scheduled, display pop-up window and return to calling environment
         if(not success):
             #Create error message box
-            ErrorMsg = QMessageBox()
-            ErrorMsg.setWindowTitle("Dispatch Failed")
-            ErrorMsg.setText("ERROR: The dispatch request could not be fullfilled\nCheck to ensure travel paramters are valid")
-            ErrorMsg.setIcon(QMessageBox.Critical)
+            ManDispFailMsg = QMessageBox()
+            ManDispFailMsg.setWindowTitle("Dispatch Failed")
+            ManDispFailMsg.setText("ERROR: The dispatch request could not be fullfilled\nCheck to ensure travel paramters are valid")
+            ManDispFailMsg.setIcon(QMessageBox.Critical)
 
-            MsgWin = ErrorMsg.exec()
+            MsgWin = ManDispFailMsg.exec()
 
             return
         #End if
 
-        print("Train Number " + str(CTCSchedule.train_list[0].number) )
-        print("Train Destination: Block " + str(CTCSchedule.train_list[0].destination))
-        print("Track Line: " + CTCSchedule.train_list[0].track_line)
-        print("Arrival Time: " + str(CTCSchedule.train_list[0].arrival_time))
-        print("Departure Time: " + str(CTCSchedule.train_list[0].departure_time))
+        #Obtain newly created train object as a temporary varialbe
+        trainObj = CTCSchedule.train_list[-1]
+
+        #Add train to scheduling table
+        numRows = self.ui.SchedTable.rowCount()
+        self.ui.SchedTable.insertRow(numRows)
+        self.ui.SchedTable.setItem(numRows, 0, QTableWidgetItem(input_time))
+
+        if(self.ui.StationRadioButton.isChecked()):
+            self.ui.SchedTable.setItem(numRows, 1, QTableWidgetItem(train_destination))
+        else:
+            self.ui.SchedTable.setItem(numRows, 1, QTableWidgetItem("Block " + str(block_destination)))
+
+        self.ui.SchedTable.setItem(numRows, 2, QTableWidgetItem(trainObj.track_line))
+        self.ui.SchedTable.setItem(numRows, 3, QTableWidgetItem(str(trainObj.number)))
+        self.ui.SchedTable.setItem(numRows, 3, QTableWidgetItem(str(trainObj.number)))
+        self.ui.SchedTable.setItem(numRows, 4, QTableWidgetItem("Block " + str(trainObj.route_queue[0])))
+
+        #MUST COMPLETE: Send authority to track controller as the block number of destination
+
+        print("Train Number " + str(CTCSchedule.train_list[-1].number) )
+        print("Train Destination: Block " + str(CTCSchedule.train_list[-1].destination))
+        print("Track Line: " + CTCSchedule.train_list[-1].track_line)
+        print("Arrival Time: " + str(CTCSchedule.train_list[-1].arrival_time))
+        print("Departure Time: " + str(CTCSchedule.train_list[-1].departure_time))
+    #End method
 
     #Methods to modify map information
     def SetGreenMap(self):
@@ -343,32 +368,32 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
     #Method to update global clock
     def timerUpdate(self):
-        global gbl_seconds
-        global gbl_centiseconds
+        #Increment seconds after timeout 
+        self.gbl_seconds += 1
 
-        #Increment centiseconds after timeout
-        gbl_centiseconds += 1
-
-        #Increment seconds after 10 centiseconds
-        if(gbl_centiseconds == 10):
-            print("\n" + str(gbl_seconds))
-            gbl_seconds += 1
-
-            #Reset centiseconds to prevent overflow
-            gbl_centiseconds = 0
-        #End if
+        #Emit seconds to all modules/functions
+        signals.time_signal.emit(self.gbl_seconds)
 
         #Convert seconds to hours:minutes:seconds
-        hour = int(gbl_seconds / 3600)
-        minute = int( (gbl_seconds%3600)/60 )
-        seconds = int(gbl_seconds%60)
+        hour = int(self.gbl_seconds / 3600)
+        minute = int( (self.gbl_seconds%3600)/60 )
+        seconds = int(self.gbl_seconds%60)
         gui_time = str(hour).zfill(2) + ':' + str(minute).zfill(2) + ':' + str(seconds).zfill(2)
 
         #Print updated time to GUI
         self.ui.SysTimeLabel.setText("Time: " + gui_time)
 
+        #Check if a scheduled train needs to be dispatched
+        CTCSchedule.CheckForDispatch(self.gbl_seconds)
+
+        #Display throughput to GUI
+        self.DisplayThroughput(self.gbl_seconds)
+
+        #Update train positions on schedule table
+        self.UpdateTrainPositions()
+
         #Restart timout period
-        self.utimer.start(100)
+        self.utimer.start(1000)
     #End method
 
     #Method to set track section combo box in closure tab of maintenance mode
@@ -1045,6 +1070,78 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         #End if-elif block
     #End method
 
+    #Method to determine and display updated throughput
+    def DisplayThroughput(self, curr_time):
+        #Display throughput for green line
+        green_throughput = GreenLine.ComputeThroughput(curr_time)
+        self.ui.ThroughputLabel1.setText(str(round(green_throughput, 2)))
+
+        #Display throughput for red line
+        red_throughput = RedLine.ComputeThroughput(curr_time)
+        self.ui.ThroughputLabel2.setText(str(round(green_throughput, 2)))
+    #End method
+            
+    #Method to close block at the request of the dispatcher
+    def GUICloseBlock(self):
+        #Initialize temporary variables to hold details of block to be closed
+        track_line = str(self.ui.TrackComboBox2.currentText())
+        track_section = str(self.ui.SectionComboBox2.currentText())
+        block_num = int(self.ui.BlockComboBox1.currentText())
+
+        if(track_line == "Green"):
+            #Ensure block is not already closed
+            if(block_num in GreenLine.closed_blocks):
+                #Create error message box
+                ClosureInfoMsg = QMessageBox()
+                ClosureInfoMsg.setWindowTitle("Block Closure")
+                ClosureInfoMsg.setText("INFO: The specified block is already closed")
+                ClosureInfoMsg.setIcon(QMessageBox.Information)
+
+                MsgWin = ClosureInfoMsg.exec()
+
+                return
+            #End if
+
+            #Add block to closure list in track object
+            GreenLine.closed_blocks.append(block_num)
+
+            #Update block closure list in maintenance mode of GUI
+            numRows = self.ui.BlockClosureTable.rowCount()
+            self.ui.BlockClosureTable.insertRow(numRows)
+            self.ui.BlockClosureTable.setItem(numRows, 0, QTableWidgetItem("Green"))
+            self.ui.BlockClosureTable.setItem(numRows, 1, QTableWidgetItem(str(block_num)))
+        
+        elif(track_line == "Red"):
+            #Ensure block is not already closed
+            if(block_num in RedLine.closed_blocks):
+                #Create error message box
+                ClosureInfoMsg = QMessageBox()
+                ClosureInfoMsg.setWindowTitle("Block Closure")
+                ClosureInfoMsg.setText("INFO: The specified block is already closed")
+                ClosureInfoMsg.setIcon(QMessageBox.Information)
+
+                MsgWin = ClosureInfoMsg.exec()
+
+                return
+            #End if
+
+            #Add block to closure list in track object
+            RedLine.closed_blocks.append(block_num)
+
+            #Update block closure list in maintenance mode of GUI
+            numRows = self.ui.BlockClosureTable.rowCount()
+            self.ui.BlockClosureTable.insertRow(numRows)
+            self.ui.BlockClosureTable.setItem(numRows, 0, QTableWidgetItem("Red"))
+            self.ui.BlockClosureTable.setItem(numRows, 1, QTableWidgetItem(str(block_num)))
+
+        #End if-elif block
+    #End method
+
+    #Method to update train positions on scheduling table
+    def UpdateTrainPositions(self):
+        for trainObj in CTCSchedule.train_list:
+            self.ui.SchedTable.setItem(trainObj.number, 4, QTableWidgetItem("Block " + str(trainObj.route_queue[0])))
+    #End method
             
     """
     #Method to close block at the request of the dispatcher
@@ -1054,6 +1151,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         track_section = self.ui.SectionComboBox2.currentText()
         block_num = self.ui.BlockComboBox1.currentText()
     """
+    
 
 
 #End MainWindow class definition

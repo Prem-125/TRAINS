@@ -10,8 +10,7 @@ from PySide6.QtCore import QObject, Signal
 class SignalsClass(QObject):
     """Class to hold all the signals"""
     test = Signal(int) # Current day, hours, minutes, seconds
-<<<<<<< Updated upstream
-=======
+
     TC_signal = Signal(int,int)
     Beacon_signal = Signal(int,int)
     time_signal = Signal(int)
@@ -21,6 +20,7 @@ class SignalsClass(QObject):
 
     #Signal to inform train controller of new train instance
     train_creation = Signal(str, int) #Parameter is train number 
+
 
     #Signals exchanged between CTC and wayside
     CTC_occupancy = Signal(int) #Paramter is block number
@@ -39,7 +39,7 @@ class SignalsClass(QObject):
     #first int is delta passengers (can be pos or neg), second int is train id
     
 
->>>>>>> Stashed changes
+
 
 #trackSelector <- linebox for track model QLineEdit
 

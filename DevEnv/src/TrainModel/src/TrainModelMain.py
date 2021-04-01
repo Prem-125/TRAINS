@@ -5,7 +5,7 @@ import math
 import time 
 
 from PySide6.QtWidgets import QApplication, QMainWindow
-from PySide6.QtCore import QFile
+from PySide6.QtCore import QFile, QTimer
 from TrainModel.src.UI import Ui_MainWindow
 from TrainModel.src.Train import Train as TrainModel
 from TrainControllerSW.src.TrainControllerSW import TrainController as TrainControllerSW
@@ -15,7 +15,7 @@ from signals import signals
 
 class MainWindow(QMainWindow):
 	
-	def __init__(self, commanded_speed, current_speed, authority, soft_or_hard, trainID):
+	def __init__(self, commanded_speed, current_speed, authority, soft_or_hard, line, trainID):
 		super(MainWindow, self).__init__()
 		self.ui = Ui_MainWindow()
 		self.ui.setupUi(self)
@@ -32,7 +32,7 @@ class MainWindow(QMainWindow):
 			self.train_controller = TrainControllerHW(self,trainID = trainID)
 
 
-		self.ui.pwrInput.textChanged.connect(self.set_power)
+		self.ui.pwrInput.textChanged.connect(self.get_power)
 		self.ui.speedLimit.textChanged.connect(self.set_speed_limit)
 		#self.ui.speedLimit.textChanged.connect(self.set_velocity)
 		self.ui.leftDoorOpen.clicked.connect(self.open_left_doors)
@@ -66,8 +66,7 @@ class MainWindow(QMainWindow):
 		self.powerTimer.timeout.connect(self.get_power)
 		self.powerTimer.start(100) 
 
-<<<<<<< Updated upstream
-=======
+
 		if(line == 'Green'):
 			self.blockLen = 50
 			self.blockNum = 58
@@ -77,8 +76,11 @@ class MainWindow(QMainWindow):
 			self.blockNum = 9
 			self.blockSlope = 0.0
 
->>>>>>> Stashed changes
 
+
+	def set_time(self, time):
+		timer = time
+		
 
 	def open_left_doors(self):
 		self.ui.leftDoorsOutput.setText("Open")
@@ -140,7 +142,6 @@ class MainWindow(QMainWindow):
 		self.ui.Beacon.setText(text)
 	def set_announcments(self, text):
 		self.ui.announcmentOutput.setText(text)
-<<<<<<< Updated upstream
 	def emergency_brake(self):
 		if(self.train.EmergencyBrake==False):
 			self.train.EmergencyBrake = True
@@ -153,20 +154,7 @@ class MainWindow(QMainWindow):
 			self.ui.pushButton.setStyleSheet("background-color : red")
 			self.ui.pushButton.setText("Emergency Brake")
 		self.set_velocity()
-=======
 
-	# def emergency_brake(self):
-	# 	if(self.train.EmergencyBrake==False):
-	# 		self.train.EmergencyBrake = True
-	# 		self.ui.emergencyBreakOuput.setText("On")
-	# 		self.ui.pushButton.setStyleSheet("background-color : green")
-	# 		self.ui.pushButton.setText("Turn Off Emergency Brake")
-	# 	else:
-	# 		self.train.EmergencyBrake = False
-	# 		self.ui.emergencyBreakOuput.setText("Off")
-	# 		self.ui.pushButton.setStyleSheet("background-color : red")
-	# 		self.ui.pushButton.setText("Emergency Brake")
-	# 	self.set_velocity()
 
 	def emergency_brake_on(self):
 		self.train.EmergencyBrake = True
@@ -183,7 +171,7 @@ class MainWindow(QMainWindow):
 		self.ui.pushButton.setStyleSheet("background-color : red")
 		self.ui.pushButton.setText("Emergency Brake")
 		#self.set_velocity()
->>>>>>> Stashed changes
+
 	def engine1_failure(self):
 		if(self.ui.engine1.isChecked()):
 			self.train.engineFailure= self.train.engineFailure + 1
@@ -239,6 +227,7 @@ class MainWindow(QMainWindow):
 				self.ui.engineFailureOutput.setText("No")
 				self.ui.engineFailureOutput_4.setText("No")
 		self.set_velocity()
+	
 	def set_authority(self,text):
 		if(self.train.circuitFailure):
 			self.ui.authOutput.setText("???")
@@ -247,6 +236,7 @@ class MainWindow(QMainWindow):
 			self.ui.authOutput.setText(text + " meters") 
 	def temp_changed(self):
    		self.ui.tempOuput.setText(str(self.ui.spinBox.value())+" °F")
+		   
 	def s_brake_on(self):
    		self.train.serviceBrake=True
    		self.ui.serviceBreakOuput.setText("On")
@@ -257,13 +247,7 @@ class MainWindow(QMainWindow):
    		self.set_velocity()
 
 
-<<<<<<< Updated upstream
-   	def	set_track_circuit(self,TrackInt)
-   		self.train_controller.set_track_circuit(TrackInt)
 
-   	def	set_beacon(self,BeaconInt)
-   		self.train_controller.set_beacon(BeaconInt)												  
-=======
 	def	set_track_circuit(self,TrackInt):
 	    self.train_controller.set_track_circuit(TrackInt)
 
@@ -272,7 +256,6 @@ class MainWindow(QMainWindow):
 
 	def set_acceleration_limit(self, accLimit)
 		self.train.accLimit = accLimit
->>>>>>> Stashed changes
 
 
 
@@ -318,13 +301,12 @@ class MainWindow(QMainWindow):
 		else:
 			self.train.velocity = calcVelocity
 		self.ui.veloOutput.setText(str(round(self.train.velocity*2.23694,2))+ " mph")
-<<<<<<< Updated upstream
+
     
 	def get_power(self):
 		self.train.power = self.train_controller.get_power()
 		self.set_velocity()
     
-=======
 		self.train_controller.set_current_speed(self.train.velocity)
 
 		disCovered = (self.train.velocity * self.train.sample)
@@ -334,13 +316,9 @@ class MainWindow(QMainWindow):
 		if(self.currPosition > self.blockLen):
 			self.currPosition -= self.blockLen
 			signals.need_new_block.emit(self.train.trainID)
+		self.train_controller.set_current_speed(self.train.velocity)
+	
 
-	
-	def get_power(self):
-		self.train.power = self.train_controller.get_power()
-		#self.set_velocity()
-	
->>>>>>> Stashed changes
 	def set_speed_limit(self, text):
 		self.train.spdLimit = float(text)
 		self.train.spdLimit =self.train.spdLimit * .44704

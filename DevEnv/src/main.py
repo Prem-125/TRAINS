@@ -2,17 +2,14 @@ import sys
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
-<<<<<<< Updated upstream
-#from PySide6 import QtWidgets, QtCore
-from CTC.src.Wrapper import MainWindow as CTC_Office
-from CTC.src.Wrapper import *
-=======
+
 from PySide6 import QtWidgets, QtCore 
 from CTC.src.CTCWrapper import MainWindow as CTC_Office
 from CTC.src.CTCWrapper import *
->>>>>>> Stashed changes
+
 from TrackModel.src.TrackModel import MainWindow as TrackModel
 from TrainDeployer.src.TrainDeployer import TrainDeployer
+from TrackControllerSW.src.TrackControllerSW import MainWindow as TrackControllerSW
 
 #from src.UI.window_manager import window_list
 
@@ -24,10 +21,12 @@ def open_modules():
 """
 def start():
     app = QApplication()
-    #CTC = CTC_Office()
-    #CTC.show()
-    #TM = TrackModel()
-    #TM.show()
+    CTC = CTC_Office()
+    CTC.show()
+    TM = TrackModel()
+    TM.show()
+    TC = TrackControllerSW()
+    TC.show()
     TrainConsole = TrainDeployer()
 
     sys.exit(app.exec_())
