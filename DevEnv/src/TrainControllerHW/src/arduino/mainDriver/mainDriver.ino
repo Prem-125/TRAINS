@@ -30,7 +30,7 @@ float cmdVel = 19.0;
 double curVel = 0.0;
 double oldVel = 0.0;
 float setpointVel = 17.935;
-float auth = 50.0;
+int auth = 0;
 double power = 0.0;
 double setpoint = 0.0;
 bool refresh = true;
@@ -157,7 +157,7 @@ stationSequence(); // Initates Station Sequence
   
 }
 void brakeCheck(){
-if(PEBrake || EBrake || SBrake){
+if(PEBrake || EBrake || SBrake || auth == 0){
   power = 0;
 }
 }
@@ -429,7 +429,7 @@ void decodeTC(){
   }
   TCFault = false;
   cmdVel = float(cmdInt) + float(cmdFlt) / 10.0;
-  auth = float(authInt) + float(authFlt) / 10.0;
+  auth = authInt;
   if(auth == 0)
   ToggleStates |= 1 << 7; // Apply EBrake
 }

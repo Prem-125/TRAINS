@@ -21,10 +21,10 @@ def open_modules():
 """
 def start():
     app = QApplication()
-    CTC = CTC_Office()
-    CTC.show()
-    TM = TrackModel()
-    TM.show()
+    #CTC = CTC_Office()
+    #CTC.show()
+   # TM = TrackModel()
+   # TM.show()
     #TC = TrackControllerSW()
     #TC.show()
     TrainConsole = TrainDeployer()

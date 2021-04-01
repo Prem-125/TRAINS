@@ -64,7 +64,7 @@ class MainWindow(QMainWindow):
 		self.powerTimer = QTimer()
 		self.powerTimer.timeout.connect(self.get_power)
 		self.powerTimer.start(100) 
-
+		self.currPosition = 0
 
 		if(line == 'Green'):
 			self.blockLen = 50
@@ -274,7 +274,7 @@ class MainWindow(QMainWindow):
 			#calculate the force in the opposite direction based on slope of track
 			force -= self.train.fricCoef * self.train.mass * self.train.gravity * math.cos(self.blockSlope)
 		except ZeroDivisionError: #catches if train is stationary 
-			if(not serviceBrake and not EmergencyBrake):
+			if(not self.train.serviceBrake and not self.train.EmergencyBrake):
 				force = 10 #chose arbitrary amount to get train moving
 				#calculate the force in the opposite direction based on slope of track
 				force -= self.train.fricCoef * self.train.mass * self.train.gravity * math.cos(self.blockSlope)
@@ -286,9 +286,9 @@ class MainWindow(QMainWindow):
 		self.train.acceleration = force/self.train.mass
 		if(self.train.acceleration > self.train.accLimit):
 			self.train.acceleration = self.train.accLimit
-		elif(EmergencyBrake):
+		elif(self.train.EmergencyBrake):
 			self.train.acceleration = self.train.decLimitE
-		elif(serviceBrake):
+		elif(self.train.serviceBrake):
 			self.train.acceleration = self.train.decLimitS
 
 
