@@ -49,10 +49,10 @@ class TrainDeployer:
         for i in range(1, self.number_of_trains+1): 
             self.trains[i].set_time(time)
 
-    def sendBlockInfo(self, blockNum, blockLen, blockSlope, trainID)
+    def sendBlockInfo(self, blockNum, blockLen, blockSlope, trainID):
         self.trains[trainID].set_block_info(blockNum, blockLen, blockSlope)
 
-    def change_passengers(self, delta, trainID)
+    def change_passengers(self, delta, trainID):
         self.trains[trainID].change_passengers(delta)
 
 
@@ -73,7 +73,7 @@ class TrainDeployer:
         self.trains[TrainID].set_beacon(TC)
 
     def PropogateTime(self,time):
-        for i in range 1 to self.number_of_trains:
+        for i in range(1 , self.number_of_trains):
             self.trains[i].set_time(time)
 
 

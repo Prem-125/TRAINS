@@ -1,4 +1,3 @@
- 
 import sys
 import random 
 import math 
@@ -23,7 +22,7 @@ class MainWindow(QMainWindow):
 		self.train= TrainModel()
 		#if soft_or_hard is true, it is software, if false, it is hard
 		#self.train.cmdSpeed = commanded_speed
-		self.train.velocity = (float) current_speed
+		self.train.velocity = float(current_speed)
 		self.train.trainID = trainID
 
 		if(soft_or_hard):
@@ -254,7 +253,7 @@ class MainWindow(QMainWindow):
 	def	set_beacon(self,BeaconInt):
 		self.train_controller.set_beacon(BeaconInt)	
 
-	def set_acceleration_limit(self, accLimit)
+	def set_acceleration_limit(self, accLimit):
 		self.train.accLimit = accLimit
 
 
@@ -331,11 +330,11 @@ class MainWindow(QMainWindow):
 		self.blockSlope = blockSlope
 		self.currPosition = 0.0
 
-	def change_passengers(self, delta)
+	def change_passengers(self, delta):
 		self.train.passengers += delta
 		self.change_mass()
 
-	def change_mass(self)
+	def change_mass(self):
 		self.train.mass = 37103.86 + (70*self.train.passengers) # average mass of a human = 70 kg
 
    
@@ -347,4 +346,3 @@ if __name__ == "__main__":
 	window.show()
 
 	sys.exit(app.exec_())
-
