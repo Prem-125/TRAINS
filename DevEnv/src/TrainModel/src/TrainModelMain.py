@@ -293,7 +293,7 @@ class MainWindow(QMainWindow):
 
 
 		#calculate teh velocity (in meters per sec)
-		calcVelocity = (self.train.velocity + ( (self.train.sample /2) * (self.train.acceleration + previousAcc)  * (1 - .2 * self.train.engineFailure)))
+		calcVelocity = (self.train.velocity + ( (self.train.samplePeriod /2) * (self.train.acceleration + previousAcc)  * (1 - .2 * self.train.engineFailure)))
 
 		if(calcVelocity>self.train.spdLimit):
 			self.train.velocity = self.train.spdLimit
@@ -308,12 +308,12 @@ class MainWindow(QMainWindow):
     
 		self.train_controller.set_current_speed(self.train.velocity)
 
-		disCovered = (self.train.velocity * self.train.sample)
+		disCovered = (self.train.velocity * self.train.samplePeriod)
 
-		self.currPosition += disCovered
+		self.train.currPosition += disCovered
 
-		if(self.currPosition > self.blockLen):
-			self.currPosition -= self.blockLen
+		if(self.train.currPosition > self.blockLen):
+			self.train.currPosition -= self.blockLen
 			signals.need_new_block.emit(self.blockNum,self.train.trainID)
 		self.train_controller.set_current_speed(self.train.velocity)
 	
@@ -328,7 +328,7 @@ class MainWindow(QMainWindow):
 		self.blockLen = blockLen
 		self.blockNum = blockNum
 		self.blockSlope = blockSlope
-		self.currPosition = 0.0
+		self.train.currPosition = 0.0
 
 	def change_passengers(self, delta):
 		self.train.passengers += delta

@@ -173,8 +173,6 @@ class Train:
 
 #End Train class definition
 
-#End Train class definition
-
 
 #Define TrackLine class
 class TrackLine:
@@ -342,7 +340,7 @@ class Schedule:
     #End constructor
 
     #Define method for manual train dispatch
-    def ManualSchedule(self, block_destination, train_arrival_time, TrackLineObj):
+    def ManualSchedule(self, block_destination, train_arrival_time, TrackLineObj, curr_time):
         global gbl_seconds
         
         #Assign train number
@@ -351,11 +349,13 @@ class Schedule:
         #Compute train travel time
         travel_time = self.ComputeTravelTime(block_destination, train_arrival_time, TrackLineObj)
 
+        print("TRAVEL TIME: " + str(travel_time))
+
         #Compute train departure time
         train_departure_time = train_arrival_time - travel_time
 
         #Determine if specified arrival time is valid
-        if(train_departure_time < 0):
+        if(train_departure_time < curr_time):
             return False
 
         #Determine if computed depature time matches that of another train

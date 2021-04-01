@@ -169,7 +169,7 @@ class SpeedRegulator():
     #pidLoop: used to calculate power
     def pidLoop(self):
         #pid loop called
-        print("In PID")
+        #print("In PID")
         if(self.TrainController.is_auto and ((not self.service_brake ) and ( not self.emergency_brake))):
             self.pid.setpoint = self.commanded_speed
             self.power = self.pid(self.current_speed, dt = 1)
@@ -187,8 +187,8 @@ class SpeedRegulator():
             self.power = 0
         # send power here
         #print(self.power)
-        print("Got to end of pidLoop:")
-        print("Power:" + str(self.power))
+        #print("Got to end of pidLoop:")
+        #print("Power:" + str(self.power))
 
     def get_power(self):
         print(self.power)

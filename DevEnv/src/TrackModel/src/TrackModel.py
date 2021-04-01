@@ -185,7 +185,6 @@ class Track:
 			#sned block info
 			signal.new_block.emit(self.block, self.length, self.grade, id)
 
-
 	def encode_beacon(self):
 		   #encoding my beacon
 		self.encodedBeacon = int(self.ui.stationUpcoming.checkState()) >> 1

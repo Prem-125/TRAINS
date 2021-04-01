@@ -28,6 +28,7 @@ class Train:
 		self.decLimitE = -2.73
 		self.decLimitS = -1.2
 		self.temperature = 70 # farenheit 
+		self.currPosition = 0.0
 
 		self.lDoorsOpen = False
 		self.rDoorsOpen = False
