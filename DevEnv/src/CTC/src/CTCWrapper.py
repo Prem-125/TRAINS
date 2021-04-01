@@ -1,15 +1,16 @@
 import sys
 import time
-from UI import *
-from CTCBackEnd import *
+from signals import signals 
+from CTC.src.UI import *
+from CTC.src.CTCBackEnd import *
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 
 #Load in track layout
-GreenLine = TrackLine("C:/Users/fjfat/SoftwareDevelopment/TRAINS/DevEnv/src/CTC/src/TrackLayout.xls", 2)
+GreenLine = TrackLine("./TrackLayout.xls", 2)
 
-RedLine = TrackLine("C:/Users/fjfat/SoftwareDevelopment/TRAINS/DevEnv/src/CTC/src/TrackLayout.xls", 1)
+RedLine = TrackLine("./TrackLayout.xls", 1)
 
 #Declare a schedule object
 CTCSchedule = Schedule()
@@ -203,6 +204,9 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
             return
         #End if
 
+        #Inform Train Deployer of newly created train object
+        signals.train_creation.emit(CTCSchedule.train_list[-1].number)
+
         print("Train Number " + str(CTCSchedule.train_list[0].number) )
         print("Train Destination: Block " + str(CTCSchedule.train_list[0].destination))
         print("Track Line: " + CTCSchedule.train_list[0].track_line)
@@ -346,7 +350,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         global gbl_seconds
         global gbl_centiseconds
 
-        #Increment centiseconds after timeout
+        #Increment centiseconds after timeout 
         gbl_centiseconds += 1
 
         #Increment seconds after 10 centiseconds
@@ -366,6 +370,9 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
         #Print updated time to GUI
         self.ui.SysTimeLabel.setText("Time: " + gui_time)
+
+        #Obtain ticket sales from TrackModel
+        signals.station_ticket_sales.connect(self.DisplayThroughput)
 
         #Restart timout period
         self.utimer.start(100)
@@ -1045,6 +1052,18 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         #End if-elif block
     #End method
 
+    #Method to determine and display updated throughput
+    def DisplayThroughput(track_line_name, new_ticket_sales):
+        if(track_line_name == "Green"):
+            updated_throughput = GreenLine.ComputeThroughput(new_ticket_sales)
+            self.ui.ThroughputLabel1.setText(str(updated_throughput))
+        elif(track_line_name == "Red"):
+            updated_throughput = RedLine.ComputeThroughput(new_ticket_sales)
+            self.ui.ThroughputLabel1.setText(str(updated_throughput))
+        #End if-elif block
+    #End method
+
+    #C:/Users/fjfat/SoftwareDevelopment/TRAINS/DevEnv/src/TrackModel/src/BlueLine.txt
             
     """
     #Method to close block at the request of the dispatcher
@@ -1054,6 +1073,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         track_section = self.ui.SectionComboBox2.currentText()
         block_num = self.ui.BlockComboBox1.currentText()
     """
+    
 
 
 #End MainWindow class definition
