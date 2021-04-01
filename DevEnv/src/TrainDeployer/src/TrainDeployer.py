@@ -9,8 +9,8 @@ class TrainDeployer:
         self.number_of_trains = 0 
         self.trains = []
 
-        self.CreateTrains(1, 2, 3, True)
-        self.CreateTrains(3, 2, 1, True)
+        self.CreateTrains("Red", 0)
+        #self.CreateTrains(3, 2, 1, True)
 
         self.trains.append(None)
         signals.TC_signal.connect(self.SendTC)
@@ -79,9 +79,13 @@ class TrainDeployer:
 
     def CreateTrains(self,line, id):
         if(id == 2):
+            #self.trains.insert(id, TrainModel(0, 0, 0, False, line, id)
             self.trains.append(TrainModel(0, 0, 0, False, line, id))
         else:
+            #self.trains.insert(id, TrainModel(0, 0, 0, True, line, id )
+            #self.trains[id] = TrainModel(0, 0, 0, True, line, id)
             self.trains.append(TrainModel(0, 0, 0, True, line, id))
+            
         self.trains[id].show()
         self.number_of_trains = self.number_of_trains + 1
 
