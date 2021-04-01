@@ -137,7 +137,7 @@ class TrainControllerHWInterface(QMainWindow):
 
 
 	def get_power(self):
-		return self.power/1000
+		return self.power
 
 	def decodeToggleStates(self):
 		self.ExtLightsOn = self.rawToggle & 1

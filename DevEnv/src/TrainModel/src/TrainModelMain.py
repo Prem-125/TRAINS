@@ -63,7 +63,7 @@ class MainWindow(QMainWindow):
 
 		self.powerTimer = QTimer()
 		self.powerTimer.timeout.connect(self.get_power)
-		self.powerTimer.start(100) 
+		self.powerTimer.start(500) 
 		self.currPosition = 0.0
 
 		if(line == 'Green'):
@@ -268,14 +268,15 @@ class MainWindow(QMainWindow):
 	def set_velocity(self):
 		# find force on train
 		try:
-			force = (self.train.power*1000/self.train.velocity)
+			force = (self.train.power/self.train.velocity)
 			#calculate the force in the opposite direction based on slope of track
-			force -= self.train.fricCoef * self.train.mass * self.train.gravity * math.cos(self.blockSlope)
+			force -= self.train.fricCoef * self.train.mass * self.train.gravity * math.sin(self.blockSlope)
+			force -= .01 * self.train.mass * self.train.gravity
 		except ZeroDivisionError: #catches if train is stationary 
 			if(not self.train.serviceBrake and not self.train.EmergencyBrake and (self.train.power != 0.0)):
 				force = 1000000 #chose arbitrary amount to get train moving
 				#calculate the force in the opposite direction based on slope of track
-				force -= self.train.fricCoef * self.train.mass * self.train.gravity * math.cos(self.blockSlope)
+				force -= self.train.fricCoef * self.train.mass * self.train.gravity * math.sin(self.blockSlope)
 			else:
 				force = 0.0
 		
@@ -302,7 +303,7 @@ class MainWindow(QMainWindow):
 			self.train.velocity = 0.0
 
 		self.ui.veloOutput.setText(str(round(self.train.velocity*2.23694,2))+ " mph")
-
+		print("the speedbeing sent to train controler " + str(self.train.velocity))
 		self.train_controller.set_current_speed(self.train.velocity)
 
 		disCovered = (self.train.velocity * self.train.samplePeriod)
@@ -312,7 +313,7 @@ class MainWindow(QMainWindow):
 		if(self.currPosition > self.blockLen):
 			self.currPosition -= self.blockLen
 			signals.need_new_block.emit(self.blockNum,self.train.trainID)
-		self.train_controller.set_current_speed(self.train.velocity)
+
 	
 
     

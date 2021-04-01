@@ -306,7 +306,7 @@ class Track:
 		for i in range(0, len(list_atrib)):
 			#split up atribute by the spacing
 			atrib=list_atrib[i].split(' ')	
-
+			
 			#check to see if atribute is a station:
 			if(atrib[i] == 'STATION'):
 				self.set_is_station(True)
