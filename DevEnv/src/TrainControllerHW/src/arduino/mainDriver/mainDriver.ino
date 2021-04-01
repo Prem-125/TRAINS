@@ -36,6 +36,9 @@ double setpoint = 0.0;
 bool refresh = true;
 long long TCEnc;
 int beaconEnc;
+long long kpkienc;
+float kp = 1000.0;
+float ki = 1000.0;
 int temperature = 72;
 int flags; 
 bool BLDoorsOpen;
@@ -56,7 +59,7 @@ const String  Stations[] = {"Shadyside","Herron Ave","Swissville","Penn Station"
                             "Pioneer","Edgebrook","Whited","South Bank","Central","Inglewood","Overbrook","Glenburry","Dormont","Mt Lebanon", "Poplar","Castle Shannon"};
 String announcement = "No Announcement at this Time";
 
-PID powLoop(&curVel,&power,&setpoint,2000.2,500,0,DIRECT);
+PID powLoop(&curVel,&power,&setpoint,kp,ki,0,DIRECT);
 void setup() {
   Serial.begin(115200);
   Serial.setTimeout(1);
@@ -160,7 +163,7 @@ if(PEBrake || EBrake || SBrake){
 }
 
 void detectFailures(){
-  if((oldVel >= curVel && power != 0 && !(PEBrake || EBrake || SBrake) && oldVel != 666.0 && oldVel!=0)||BrakeFault){
+  if((oldVel < curVel && power == 0 && (PEBrake || EBrake || SBrake) && oldVel != 666.0 && oldVel!=0)||BrakeFault){
     digitalWrite(LEDs[10],HIGH);
     ToggleStates |= 1 << 7; // Apply EBrake
     power = 0;
@@ -337,6 +340,14 @@ void LCDPower(){
   lcd.print(power/1000.0);
    lcd.setCursor(10,1);
   lcd.print("kW");
+  lcd.setCursor(0,2);
+  lcd.print("Kp:");
+  lcd.setCursor(4,2);
+  lcd.print(kp);
+  lcd.setCursor(0,3);
+  lcd.print("Ki:");
+  lcd.setCursor(4,3);
+  lcd.print(ki);
   LCDViewIndex = 8;
   refresh = true;
   OnPowLCD = true;
@@ -443,12 +454,18 @@ void decodeBeacon(){
   }
 }
 
+void decodeKpKi(){
+  kp = float(kpkienc & 0xFFFF) + float((kpkienc >> 16) & 0xFFFF)/1000.0 ;
+  ki = float((kpkienc >> 32) & 0xFFFF) + float((kpkienc >> 48) & 0xFFFF)/1000.0 ;
+  powLoop.SetTunings(kp,ki,0);
+}
+
 void serialRead(){
   while(Serial.available() > 0){
     int numRead = Serial.readBytesUntil('\n',readbuff,20);
     int sel = atoi(readbuff);
     memset(readbuff,0,sizeof readbuff); // clear buffer
-    if (numRead == 0 || sel < 1 || sel > 3)
+    if (numRead == 0 || sel < 1 || sel > 4)
       continue; 
     delay(10);
     numRead = Serial.readBytesUntil('\n',readbuff,70);
@@ -461,9 +478,12 @@ void serialRead(){
               TCEnc = atoll(readbuff);
               decodeTC();
               break;
-      default:// Got Beacon
+      case 3:// Got Beacon
               beaconEnc = atoi(readbuff);
               decodeBeacon();
+      default: // got Kp and Ki
+              kpkienc = atoll(readbuff);
+              decodeKpKi();
   }
       memset(readbuff,0,sizeof readbuff); // clear buffer
       refresh = true; 

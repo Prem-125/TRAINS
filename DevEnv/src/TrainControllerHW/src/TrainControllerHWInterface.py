@@ -13,6 +13,7 @@ class TrainControllerHWInterface(QMainWindow):
 		self.ui.setupUi(self)
 		self.utimer = QTimer()
 		self.utimer.timeout.connect(self.timerCallback)
+		self.ui.setParams.clicked.connect(self.set_kp_ki)
 		self.power = 0
 		self.curSpeed = current_speed
 		self.encodedB=0
@@ -26,6 +27,8 @@ class TrainControllerHWInterface(QMainWindow):
 		self.RDoorOpen = False
 		self.IntLightsOn = False
 		self.ExtLightsOn = False
+		self.temperature = 0
+		self.announcement = ''
 		self.connectArduino()
 		self.run=False
 
@@ -75,16 +78,17 @@ class TrainControllerHWInterface(QMainWindow):
 				print(status)
 				self.power = float(status)
 				self.ui.PowerVal.setPlainText(str(round(self.power/1000.0 , 2))+ " kW")
-				self.train_model.set_power(self.power)
 			elif(status ==3):
 				raw = self.arduino.readline()
 				status = raw.decode('ascii').strip('\r\n')
 				print(status)
+				self.announcement = status
 				self.ui.AnnounceVal.setPlainText(status)
 			elif(status ==4):
 				raw = self.arduino.readline()
 				status = raw.decode('ascii').strip('\r\n')
 				print(status)
+				self.temperature = int(status)
 				self.ui.TemperatureVal.setPlainText(status + "°F")
 
 
@@ -98,22 +102,36 @@ class TrainControllerHWInterface(QMainWindow):
 
 		
 		
-	def sendTCInfo(self):		
-		print(bin(self.encodedTC))
-		self.nFlag|=2
-		#print(self.cmdSpeed)
+	def set_track_circuit(self,TC):				
 		self.arduino.write(str(2).encode('utf-8')+ self.eol)
-		self.arduino.write(str(self.encodedTC).encode('utf-8')+ self.eol)
+		self.arduino.write(str(TC).encode('utf-8')+ self.eol)
 
-	def sendBeaconInfo(self):
+	def set_beacon(self,Beacon):
 		self.arduino.write(str(3).encode('utf-8')+ self.eol)
-		self.arduino.write(str(self.encodedB).encode('utf-8')+ self.eol)
+		self.arduino.write(str(Beacon).encode('utf-8')+ self.eol)
 
 	
-	def sendCurSpeed(self):
-		self.curSpeed= self.ui.CurSpeedVal.toPlainText()
+	def set_current_speed(self,speed):
+		self.curSpeed= speed
+		self.ui.CurSpeedVal.setPlainText(str(round(self.curSpeed,2)))
 		self.arduino.write(str(1).encode('utf-8')+ self.eol)
-		self.arduino.write(self.curSpeed.encode('utf-8')+ self.eol)
+		self.arduino.write(str(self.curSpeed).encode('utf-8')+ self.eol)
+
+	def set_kp_ki(self):
+		kp = float(self.ui.KpVal.toPlainText())
+		ki = float(self.ui.KiVal.toPlainText())
+		kpInt = int(kp)
+		kpFloat = int((kp - float(kpInt))*1000.0)
+		kiInt = int(ki)
+		kiFloat = int((ki - float(kiInt))*1000.0)
+		transmit = kpInt + (kpFloat << 16) + (kiInt << 32) + (kiFloat << 48)
+		self.arduino.write(str(4).encode('utf-8')+ self.eol)
+		self.arduino.write(str(transmit).encode('utf-8')+ self.eol)
+
+
+
+	def get_power(self):
+		return self.power/1000
 
 	def decodeToggleStates(self):
 		self.ExtLightsOn = self.rawToggle & 1
@@ -160,10 +178,10 @@ class TrainControllerHWInterface(QMainWindow):
 
 		if(self.EBrakePull):
 			self.ui.EBrakeVal.setPlainText("ACTIVE")
-			self.train_model.emergency_brake()
+			self.train_model.emergency_brake_on()
 		else:
 			self.ui.EBrakeVal.setPlainText("INACTIVE")
-			self.train_model.emergency_brake()
+			self.train_model.emergency_brake_off()
 
 
 

@@ -5,7 +5,7 @@ import math
 import time 
 
 from PySide6.QtWidgets import QApplication, QMainWindow
-from PySide6.QtCore import QFile
+from PySide6.QtCore import QFile, QTimer
 from TrainModel.src.UI import Ui_MainWindow
 from TrainModel.src.Train import Train as TrainModel
 from TrainControllerSW.src.TrainControllerSW import TrainController as TrainControllerSW
@@ -27,7 +27,7 @@ class MainWindow(QMainWindow):
 			self.train_controller = TrainControllerHW(self,trainID = trainID)
 
 
-		self.ui.pwrInput.textChanged.connect(self.set_power)
+		self.ui.pwrInput.textChanged.connect(self.get_power)
 		self.ui.speedLimit.textChanged.connect(self.set_speed_limit)
 		#self.ui.speedLimit.textChanged.connect(self.set_velocity)
 		self.ui.leftDoorOpen.clicked.connect(self.open_left_doors)
@@ -135,6 +135,22 @@ class MainWindow(QMainWindow):
 			self.ui.pushButton.setStyleSheet("background-color : red")
 			self.ui.pushButton.setText("Emergency Brake")
 		self.set_velocity()
+
+	def emergency_brake_on(self):
+		self.train.EmergencyBrake = True
+		self.ui.emergencyBreakOuput.setText("On")
+		self.ui.pushButton.setStyleSheet("background-color : green")
+		self.ui.pushButton.setText("Turn Off Emergency Brake")
+		
+		#self.set_velocity()
+
+	def emergency_brake_off(self):
+		
+		self.train.EmergencyBrake = False
+		self.ui.emergencyBreakOuput.setText("Off")
+		self.ui.pushButton.setStyleSheet("background-color : red")
+		self.ui.pushButton.setText("Emergency Brake")
+		#self.set_velocity()
 	def engine1_failure(self):
 		if(self.ui.engine1.isChecked()):
 			self.train.engineFailure= self.train.engineFailure + 1
@@ -209,10 +225,11 @@ class MainWindow(QMainWindow):
 
 
 	def	set_track_circuit(self,TrackInt):
-   		self.train_controller.set_track_circuit(TrackInt)
+	    self.train_controller.set_track_circuit(TrackInt)
 
 	def	set_beacon(self,BeaconInt):
-   		self.train_controller.set_beacon(BeaconInt)												  
+		  self.train_controller.set_beacon(BeaconInt)												  
+
 
 
 
@@ -234,11 +251,12 @@ class MainWindow(QMainWindow):
 		else:
 			self.train.velocity = calcVelocity
 		self.ui.veloOutput.setText(str(round(self.train.velocity*2.23694,2))+ " mph")
-    
+		self.train_controller.set_current_speed(self.train.velocity)
+	
 	def get_power(self):
 		self.train.power = self.train_controller.get_power()
 		self.set_velocity()
-    
+	
 	def set_speed_limit(self, text):
 		self.train.spdLimit = float(text)
 		self.train.spdLimit =self.train.spdLimit * .44704
