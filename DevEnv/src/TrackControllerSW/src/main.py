@@ -2,6 +2,7 @@ import sys
 from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtCore import QFile
 from UI import Ui_TrackControllerUI
+from signals import signals
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -20,23 +21,29 @@ class MainWindow(QMainWindow):
         self.commandedSpeed = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
         self.switchState = True
         self.trackOccString = ""
+        self.CTCCTCBlockNumber = 0
+        self.TMBlockNumber = 0
         
         #Button Functions
+        '''
         self.ui.CTCButton.clicked.connect(self.getCTCInputs)
         self.ui.TMButton.clicked.connect(self.getTMInputs)
         self.ui.OutputButton.clicked.connect(self.UpdateOutputs)
         self.ui.ClearButton.clicked.connect(self.ClearSystem)
+        '''
+
+        #Signal Functions
+        signal.track_model_occupancy.connect(self.getOccupancy)
+        #need broken track block signal
+        #need CTC authority and speed signal
+        #need track maintenance signal
               
     #Controls the Switch States
+    '''
     def ControlSwitch(self):
-        print("Youre close")
-        print(self.occupancy[4])
         if(self.occupancy[4]):
-            print("closer")
             if(self.occupancy[5] == False):
-                print ("closer pt 2")
                 if(self.occupancy[10] == False):
-                    print("closer pt 3")
                     if((int(self.authority[4]) < 11)):
                         if(int(self.authority[4]) > 5):
                             self.switchState = True
@@ -50,18 +57,19 @@ class MainWindow(QMainWindow):
             self.switchState = False
         elif (self.occupancy[5] == True):
             self.switchState = True
-        print("Controlled the switch")
         self.SwitchDisp()
-        
+    '''    
     #Calculates Commanded Speed
+    '''
     def CalcCommandedSpeed(self):
         for x in range(15):
             if(authority[x] == 0)
                 self.commandedSpeed[x] = 0
             else
                 self.commandedSpeed[x] = int(float(self.suggestedSpeed[x]) * 0.621371)
-        
-
+    '''    
+    #Calculates the authority to the next block
+    '''
     def CalcAuthFromBlock(self):
         for x in range(15):
             if(self.authority[x] == 0):
@@ -74,14 +82,9 @@ class MainWindow(QMainWindow):
             else:
                 if(x>10):
                     self.authorityFromBlock[x] = x-5 - int(self.authority[x])
-
-    #calculates Authority
-    def CalcNewAuthority(self):
-        self.CalcAuthFromBlock()
-        for x in range(15):
-                self.newAuthority[x] = int(float(self.authorityFromBlock[x]) * 50 * 3.2808)
-
+    '''
     #Creates the Track Occupancy String
+    '''
     def getTrackOccString(self):
         self.trackOccString = ""
         for x in range(15):
@@ -89,204 +92,61 @@ class MainWindow(QMainWindow):
                 self.trackOccString = self.trackOccString + "0"
             else:
                 self.trackOccString = self.trackOccString + "1"
-
+    '''
     #Gets the CTC Inputs
+    '''
     def getCTCInputs(self):
-        if(self.ui.CTCBlockInput.text() == "1"):
-            self.suggestedSpeed[0] = self.ui.SugSpeedInput.text()
-            self.authority[0] = self.ui.AuthorityInput.text()
-            if(self.ui.BlockStatusInput.text() == "Closed"):
-                self.trackClosed[0] = True
-            else:
-                self.trackClosed[0] = False
-        if(self.ui.CTCBlockInput.text() == "2"):
-            self.suggestedSpeed[1] = self.ui.SugSpeedInput.text()
-            self.authority[1] = self.ui.AuthorityInput.text()
-            if(self.ui.BlockStatusInput.text() == "Closed"):
-                self.trackClosed[1] = True
-            else:
-                self.trackClosed[1] = False 
-        if(self.ui.CTCBlockInput.text() == "3"):
-            self.suggestedSpeed[2] = self.ui.SugSpeedInput.text()
-            self.authority[2] = self.ui.AuthorityInput.text()
-            if(self.ui.BlockStatusInput.text() == "Closed"):
-                self.trackClosed[2] = True
-            else:
-                self.trackClosed[2] = False
-        if(self.ui.CTCBlockInput.text() == "4"):
-            self.suggestedSpeed[3] = self.ui.SugSpeedInput.text()
-            self.authority[3] = self.ui.AuthorityInput.text()
-            if(self.ui.BlockStatusInput.text() == "Closed"):
-                self.trackClosed[3] = True
-            else:
-                self.trackClosed[3] = False
-        if(self.ui.CTCBlockInput.text() == "5"):
-            self.suggestedSpeed[4] = self.ui.SugSpeedInput.text()
-            self.authority[4] = self.ui.AuthorityInput.text()
-            if(self.ui.BlockStatusInput.text() == "Closed"):
-                self.trackClosed[4] = True
-            else:
-                self.trackClosed[4] = False
-        if(self.ui.CTCBlockInput.text() == "6"):
-            self.suggestedSpeed[5] = self.ui.SugSpeedInput.text()
-            self.authority[5] = self.ui.AuthorityInput.text()
-            if(self.ui.BlockStatusInput.text() == "Closed"):
-                self.trackClosed[5] = True
-            else:
-                self.trackClosed[5] = False
-        if(self.ui.CTCBlockInput.text() == "7"):
-            self.suggestedSpeed[6] = self.ui.SugSpeedInput.text()
-            self.authority[6] = self.ui.AuthorityInput.text()
-            if(self.ui.BlockStatusInput.text() == "Closed"):
-                self.trackClosed[6] = True
-            else:
-                self.trackClosed[6] = False     
-        if(self.ui.CTCBlockInput.text() == "8"):
-            self.suggestedSpeed[7] = self.ui.SugSpeedInput.text()
-            self.authority[7] = self.ui.AuthorityInput.text()
-            if(self.ui.BlockStatusInput.text() == "Closed"):
-                self.trackClosed[7] = True
-            else:
-                self.trackClosed[7] = False 
-        if(self.ui.CTCBlockInput.text() == "9"):
-            self.suggestedSpeed[8] = self.ui.SugSpeedInput.text()
-            self.authority[8] = self.ui.AuthorityInput.text()
-            if(self.ui.BlockStatusInput.text() == "Closed"):
-                self.trackClosed[8] = True
-            else:
-                self.trackClosed[8] = False    
-        if(self.ui.CTCBlockInput.text() == "10"):
-            self.suggestedSpeed[9] = self.ui.SugSpeedInput.text()
-            self.authority[9] = self.ui.AuthorityInput.text()
-            if(self.ui.BlockStatusInput.text() == "Closed"):
-                self.trackClosed[9] = True
-            else:
-                self.trackClosed[9] = False  
-        if(self.ui.CTCBlockInput.text() == "11"):
-            self.suggestedSpeed[10] = self.ui.SugSpeedInput.text()
-            self.authority[10] = self.ui.AuthorityInput.text()
-            if(self.ui.BlockStatusInput.text() == "Closed"):
-                self.trackClosed[10] = True
-            else:
-                self.trackClosed[10] = False     
-        if(self.ui.CTCBlockInput.text() == "12"):
-            self.suggestedSpeed[11] = self.ui.SugSpeedInput.text()
-            self.authority[11] = self.ui.AuthorityInput.text()
-            if(self.ui.BlockStatusInput.text() == "Closed"):
-                self.trackClosed[11] = True
-            else:
-                self.trackClosed[11] = False
-        if(self.ui.CTCBlockInput.text() == "13"):
-            self.suggestedSpeed[12] = self.ui.SugSpeedInput.text()
-            self.authority[12] = self.ui.AuthorityInput.text()
-            if(self.ui.BlockStatusInput.text() == "Closed"):
-                self.trackClosed[12] = True
-            else:
-                self.trackClosed[12] = False
-        if(self.ui.CTCBlockInput.text() == "14"):
-            self.suggestedSpeed[13] = self.ui.SugSpeedInput.text()
-            self.authority[13] = self.ui.AuthorityInput.text()
-            if(self.ui.BlockStatusInput.text() == "Closed"):
-                self.trackClosed[13] = True
-            else:
-                self.trackClosed[13] = False
-        if(self.ui.CTCBlockInput.text() == "15"):
-            self.suggestedSpeed[14] = self.ui.SugSpeedInput.text()
-            self.authority[14] = self.ui.AuthorityInput.text()
-            if(self.ui.BlockStatusInput.text() == "Closed"):
-                self.trackClosed[14] = True
-            else:
-                self.trackClosed[14] = False
+        self.CTCBlockNumber = self.ui.CTCBlockInput.text()
+
+        #Update the variables
+        self.suggestedSpeed[self.CTCBlockNumber-1] = self.ui.SugSpeedInput.text()
+        self.authority[self.CTCBlockNumber-1] = self.ui.AuthorityInput.text()
+        if(self.ui.BlockStatusInput.text() == "Closed"):
+            self.trackClosed[self.CTCBlockNumber-1] = True
+        else:
+            self.trackClosed[self.CTCBlockNumber-1] = False
+        
+        #Update the GUI
         self.TrackStatDisp()
         self.OccupancyDisp()
         self.AuthorityDisp()
         self.SugSpeedDisp()
         self.ControlSwitch()
-            
-            
+
+        #Update the Track Model         
+    '''
+    #Gets the occupancy
+    def getOccupancy(self, blockNum, occupied):
+        self.occupancy[blockNum] = occupied
+        if(occupied == True)
+            self.setOfficeOccupancy(blockNum)
+    
+    #Update the CTC Office Occupancy
+    def setOfficeOccupancy(self, block):
+        #Sends the Occupancy Signal
+        signals.CTC_occupancy.emit(block)
+
+    '''
     #gets the Track Model Inputs
     def getTMInputs(self):
-        if(self.ui.TMBlockInput.text() == "1"):
-            if(self.ui.TrackOccInput.text() == ("Unoccupied")):
-                self.occupancy[0] = False
-            else:
-                self.occupancy[0] = True
-        if(self.ui.TMBlockInput.text() == "2"):
-            if(self.ui.TrackOccInput.text() == ("Unoccupied")):
-                self.occupancy[1] = False
-            else:
-                self.occupancy[1] = True
-        if(self.ui.TMBlockInput.text() == "3"):
-            if(self.ui.TrackOccInput.text() == ("Unoccupied")):
-                self.occupancy[2] = False
-            else:
-                self.occupancy[2] = True
-        if(self.ui.TMBlockInput.text() == "4"):
-            if(self.ui.TrackOccInput.text() == ("Unoccupied")):
-                self.occupancy[3] = False
-            else:
-                self.occupancy[3] = True
-        if(self.ui.TMBlockInput.text() == "5"):
-            if(self.ui.TrackOccInput.text() == ("Unoccupied")):
-                self.occupancy[4] = False
-            else:
-                self.occupancy[4] = True
-        if(self.ui.TMBlockInput.text() == "6"):
-            if(self.ui.TrackOccInput.text() == ("Unoccupied")):
-                self.occupancy[5] = False
-            else:
-                self.occupancy[5] = True
-        if(self.ui.TMBlockInput.text() == "7"):
-            if(self.ui.TrackOccInput.text() == ("Unoccupied")):
-                self.occupancy[6] = False
-            else:
-                self.occupancy[6] = True
-        if(self.ui.TMBlockInput.text() == "8"):
-            if(self.ui.TrackOccInput.text() == ("Unoccupied")):
-                self.occupancy[7] = False
-            else:
-                self.occupancy[7] = True
-        if(self.ui.TMBlockInput.text() == "9"):
-            if(self.ui.TrackOccInput.text() == ("Unoccupied")):
-                self.occupancy[8] = False
-            else:
-                self.occupancy[8] = True
-        if(self.ui.TMBlockInput.text() == "10"):
-            if(self.ui.TrackOccInput.text() == ("Unoccupied")):
-                self.occupancy[9] = False
-            else:
-                self.occupancy[9] = True
-        if(self.ui.TMBlockInput.text() == "11"):
-            if(self.ui.TrackOccInput.text() == ("Unoccupied")):
-                self.occupancy[10] = False
-            else:
-                self.occupancy[10] = True
-        if(self.ui.TMBlockInput.text() == "12"):
-            if(self.ui.TrackOccInput.text() == ("Unoccupied")):
-                self.occupancy[11] = False
-            else:
-                self.occupancy[11] = True
-        if(self.ui.TMBlockInput.text() == "13"):
-            if(self.ui.TrackOccInput.text() == ("Unoccupied")):
-                self.occupancy[12] = False
-            else:
-                self.occupancy[12] = True
-        if(self.ui.TMBlockInput.text() == "14"):
-            if(self.ui.TrackOccInput.text() == ("Unoccupied")):
-                self.occupancy[13] = False
-            else:
-                self.occupancy[13] = True
-        if(self.ui.TMBlockInput.text() == "15"):
-            if(self.ui.TrackOccInput.text() == ("Unoccupied")):
-                self.occupancy[14] = False
-            else:
-                self.occupancy[14] = True
+        
+        #Update the variables
+        
+        #Update the GUI
         self.TrackStatDisp()
         self.OccupancyDisp()
         self.AuthorityDisp()
         self.SugSpeedDisp()
         self.ControlSwitch()
-    
+
+        #Update the CTC Office
+        self.ControlSwitch()
+        
+        #Send Switch States
+        #Send Occupancy
+    '''
+
+    '''    
     #Updates the Outputs
     def UpdateOutputs(self):
         #CTC Output
@@ -571,8 +431,20 @@ class MainWindow(QMainWindow):
             self.ui.SwitchDisp.setText("B")
         else:
             self.ui.SwitchDisp.setText("C")
-        
-        
+    
+    #Update the CTC Office Switch States
+    def UpdateCTCSwitch(self, block):
+
+        #Sends the Switch States
+        signals.BlockNumber.emit(block)
+        signals.Switch.emit(switchState)
+
+    #Update the Track Model Authority and Suggested
+    def UpdateTMStats(self, block):
+
+    #Update the Track Model Switch State
+    def UpdateTMSwitch(self,block):
+    '''    
 if __name__ == "__main__":
 	app = QApplication(sys.argv)
 	
