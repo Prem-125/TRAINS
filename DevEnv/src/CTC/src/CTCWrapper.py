@@ -190,9 +190,9 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
         #Call back-end function for manual dispatch
         if(track_line_name == "Green"):
-            success = CTCSchedule.ManualSchedule(block_destination, train_arrival_time, GreenLine)
+            success = CTCSchedule.ManualSchedule(block_destination, train_arrival_time, GreenLine, self.gbl_seconds)
         if(track_line_name == "Red"):
-            success = CTCSchedule.ManualSchedule(block_destination, train_arrival_time, RedLine)
+            success = CTCSchedule.ManualSchedule(block_destination, train_arrival_time, RedLine, self.gbl_seconds)
 
         #If train could not be scheduled, display pop-up window and return to calling environment
         if(not success):
