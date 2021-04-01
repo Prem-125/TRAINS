@@ -69,12 +69,13 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         self.ui.SectionComboBox3.currentTextChanged.connect(self.ReopenTabTrackBlocks)
         
         self.ui.CloseBlockButton.clicked.connect(self.GUICloseBlock)
-        #self.ui.ReopenBlockButton.clicked.connect(self.GUIOpenBlock)
+        self.ui.ReopenBlockButton.clicked.connect(self.GUIReopenBlock)
         
 
         #Define block status informational display
         self.ui.TrackComboBox4.currentTextChanged.connect(self.StatusTrackSections)
         self.ui.SectionComboBox4.currentTextChanged.connect(self.StatusTrackBlocks)
+        self.ui.BlockComboBox3.currentTextChanged.connect(self.UpdateBlockInfo)
 
         #Define switch status informational display
         self.ui.TrackComboBox5.currentTextChanged.connect(self.StatusSwitchNums)
@@ -190,9 +191,9 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
         #Call back-end function for manual dispatch
         if(track_line_name == "Green"):
-            success = CTCSchedule.ManualSchedule(block_destination, train_arrival_time, GreenLine)
+            success = CTCSchedule.ManualSchedule(block_destination, train_arrival_time, GreenLine, self.gbl_seconds)
         if(track_line_name == "Red"):
-            success = CTCSchedule.ManualSchedule(block_destination, train_arrival_time, RedLine)
+            success = CTCSchedule.ManualSchedule(block_destination, train_arrival_time, RedLine, self.gbl_seconds)
 
         #If train could not be scheduled, display pop-up window and return to calling environment
         if(not success):
@@ -861,6 +862,34 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
             for letter in red_track_sections:
                 self.ui.SectionComboBox4.addItem(letter)
         #End if-else block
+
+        #Evaluate block display
+        if(str(self.ui.SectionComboBox4.currentText()) != '' and str(self.ui.BlockComboBox3.currentText()) != ''):
+            if(str(self.ui.TrackComboBox4.currentText()) == "Green"):
+                #Obtain block number
+                block_num = int(self.ui.BlockComboBox3.currentText())
+                #Retrieve block object
+                blockObj = GreenLine.block_list[block_num-1]
+
+                self.ui.BlockSectionLabel.setText("Section: " + blockObj.section)
+                self.ui.BlockLengthLabel.setText("Block Length: " + blockObj.section)
+                self.ui.SpeedLimitLabel.setText("Speed Limit: " + blockObj.section)
+                self.ui.OcupancyLabel.setText("Occupancy: " + blockObj.section)
+                self.ui.BlockStatusLabel.setText("Status: " + blockObj.section)
+
+            elif(str(self.ui.TrackComboBox4.currentText()) == "Red"):
+                #Obtain block number
+                block_num = int(self.ui.BlockComboBox3.currentText())
+                #Retrieve block object
+                blockObj = RedLine.block_list[block_num-1]
+
+                self.ui.BlockSectionLabel.setText("Section: " + blockObj.section)
+                self.ui.BlockLengthLabel.setText("Block Length: " + blockObj.section)
+                self.ui.SpeedLimitLabel.setText("Speed Limit: " + blockObj.section)
+                self.ui.OcupancyLabel.setText("Occupancy: " + blockObj.section)
+                self.ui.BlockStatusLabel.setText("Status: " + blockObj.section)
+            #End if
+        #End if
     #End method
 
     #Method to set track block combo box in block status group of maintenance mode
@@ -1051,7 +1080,63 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                 self.ui.BlockComboBox3.clear()
                 self.ui.BlockComboBox3.addItem(str(76))
         #End track line if-elif block
+
+        #Evaluate block display
+        if(str(self.ui.SectionComboBox4.currentText()) != '' and str(self.ui.BlockComboBox3.currentText()) != ''):
+            if(str(self.ui.TrackComboBox4.currentText()) == "Green"):
+                #Obtain block number
+                block_num = int(self.ui.BlockComboBox3.currentText())
+                #Retrieve block object
+                blockObj = GreenLine.block_list[block_num-1]
+
+                self.ui.BlockSectionLabel.setText("Section: " + blockObj.section)
+                self.ui.BlockLengthLabel.setText("Block Length: " + blockObj.section)
+                self.ui.SpeedLimitLabel.setText("Speed Limit: " + blockObj.section)
+                self.ui.OcupancyLabel.setText("Occupancy: " + blockObj.section)
+                self.ui.BlockStatusLabel.setText("Status: " + blockObj.section)
+
+            elif(str(self.ui.TrackComboBox4.currentText()) == "Red"):
+                #Obtain block number
+                block_num = int(self.ui.BlockComboBox3.currentText())
+                #Retrieve block object
+                blockObj = RedLine.block_list[block_num-1]
+
+                self.ui.BlockSectionLabel.setText("Section: " + blockObj.section)
+                self.ui.BlockLengthLabel.setText("Block Length: " + blockObj.section)
+                self.ui.SpeedLimitLabel.setText("Speed Limit: " + blockObj.section)
+                self.ui.OcupancyLabel.setText("Occupancy: " + blockObj.section)
+                self.ui.BlockStatusLabel.setText("Status: " + blockObj.section)
+
+            #End if
+        #End if
     #End Method
+
+    #Method to update block informatino when specified track block changes
+    def UpdateBlockInfo(self):
+        if(str(self.ui.TrackComboBox4.currentText()) == "Green"):
+                #Obtain block number
+                block_num = int(self.ui.BlockComboBox3.currentText())
+                #Retrieve block object
+                blockObj = GreenLine.block_list[block_num-1]
+
+                self.ui.BlockSectionLabel.setText("Section: " + blockObj.section)
+                self.ui.BlockLengthLabel.setText("Block Length: " + blockObj.section)
+                self.ui.SpeedLimitLabel.setText("Speed Limit: " + blockObj.section)
+                self.ui.OcupancyLabel.setText("Occupancy: " + blockObj.section)
+                self.ui.BlockStatusLabel.setText("Status: " + blockObj.section)
+
+        elif(str(self.ui.TrackComboBox4.currentText()) == "Red"):
+            #Obtain block number
+            block_num = int(self.ui.BlockComboBox3.currentText())
+            #Retrieve block object
+            blockObj = RedLine.block_list[block_num-1]
+
+            self.ui.BlockSectionLabel.setText("Section: " + blockObj.section)
+            self.ui.BlockLengthLabel.setText("Block Length: " + blockObj.section)
+            self.ui.SpeedLimitLabel.setText("Speed Limit: " + blockObj.section)
+            self.ui.OcupancyLabel.setText("Occupancy: " + blockObj.section)
+            self.ui.BlockStatusLabel.setText("Status: " + blockObj.section)
+        #End if
 
     #Method to set switch number combo box in switch status group of maintenance mode
     def StatusSwitchNums(self):
@@ -1133,6 +1218,65 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
             self.ui.BlockClosureTable.insertRow(numRows)
             self.ui.BlockClosureTable.setItem(numRows, 0, QTableWidgetItem("Red"))
             self.ui.BlockClosureTable.setItem(numRows, 1, QTableWidgetItem(str(block_num)))
+
+        #End if-elif block
+    #End method
+
+    #Method to reopen block at the request of the dispatcher
+    def GUIReopenBlock(self):
+        #Initialize temporary variables to hold details of block to be reopen
+        track_line = str(self.ui.TrackComboBox3.currentText())
+        track_section = str(self.ui.SectionComboBox3.currentText())
+        block_num = int(self.ui.BlockComboBox2.currentText())
+
+        if(track_line == "Green"):
+            #Ensure block is not already open
+            if(block_num not in GreenLine.closed_blocks):
+                #Create error message box
+                ClosureInfoMsg = QMessageBox()
+                ClosureInfoMsg.setWindowTitle("Block Reopening")
+                ClosureInfoMsg.setText("INFO: The specified block is already open")
+                ClosureInfoMsg.setIcon(QMessageBox.Information)
+
+                MsgWin = ClosureInfoMsg.exec()
+
+                return
+            #End if
+
+            #Remove block from closure list in track object
+            GreenLine.closed_blocks.remove(block_num)
+
+            #Update block closure list in maintenance mode of GUI
+            for row in range(0, self.ui.BlockClosureTable.rowCount()):
+                if(str(self.ui.BlockClosureTable.item(row, 1)) == "Green" and str(self.ui.BlockClosureTable.item(row, 1)) == str(block_num)):
+                    self.ui.BlockClosureTable.removeRow(row)
+                    break
+            #End for loop
+
+        
+        elif(track_line == "Red"):
+            #Ensure block is not already open
+            if(block_num not in RedLine.closed_blocks):
+                #Create error message box
+                ClosureInfoMsg = QMessageBox()
+                ClosureInfoMsg.setWindowTitle("Block Reopening")
+                ClosureInfoMsg.setText("INFO: The specified block is already open")
+                ClosureInfoMsg.setIcon(QMessageBox.Information)
+
+                MsgWin = ClosureInfoMsg.exec()
+
+                return
+            #End if
+
+            #Remove block from closure list in track object
+            RedLine.closed_blocks.remove(block_num)
+
+            #Update block closure list in maintenance mode of GUI
+            for row in range(0, self.ui.BlockClosureTable.rowCount()):
+                if(str(self.ui.BlockClosureTable.item(row, 0).text()) == "Red" and str(self.ui.BlockClosureTable.item(row, 1).text()) == str(block_num)):
+                    self.ui.BlockClosureTable.removeRow(row)
+                    break
+            #End for loop
 
         #End if-elif block
     #End method

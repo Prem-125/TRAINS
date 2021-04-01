@@ -90,6 +90,55 @@
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Valid&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
+     <widget class="QLabel" name="label_10">
+      <property name="geometry">
+       <rect>
+        <x>410</x>
+        <y>50</y>
+        <width>271</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Current Occupied Blocks:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+     <widget class="QScrollArea" name="scrollArea">
+      <property name="geometry">
+       <rect>
+        <x>660</x>
+        <y>20</y>
+        <width>371</width>
+        <height>121</height>
+       </rect>
+      </property>
+      <property name="widgetResizable">
+       <bool>true</bool>
+      </property>
+      <widget class="QWidget" name="scrollAreaWidgetContents">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>369</width>
+         <height>119</height>
+        </rect>
+       </property>
+       <widget class="QLabel" name="occupied_block_list">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>10</y>
+          <width>55</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;temp&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </widget>
+     </widget>
     </widget>
     <widget class="QGroupBox" name="trackBox">
      <property name="geometry">
@@ -109,11 +158,11 @@
         <x>10</x>
         <y>20</y>
         <width>261</width>
-        <height>311</height>
+        <height>341</height>
        </rect>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;• Track Section:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;• Track Switch:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;• Railway Crossing:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;• Rail Speed Limit:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;• Grade:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;• Track Heater Status:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;• Branch:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;• Station:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;• Track Section:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;• Track Switch:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;• Railway Crossing:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;• Rail Speed Limit:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;• Grade:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;• Track Heater Status:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;• Branch:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;• Station:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;• Station Side:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;• Underground:&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
      <widget class="QLabel" name="selTrackSW">
@@ -195,7 +244,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>300</y>
+        <y>360</y>
         <width>351</width>
         <height>141</height>
        </rect>
@@ -260,7 +309,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>470</y>
+        <y>500</y>
         <width>351</width>
         <height>51</height>
        </rect>
@@ -340,14 +389,40 @@
      <widget class="QLabel" name="selTrackStation">
       <property name="geometry">
        <rect>
-        <x>254</x>
+        <x>234</x>
         <y>250</y>
-        <width>91</width>
+        <width>111</width>
         <height>31</height>
        </rect>
       </property>
       <property name="text">
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;&amp;quot;Station 1&amp;quot;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="selTrackUnderground">
+      <property name="geometry">
+       <rect>
+        <x>290</x>
+        <y>320</y>
+        <width>91</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;&amp;quot;No&amp;quot;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="selTrackStationSide">
+      <property name="geometry">
+       <rect>
+        <x>260</x>
+        <y>290</y>
+        <width>91</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;&amp;quot;Left/Right&amp;quot;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
     </widget>
@@ -852,7 +927,7 @@
       <string/>
      </property>
     </widget>
-    <widget class="QRadioButton" name="upTrackBlue">
+    <widget class="QRadioButton" name="upTrackGreen">
      <property name="geometry">
       <rect>
        <x>20</x>
@@ -862,7 +937,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>Blue Line</string>
+      <string>Green Line</string>
      </property>
      <property name="checked">
       <bool>true</bool>

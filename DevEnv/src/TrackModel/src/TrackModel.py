@@ -78,6 +78,7 @@ class Track:
 		self.is_station = is_station
 		self.station_name = station_name
 		self.station_side = station_side
+        
 		self.boarding_count = boarding_count
 		
 		#crossing Variables
@@ -185,7 +186,6 @@ class Track:
 			#sned block info
 			signal.new_block.emit(self.block, self.length, self.grade, id)
 
-
 	def encode_beacon(self):
 		   #encoding my beacon
 		self.encodedBeacon = int(self.ui.stationUpcoming.checkState()) >> 1
@@ -234,6 +234,7 @@ class Track:
 		return self.authority
 	def set_authority(self, in_condition):
 		self.authority=in_condition
+
 		
 	def get_ticket_count(self):
 		return self.ticket_count
@@ -297,50 +298,77 @@ class Track:
 		#this list contains atributes of infrastructure such a station/undergorund
 		list_atrib=self.infrastructure.split(';')
 		
+		#create flag variables
+		station_done = False
+		underground_done = False
+		switch_done = False
+		print(str(len(list_atrib))+" list_atrib length")
 		#if there is only one atribute
-		if len(list_atrib) == 1:
+		for i in range(0, len(list_atrib)):
 			#split up atribute by the spacing
-			atrib=list_atrib[0].split()	
-
-			#check to see if atribute is a station:
-			if(atrib[0] == 'Station'):
-				self.set_is_station(True)
-				self.set_station_name(atrib[0]+' '+atrib[1])
-				sample_string = self.get_station_name()
-				#print(sample_string)
-				self.set_beacon('Welcome to ' + sample_string)
-				self.generate_random_ticket()
-				#print(atrib)
-				#self.generate_boarding()
-				#print(self.get_beacon())
-				#print("Station is" ,self.get_station_name())
-			else:
-				self.set_is_station(False)
-			
-			#check to see if atribute is a swtich
-			if(atrib[0] == 'Switch'):	
-				#check to see if it is the stem of the swtich
-				if (len(atrib) > 5):
-					self.set_is_switch(True)
-					Track.switch_num+=1
-					#print("stem is ", self.get_block())
-					Track.switch_list.append(Switch())
-					Track.switch_list[Track.switch_num].set_y_stem(self.get_block())
-					y_zero_in = int(atrib[3])
-					y_one_in = int(atrib[8])
-					Track.switch_list[Track.switch_num].set_switch_position(False)
-					Track.switch_list[Track.switch_num].set_y_zero(y_zero_in)
-					Track.switch_list[Track.switch_num].set_y_one(y_one_in)
-					#print("zero is ", Track.switch_list[Track.switch_num].set_y_zero(), " and one is ", Track.switch_list[Track.switch_num].set_y_one(), "and switch position is", Track.switch_list[Track.switch_num].get_switch_position())
-					self.set_is_switch_leg(False)
+			atrib=list_atrib[i].split(' ')	
+			print(str(len(atrib)) + " atrib length")
+			for j in range(0,len(atrib)):	
+				#check to see if atribute is a station:
+				if(atrib[j] == 'STATION'):
+					self.set_is_station(True)
+					self.set_station_name(atrib[j]+' '+atrib[j+1])
+					sample_string = self.get_station_name()
+					#print(sample_string)
+					self.set_beacon('Welcome to ' + sample_string)
+					self.generate_random_ticket()
+					if(self.station_side == 'Left'):
+						self.set_station_side(0)
+					if(self.station_side == 'Right'):
+						self.set_station_side(1)
+					if(self.station_side == 'Left/Right'):
+						self.set_station_side(3)
 					
-				else: 
+					#set the flag
+					station_done = True
+					#print(atrib)
+					#self.generate_boarding()
+					#print(self.get_beacon())
+					#print("Station is" ,self.get_station_name())
+				elif station_done == False:
+					self.set_is_station(False)
+				
+				#check to see if it is underground
+				if(atrib[j] == 'UNDERGROUND'):
+					self.set_is_underground(True)
+					underground_done = True
+				elif underground_done == False:
+					self.set_is_underground(False)
+				
+				#check to see if atribute is a swtich
+				if(atrib[j] == 'SWITCH'):	
+					#check to see if it is the stem of the swtich
+					if (len(atrib) > 5):
+						self.set_is_switch(True)
+						Track.switch_num+=1
+						#print("stem is ", self.get_block())
+						Track.switch_list.append(Switch())
+						Track.switch_list[Track.switch_num].set_y_stem(self.get_block())
+						y_zero_in = int(atrib[3])
+						if(atrib[8] == 'YARD'):
+							y_one_in = 0
+						else:
+							y_one_in = int(atrib[8])
+						Track.switch_list[Track.switch_num].set_switch_position(False)
+						Track.switch_list[Track.switch_num].set_y_zero(y_zero_in)
+						Track.switch_list[Track.switch_num].set_y_one(y_one_in)
+						#print("zero is ", Track.switch_list[Track.switch_num].set_y_zero(), " and one is ", Track.switch_list[Track.switch_num].set_y_one(), "and switch position is", Track.switch_list[Track.switch_num].get_switch_position())
+						self.set_is_switch_leg(False)
+						
+					else: 
+						self.set_is_switch(False)
+						self.set_is_switch_leg(True)
+					#set the flag
+					switch_done = True
+						
+				elif switch_done == False:
 					self.set_is_switch(False)
-					self.set_is_switch_leg(True)
-					
-			else:
-				self.set_is_switch(False)
-				self.set_is_switch_leg(False)
+					self.set_is_switch_leg(False)
 				
 	#function to generate a random amount of tickets
 	def generate_random_ticket(self):
@@ -411,7 +439,7 @@ class MainWindow(QMainWindow):
 	def load_track(self):
 
 		#if self.upTrackBlue.getChecked()==true
-		inputFileName=self.ui.lineEdit.text();
+		inputFileName=self.ui.lineEdit.text()
 		#open csv reader for inputFile
 		try: 
 			csv_file=open(inputFileName,'r')
@@ -441,7 +469,7 @@ class MainWindow(QMainWindow):
 						continue
 					
 					#add information to each track object
-					#print(row)
+					print(row)
 					self.track_list.append(Track())
 					self.track_list[self.num_lines].set_line(row[0])
 					self.track_list[self.num_lines].set_section(row[1])
@@ -463,9 +491,9 @@ class MainWindow(QMainWindow):
 					
 					#temporary simulated signals from wayside
 					self.track_list[self.num_lines].set_commanded_speed(35)
-					self.track_list[self.num_lines].set_authority(137)
+					self.track_list[self.num_lines].set_authority(10)
 					self.track_list[self.num_lines].set_signal_light('Go')
-					self.track_list[self.num_lines].set_beacon('Have a nice day!')
+					self.track_list[self.num_lines].set_beacon(' ')
 					self.track_list[self.num_lines].set_is_crossing(False)
 					self.track_list[self.num_lines].set_is_branch(False)
 					self.track_list[self.num_lines].set_is_switch_leg(False)
@@ -490,7 +518,8 @@ class MainWindow(QMainWindow):
 	#function to tell me where teh train is
 	def send_block_to_model(self,block,id):
 		self.track_list[block].set_occupied(False)
-		self.track_list[block+1].set_occupied(True, id)				
+		self.track_list[block+1].set_occupied(True, id)
+		
 			
 	def get_track_info(self):
 		#get the text inputted by the user and check to see if it's a number
@@ -658,6 +687,15 @@ class MainWindow(QMainWindow):
 			self.ui.ctcTicketO.display(self.track_list[blckNum].get_ticket_count())
 			self.ui.ctcTrackUpO.setText("Tickets Updated")
 			self.ui.train_people_boarding.display(self.track_list[blckNum].get_boarding_count())
+			
+			
+			if(self.track_list[blckNum].get_station_side() == 0):
+				self.ui.selTrackStationSide.setText("Left")
+			if(self.track_list[blckNum].get_station_side() == 1):
+				self.ui.selTrackStationSide.setText("Right")
+			if(self.track_list[blckNum].get_station_side() == 3):
+				self.ui.selTrackStationSide.setText("Left/Right")
+			
 		else:
 			self.ui.selTrackStation.setText('Not a Station')
 			self.ui.ctcTicketO.display(0)
@@ -682,6 +720,10 @@ class MainWindow(QMainWindow):
 			self.ui.selTrackSW.setText('No')	
 			self.ui.waySwitch.setText('Not a switch')
 		
+		if(self.track_list[blckNum].get_is_underground() == True):
+			self.ui.selTrackUnderground.setText('Yes')
+		else:
+			self.ui.selTrackUnderground.setText('No')	
 		
 		#railStatus
 		self.ui.selTrackRailStat.setText(str(self.track_list[blckNum].get_rail_condition()))
@@ -721,6 +763,14 @@ class MainWindow(QMainWindow):
 		#Wayside outputs
 		self.ui.wayOccupiedO.setText(str(self.track_list[blckNum].get_occupied()))
 		
+		#check to see which blocks are occupied and show them in the list 
+		'''occupied_string = ''
+		for i in range(0,len(self.track_list)):
+			if(self.track_list[i].get_occupied() == True):
+				added_string = "Block " + self.track_list[i].get_block() + "\n"
+		
+		self.occupied_block_list.setText(occupied_string)'''
+			
 
 		
 if __name__ == "__main__":

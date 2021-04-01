@@ -14,7 +14,7 @@ class Train:
 		self.weight = 40.9 #tons
 		self.mass = 37103.86 #40.9 tons to kg
 		self.gravity = 9.8
-		self.samplePeriod = .1
+		self.samplePeriod = .5
 		self.trainID = 0
 
 		self.acceleration = 0.0
@@ -28,6 +28,7 @@ class Train:
 		self.decLimitE = -2.73
 		self.decLimitS = -1.2
 		self.temperature = 70 # farenheit 
+		self.currPosition = 0.0
 
 		self.lDoorsOpen = False
 		self.rDoorsOpen = False

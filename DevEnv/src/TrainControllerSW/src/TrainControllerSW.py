@@ -13,7 +13,7 @@ class TrainController:
         
         #setting important variables
         self.train_ID = TrainID
-        self.is_auto = False
+        self.is_auto = True
 
         #sending vital info to SpeedRegulator
         self.SR = SpeedRegulator(self, commanded_speed, current_speed, authority, self.train_ID)
@@ -169,11 +169,12 @@ class SpeedRegulator():
     #pidLoop: used to calculate power
     def pidLoop(self):
         #pid loop called
-        print("In PID")
+        #print("In PID")
         if(self.TrainController.is_auto and ((not self.service_brake ) and ( not self.emergency_brake))):
             self.pid.setpoint = self.commanded_speed
             self.power = self.pid(self.current_speed, dt = 1)
             print("In AUTO MOde, going off commanded")
+            
         elif(not(self.setpoint_speed == 0) and not self.service_brake and not self.emergency_brake):
             self.pid.setpoint = self.setpoint_speed
             self.power = self.pid(self.current_speed, dt = 1)
@@ -185,10 +186,12 @@ class SpeedRegulator():
         else:
             self.pid.setpoint=0
             self.power = 0
+        self.TrainController.DisplayUpdate()
+
         # send power here
         #print(self.power)
-        print("Got to end of pidLoop:")
-        print("Power:" + str(self.power))
+        #print("Got to end of pidLoop:")
+        #print("Power:" + str(self.power))
 
     def get_power(self):
         print(self.power)
@@ -262,6 +265,8 @@ class MainWindow(QMainWindow):
         self.ui.commandedSpeedVal.display(self.TrainController.SR.commanded_speed * 2.23694)
         self.ui.authority.display(self.TrainController.SR.authority)
         self.ui.actualSpeedVal.display(self.TrainController.SR.current_speed * 2.23694)
+        self.ui.power.display(self.TrainController.SR.power / 1000)
+  
 
         if(self.TrainController.SR.service_brake):
             self.ui.textBrowser_9.setPlainText("S Brake Active")
@@ -278,6 +283,8 @@ class MainWindow(QMainWindow):
             #self.ui.textBrowser_10.setPlainText("E Brake Inactive")
 
     def send_kp_ki(self):
+        self.TrainController.SR.pid.Ki = float(self.ui.kiInput.toPlainText())
+        self.TrainController.SR.pid.Kp = float(self.ui.kpInput.toPlainText())
         self.TrainController.set_kp_ki(float(self.ui.kpInput.toPlainText()), float(self.ui.kiInput.toPlainText()))
         print("Sent Kp: " + str(float(self.ui.kpInput.toPlainText())) + "Sent Ki: " + str(float(self.ui.kiInput.toPlainText())))
     #stephen cals TC.get power and TC.set track circuit and TC.set current speed and TC.set beacon
