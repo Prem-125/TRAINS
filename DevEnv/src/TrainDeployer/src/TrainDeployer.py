@@ -79,13 +79,13 @@ class TrainDeployer:
 
 
     def CreateTrains(self,line, id):
-        if(id == 1):
+        if(id == 2):
             #self.trains.insert(id, TrainModel(0, 0, 0, False, line, id)
             self.trains.insert(id,TrainModel(0, 0, 0, False, line, id))
         else:
             #self.trains.insert(id, TrainModel(0, 0, 0, True, line, id )
             #self.trains[id] = TrainModel(0, 0, 0, True, line, id)
-            self.trains.insert(id,TrainModel(0, 0, 0, True, line, id))
+            self.trains.insert(id,TrainModel(15, 0, 0, True, line, id))
         print(len(self.trains))
         self.trains[id].show()
         self.number_of_trains = self.number_of_trains + 1
