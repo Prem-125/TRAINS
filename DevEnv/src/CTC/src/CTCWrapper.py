@@ -8,9 +8,9 @@ from PySide6.QtCore import *
 from PySide6.QtGui import *
 
 #Load in track layout
-GreenLine = TrackLine("C:/Users/fjfat/SoftwareDevelopment/TRAINS/DevEnv/src/CTC/src/TrackLayout.xls", 2)
+GreenLine = TrackLine("./TrackLayout.xls", 2)
 
-RedLine = TrackLine("C:/Users/fjfat/SoftwareDevelopment/TRAINS/DevEnv/src/CTC/src/TrackLayout.xls", 1)
+RedLine = TrackLine("./TrackLayout.xls", 1)
 
 #Declare a schedule object
 CTCSchedule = Schedule()

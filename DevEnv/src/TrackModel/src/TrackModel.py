@@ -161,6 +161,10 @@ class Track:
 	def get_occupied(self):
 		return self.occupied
 	def set_occupied(self, in_occupied):
+		#every time a train leaves a block with a  station on it, it regenerates the tickets
+		#if(self.get_occupied()==True):
+		#	if(self.get_is_station() == True):	
+		#		self.generate_random_ticket()
 		self.occupied=in_occupied
 
 	def get_connection_track_a(self):
@@ -208,7 +212,7 @@ class Track:
 	def set_ticket_count(self, in_condition):
 		self.ticket_count=in_condition
 		if(self.get_is_station()==True):
-			signals.station_ticket_sales.emit(self.get_line(), ticket_count)
+			signals.station_ticket_sales.emit(self.line, self.ticket_count)
 
 	def get_is_station(self):
 		return self.is_station
@@ -409,14 +413,15 @@ class MainWindow(QMainWindow):
 					self.track_list[self.num_lines].set_authority(137)
 					self.track_list[self.num_lines].set_signal_light('Go')
 					self.track_list[self.num_lines].set_beacon('Have a nice day!')
-					#self.track_list[self.num_lines].set_ticket_count(17)
-					self.track_list[self.num_lines].set_occupied(False)
 					self.track_list[self.num_lines].set_is_crossing(False)
 					self.track_list[self.num_lines].set_is_branch(False)
 					self.track_list[self.num_lines].set_is_switch_leg(False)
+					self.track_list[self.num_lines].set_occupied(False)
 					
 					#self.track_list[self.num_lines].set_connection_track_a(self.track_list[0])
 					#self.track_list[self.num_lines].set_connection_track_b(self.track_list[0])
+					self.track_list[self.num_lines].set_is_station(False)
+					self.track_list[self.num_lines].set_ticket_count(0)
 					
 					#load infrastructure
 					self.track_list[self.num_lines].set_infrastructure(row[6])
@@ -442,6 +447,7 @@ class MainWindow(QMainWindow):
 		if(inputTrackBlock > self.num_lines):
 			print("Input Track Block too High")
 			self.ui.trackSelectorValid.setText("Invalid Input\nBlock Number Too High")
+			return
 
 		
 		#otherwise it is a valid input and update everything
@@ -656,6 +662,7 @@ class MainWindow(QMainWindow):
 		#Wayside outputs
 		self.ui.wayOccupiedO.setText(str(self.track_list[blckNum].get_occupied()))
 		
+
 		
 if __name__ == "__main__":
 	app = QApplication(sys.argv)
