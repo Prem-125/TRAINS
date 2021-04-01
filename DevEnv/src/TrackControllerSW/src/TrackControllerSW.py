@@ -38,6 +38,7 @@ class MainWindow(QMainWindow):
         signals.CTC_authority.connect(self.getAuthority)
         #signals.CTC_suggested_speed.connect(self.getSugSpeed)
         #need track maintenance signal
+        #need wayside to track switch signals
 
     #Gets the occupancy
     def getOccupancy(self, blockNum, occupied):

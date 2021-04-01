@@ -158,7 +158,7 @@ class Ui_TrackControllerUI(object):
         self.ImportButton.setGeometry(QRect(130, 50, 111, 21))
         self.SuccessFailLine = QLabel(self.Program)
         self.SuccessFailLine.setObjectName(u"SuccessFailLine")
-        self.SuccessFailLine.setGeometry(QRect(10, 80, 81, 16))
+        self.SuccessFailLine.setGeometry(QRect(10, 80, 111, 21))
         self.Program_2.addTab(self.Program, "")
         TrackControllerUI.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(TrackControllerUI)
@@ -171,7 +171,7 @@ class Ui_TrackControllerUI(object):
 
         self.retranslateUi(TrackControllerUI)
 
-        self.Program_2.setCurrentIndex(0)
+        self.Program_2.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(TrackControllerUI)
