@@ -69,7 +69,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         self.ui.SectionComboBox3.currentTextChanged.connect(self.ReopenTabTrackBlocks)
         
         self.ui.CloseBlockButton.clicked.connect(self.GUICloseBlock)
-        #self.ui.ReopenBlockButton.clicked.connect(self.GUIOpenBlock)
+        self.ui.ReopenBlockButton.clicked.connect(self.GUIReopenBlock)
         
 
         #Define block status informational display
@@ -1133,6 +1133,65 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
             self.ui.BlockClosureTable.insertRow(numRows)
             self.ui.BlockClosureTable.setItem(numRows, 0, QTableWidgetItem("Red"))
             self.ui.BlockClosureTable.setItem(numRows, 1, QTableWidgetItem(str(block_num)))
+
+        #End if-elif block
+    #End method
+
+    #Method to reopen block at the request of the dispatcher
+    def GUIReopenBlock(self):
+        #Initialize temporary variables to hold details of block to be reopen
+        track_line = str(self.ui.TrackComboBox3.currentText())
+        track_section = str(self.ui.SectionComboBox3.currentText())
+        block_num = int(self.ui.BlockComboBox2.currentText())
+
+        if(track_line == "Green"):
+            #Ensure block is not already open
+            if(block_num not in GreenLine.closed_blocks):
+                #Create error message box
+                ClosureInfoMsg = QMessageBox()
+                ClosureInfoMsg.setWindowTitle("Block Reopening")
+                ClosureInfoMsg.setText("INFO: The specified block is already open")
+                ClosureInfoMsg.setIcon(QMessageBox.Information)
+
+                MsgWin = ClosureInfoMsg.exec()
+
+                return
+            #End if
+
+            #Remove block from closure list in track object
+            GreenLine.closed_blocks.remove(block_num)
+
+            #Update block closure list in maintenance mode of GUI
+            for row in range(0, self.ui.BlockClosureTable.rowCount()):
+                if(str(self.ui.BlockClosureTable.item(row, 1)) == "Green" and str(self.ui.BlockClosureTable.item(row, 1)) == str(block_num)):
+                    self.ui.BlockClosureTable.removeRow(row)
+                    break
+            #End for loop
+
+        
+        elif(track_line == "Red"):
+            #Ensure block is not already open
+            if(block_num not in RedLine.closed_blocks):
+                #Create error message box
+                ClosureInfoMsg = QMessageBox()
+                ClosureInfoMsg.setWindowTitle("Block Reopening")
+                ClosureInfoMsg.setText("INFO: The specified block is already open")
+                ClosureInfoMsg.setIcon(QMessageBox.Information)
+
+                MsgWin = ClosureInfoMsg.exec()
+
+                return
+            #End if
+
+            #Remove block from closure list in track object
+            RedLine.closed_blocks.remove(block_num)
+
+            #Update block closure list in maintenance mode of GUI
+            for row in range(0, self.ui.BlockClosureTable.rowCount()):
+                if(str(self.ui.BlockClosureTable.item(row, 0).text()) == "Red" and str(self.ui.BlockClosureTable.item(row, 1).text()) == str(block_num)):
+                    self.ui.BlockClosureTable.removeRow(row)
+                    break
+            #End for loop
 
         #End if-elif block
     #End method
