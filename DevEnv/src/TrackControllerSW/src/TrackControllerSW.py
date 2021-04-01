@@ -77,6 +77,11 @@ class MainWindow(QMainWindow):
             signals.wayside_to_track.emit(blockNum, 0, 0)
         else:
             signals.wayside_to_track.emit(blockNum, 1, commanded_speed[blockNum-self.block_offset])
+    
+    #Update the block status
+    def setBlockStatus(self, blockNum, status):
+        self.block_open[blockNum-block_offset] = status
+        self.UIBlockOutput()
 
     #Import PLC
     def ImportPLC(self):
