@@ -23,6 +23,7 @@ class MainWindow(QMainWindow):
 
         #UI used variables
         self.ui_block = 0
+        self.plc_name = ""
         
         #UI Functions
         self.ui.BlockInput.currentTextChanged.connect(self.UIBlockOutput)
@@ -41,6 +42,7 @@ class MainWindow(QMainWindow):
     #Gets the occupancy
     def getOccupancy(self, blockNum, occupied):
         self.occupancy[blockNum-self.block_offset] = occupied        #Use block offset to set the occupancy
+        self.UIBlockOutput()
         if(occupied == True):
             self.setOfficeOccupancy(blockNum)
             self.setTrackStats(blockNum)
@@ -78,7 +80,8 @@ class MainWindow(QMainWindow):
 
     #Import PLC
     def ImportPLC(self):
-        pass
+        self.plc_name = self.ui.ImportLine.currentText()
+        self.ui.SuccessFailLine.setText("Valid File")
     
     #Output for the UI
     def UIBlockOutput(self):
@@ -91,15 +94,22 @@ class MainWindow(QMainWindow):
             self.ui.SignalStatus.setText("N/A")
         else:
             self.ui_block = type(int(self.ui.BlockInput.currentText())) #Convert block input to string
+            
             if(self.block_open[ui_block-block_offset] == True):
                 self.ui.BlockStatus.setText("Open")
+                self.ui.Occupancy.setText(type(str(self.occupancy(ui_block-block_offset))))
+                self.ui.Authority.setText(type(str(self.authority(ui_block-block_offset))))
+                self.ui.CommandedSpeed.setText(type(str(self.commanded_speed(ui_block-block_offset))))
+                self.ui.CrossingStatus.setText("N/A")
+                self.ui.SignalStatus.setText("N/A")
             else:
                 self.ui.BlockStatus.setText("Closed")
-            self.ui.Occupancy.setText(type(str(self.occupancy(ui_block-block_offset))))
-            self.ui.Authority.setText(type(str(self.authority(ui_block-block_offset))))
-            self.ui.CommandedSpeed.setText(type(str(self.commanded_speed(ui_block-block_offset))))
-            self.ui.CrossingStatus.setText("N/A")
-            self.ui.SignalStatus.setText("N/A")
+                self.ui.Occupancy.setText("N/A")
+                self.ui.Authority.setText("N/A")
+                self.ui.CommandedSpeed.setText("N/A")
+                self.ui.CrossingStatus.setText("N/A")
+                self.ui.SignalStatus.setText("N/A")
+            
 
 
     #Controls the Switch States
