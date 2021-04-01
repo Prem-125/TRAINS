@@ -12,11 +12,11 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
         
         #Variables
-        self.block_open = [True for i in range(44)]
-        self.occupancy = [False for i in range(44)]
-        self.authority = [True for i in range(44)]
-        self.suggested_speed = [0 for i in range(44)]
-        self.commanded_speed = [0 for i in range(44)]
+        self.block_open = [True for i in range(150)]
+        self.occupancy = [False for i in range(150)]
+        self.authority = [True for i in range(150)]
+        self.suggested_speed = [0 for i in range(150)]
+        self.commanded_speed = [0 for i in range(150)]
         self.authority_block = 0
         self.switch_state = True
         self.block_offset = 33
@@ -42,7 +42,7 @@ class MainWindow(QMainWindow):
 
     #Gets the occupancy
     def getOccupancy(self, blockNum, occupied):
-        self.getSugSpeed()
+        self.getSugSpeed(blockNum)
         self.occupancy[blockNum-self.block_offset] = occupied        #Use block offset to set the occupancy
         self.UIBlockOutput()
         if(occupied == True):
@@ -75,14 +75,14 @@ class MainWindow(QMainWindow):
 
     #Update Track Model of the authority and commanded speed
     def setTrackStats(self, blockNum):
-        if(blockNum == blockAuthority):
+        if(blockNum == self.block_authority):
             signals.wayside_to_track.emit(blockNum, 0, 0)
         else:
             signals.wayside_to_track.emit(blockNum, 1, commanded_speed[blockNum-self.block_offset])
     
     #Update the block status
     def setBlockStatus(self, blockNum, status):
-        self.block_open[blockNum-block_offset] = status
+        self.block_open[blockNum-self.block_offset] = status
         self.UIBlockOutput()
 
     #Import PLC

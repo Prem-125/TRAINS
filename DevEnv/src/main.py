@@ -27,7 +27,7 @@ def start():
     TM.show()
     TC = TrackControllerSW()
     TC.show()
-    #TrainConsole = TrainDeployer()
+    TrainConsole = TrainDeployer()
 
     sys.exit(app.exec_())
     

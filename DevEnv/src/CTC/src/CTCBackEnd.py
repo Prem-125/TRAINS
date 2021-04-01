@@ -161,7 +161,7 @@ class Train:
 
     #Method to update position of train
     def UpdatePosition(self, block_num):
-        if(block_num == route_queue[1]):
+        if(block_num == self.route_queue[1]):
             #Dequeue from list
             route_queue.pop(0)
         #End if

@@ -10,7 +10,7 @@ class TrainDeployer:
         self.trains = []
         self.trains.append(None)
         
-        self.CreateTrains("Red", 1)
+        #self.CreateTrains("Red", 1)
         #self.CreateTrains(3, 2, 1, True)
 
         

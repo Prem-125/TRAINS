@@ -179,7 +179,7 @@ class Track:
 		#if the block is becomming occupied, send signal to train model
 		if(in_occupied == True):
 			self.encode_track_circuit_signal()
-			signal.TC_signal.emit(self.encoded_TC, id)
+			signals.TC_signal.emit(self.encoded_TC, id)
 			#send beacon
 			if(self.block == 4):
 				signal.Beacon_Signal.emit(304954059, id) # ACTUALLY CALCULATE THE BEACON VAL AND BLOCK NUM
@@ -517,6 +517,7 @@ class MainWindow(QMainWindow):
 		
 	#function to tell me where teh train is
 	def send_block_to_model(self,block,id):
+		print("sent block")
 		self.track_list[block].set_occupied(False)
 		self.track_list[block+1].set_occupied(True, id)
 		
