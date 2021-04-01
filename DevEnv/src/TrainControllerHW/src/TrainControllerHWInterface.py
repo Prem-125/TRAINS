@@ -14,6 +14,7 @@ class TrainControllerHWInterface(QMainWindow):
 		self.utimer = QTimer()
 		self.utimer.timeout.connect(self.timerCallback)
 		self.ui.setParams.clicked.connect(self.set_kp_ki)
+		self.ui.IDVal.setPlainText(trainID)
 		self.power = 0
 		self.curSpeed = current_speed
 		self.encodedB=0

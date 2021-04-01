@@ -61,7 +61,7 @@ class Track:
 		self.commanded_speed = commanded_speed #float w 2 decimal points
 		self.beacon = beacon
 		self.signal_light = signal_light
-		self.occupied = occupied
+		self.occupied = False
 		self.heater_status= heater_status
 		self.connection_track_a = connection_track_a
 		self.connection_track_b = connection_track_b
@@ -77,6 +77,7 @@ class Track:
 		self.ticket_count = ticket_count
 		self.is_station = is_station
 		self.station_name = station_name
+		self.station_side = station_side
 		self.boarding_count = boarding_count
 		
 		#crossing Variables
@@ -88,7 +89,14 @@ class Track:
 		#swithc variable
 		self.is_switch = is_switch
 		self.is_switch_leg = is_switch_leg
-		
+
+		#variables for send train model signal
+		self.encoded_TC = encoded_TC
+		self.cmd_Int = cmd_Int
+		self.cmd_Float = cmd_Float
+		self.auth_Int = auth_Int
+		self.auth_Float = auth_Float
+
 	#set and get functions for each variable 
 	#make output signal variable for each module and have an update function to update them all
 	def get_line(self):
@@ -166,6 +174,11 @@ class Track:
 		#	if(self.get_is_station() == True):	
 		#		self.generate_random_ticket()
 		self.occupied=in_occupied
+		signal.track_model_occupancy(self.block, self.occupied)
+		#if the block is becomming occupied, send signal to train model
+		if(in_occupied == True):
+			self.encode_track_circuit_signal()
+			signal.TC_signal.emit(self.encoded_TC, train)
 
 	def get_connection_track_a(self):
 		return self.connection_track_a
@@ -247,7 +260,7 @@ class Track:
 	def get_boarding_count(self):
 		return self.boarding_count
 	def set_boarding_count(self, in_condition):
-		print("YA WE ENTERED SET BOARDING COUNT")
+		#print("YA WE ENTERED SET BOARDING COUNT")
 		self.boarding_count=in_condition
 	
 	#function parse the infrastructure input
@@ -278,8 +291,7 @@ class Track:
 				self.set_beacon('Welcome to ' + sample_string)
 				self.generate_random_ticket()
 				#print(atrib)
-				print(atrib)
-				self.generate_boarding()
+				#self.generate_boarding()
 				#print(self.get_beacon())
 				#print("Station is" ,self.get_station_name())
 			else:
@@ -317,9 +329,26 @@ class Track:
 		
 	#function to generate the amount of people boarding
 	def generate_boarding(self):
-		print("YA WE ENTERED GENERATE BOARDING")
+		#print("YA WE ENTERED GENERATE BOARDING")
 		self.set_boarding_count(random.randint(1, self.get_ticket_count()))
 		
+	def encode_track_circuit_signal(self):
+		#function to encode a track signal 
+		cmd_Int= int(float(self.get_commanded_speed()))
+		cmd_Float= int(((float(self.get_commanded_speed())-cmd_Int)*10))
+		auth_Int= int(float(self.get_authority()))
+		auth_Float= int(((float(self.get_authority())-auth_Int)*10))
+
+		if(self.get_circuit_condition()==False):
+			self.encoded_TC = (cmd_Int-6 & 255)
+		else:
+			self.encoded_TC = (cmd_Int & 255)
+			self.encoded_TC += (cmd_Float & 15) << 8
+			self.encoded_TC += (auth_Int & 255) << 12
+			self.encoded_TC += (auth_Float & 15)<< 20
+			self.encoded_TC += ((cmd_Int + cmd_Float + auth_Float + auth_Int) & 1023) << 24	
+		#sned the signal 
+		#prem can you rerun the code pls
 
 #Code for the UI
 class MainWindow(QMainWindow):

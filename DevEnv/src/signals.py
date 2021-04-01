@@ -12,7 +12,7 @@ class SignalsClass(QObject):
     test = Signal(int) # Current day, hours, minutes, seconds
     TC_signal = Signal(int,int)
     Beacon_signal = Signal(int,int)
-
+    time_signal = Signal(int)
 
     #Signal to exchange ticket sales information per track line
     station_ticket_sales = Signal(str, int) #Parameters are track line name and new ticket sales
@@ -20,6 +20,7 @@ class SignalsClass(QObject):
     #Signal to inform train controller of new train instance
     train_creation = Signal(int) #Parameter is train number
 
+    track_model_occupancy = Signal(int, bool)
     
 
 

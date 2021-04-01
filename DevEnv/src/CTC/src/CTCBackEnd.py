@@ -1,8 +1,5 @@
 import xlrd
-
-#Global variable to serve as system-wide clock
-gbl_seconds = 0
-gbl_centiseconds = 0
+from signals import signals
 
 #Define Block class
 class Block:
@@ -79,10 +76,13 @@ class Train:
         
         #Initialize route queue
         self.route_queue = []
-        if(track_line == "Green"):
+        if(self.track_line == "Green"):
             self.GenerateGreenRoute()
-        elif(track_line == "Red"):
+        elif(self.track_line == "Red"):
             self.GenerateRedRoute()
+
+        #Obtain occupancy from wayside controller
+        signals.CTCOccupancy.connect(self.Position())
         
     #End contructor
 
@@ -156,10 +156,17 @@ class Train:
         self.route_queue.append(0)
     #End Method
 
+    #Method to update position of train
+    def UpdatePosition(self, block_num):
+        if(block_num == route_queue[1]):
+            #Dequeue from list
+            route_queue.pop(0)
 
-        
-        
 
+    #MUST COMPLETE Each instance of train must respond to occupany conditions of track
+    
+
+#End Train class definition
 
 #End Train class definition
 
@@ -175,6 +182,9 @@ class TrackLine:
         self.switch_list = []
         #Declare a list of stations
         self.station_list = []
+
+        #Obtain ticket sales from TrackModel
+        signals.station_ticket_sales.connect(self.UpdateTicketSales)
 
         #Initialize block composition of TrackLine
         self.TrackSetup(filepath, sheet_index)
@@ -296,13 +306,17 @@ class TrackLine:
 
     #End method
 
-    #Method to compute throughput
-    def ComputeThroughput(new_ticket_sales):
+    #Method to update ticket count
+    def UpdateTicketSales(self, track_line_name, new_ticket_sales):
         #Add new ticket sales to total ticket sales
-        self.ticket_sales += new_ticket_sales
+        if(track_line_name == "Blue"):
+            self.ticket_sales += new_ticket_sales
+    #End method
 
+    #Method to compute throughput
+    def ComputeThroughput(self, curr_time):
         #Recompute throughput
-        throughput = ticket_sales / gbl_centiseconds / 36000
+        throughput = self.ticket_sales / curr_time
 
         return throughput
     #End method
@@ -338,6 +352,11 @@ class Schedule:
         #Determine if specified arrival time is valid
         if(train_departure_time < 0):
             return False
+
+        #Determine if computed depature time matches that of another train
+        for trainObj in self.train_list:
+            if(trainObj.departure_time == train_departure_time):
+                return False
 
         """
         #Determine if specified destination is valid
@@ -480,9 +499,20 @@ class Schedule:
 
         #Return travel time back to calling environment
         return travel_time
-
     #End method
 
+    #Define method to check if a scheduled train needs to be dispatched
+    def CheckForDispatch(self):
+        #Loop through train list to inspect departure times
+        for trainObj in self.train_list:
+            if(trainObj.departure_time == gbl_seconds):
+                #MUST COMPELTE: Inform Train Deployer of newly created train object
+                #signals.train_creation.emit(trainObj.number)
+                break
+
+        
+
+        #MUST COMPLETE: Send authority to track controller as the block number of destination
 #End Schedule class defintion
     
     

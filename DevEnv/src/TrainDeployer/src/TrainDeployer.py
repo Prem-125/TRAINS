@@ -10,9 +10,9 @@ class TrainDeployer:
         self.trains = []
         signals.TC_signal.connect(self.SendTC)
         signals.Beacon_signal.connect(self.SendBeacon)
-
+        signals.train_creation.connect(self.CreateTrains)
         #self.CreateTrains(1, 2, 3, True)
-        self.CreateTrains(3, 2, 1, False)
+        #self.CreateTrains(3, 2, 1, False)
 
         
         """
@@ -33,9 +33,12 @@ class TrainDeployer:
         self.trains[TrainID].set_beacon(TC)
 
 
-    def CreateTrains(self, commanded_speed, current_speed, authority, soft_or_hard):
-        self.trains.append(TrainModel(commanded_speed, current_speed, authority, soft_or_hard, len(self.trains)))
-        self.trains[len(self.trains)-1].show()
+    def CreateTrains(self, id):
+        if(id == 2):
+            self.trains[id](TrainModel(0, 0, 0, False, id))
+        else:
+            self.trains[id](TrainModel(0, 0, 0, True, id))
+        self.trains[id].show()
         self.number_of_trains = self.number_of_trains + 1
 
     ##console makes a bunch of instances of stephen's train model class, stephen's train model class has an associated instance of the traincontroller class.
