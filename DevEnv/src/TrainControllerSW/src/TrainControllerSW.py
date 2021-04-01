@@ -265,17 +265,17 @@ class MainWindow(QMainWindow):
 
         if(self.TrainController.SR.service_brake):
             self.ui.textBrowser_9.setPlainText("S Brake Active")
-            self.ui.textBrowser_11.setPlainText("S Brake Active")
+            #self.ui.textBrowser_11.setPlainText("S Brake Active")
         else:
             self.ui.textBrowser_9.setPlainText("S Brake Inactive")
-            self.ui.textBrowser_11.setPlainText("S Brake Inactive")
+            #self.ui.textBrowser_11.setPlainText("S Brake Inactive")
 
         if(self.TrainController.SR.emergency_brake):
             self.ui.textBrowser_8.setPlainText("E Brake Active")
-            self.ui.textBrowser_10.setPlainText("E Brake Active")
+            #self.ui.textBrowser_10.setPlainText("E Brake Active")
         else:
             self.ui.textBrowser_8.setPlainText("E Brake Inactive")
-            self.ui.textBrowser_10.setPlainText("E Brake Inactive")
+            #self.ui.textBrowser_10.setPlainText("E Brake Inactive")
 
     def send_kp_ki(self):
         self.TrainController.set_kp_ki(float(self.ui.kpInput.toPlainText()), float(self.ui.kiInput.toPlainText()))
