@@ -2,9 +2,15 @@ import sys
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 from PySide6.QtGui import *
+<<<<<<< Updated upstream
 #from PySide6 import QtWidgets, QtCore
 from CTC.src.Wrapper import MainWindow as CTC_Office
 from CTC.src.Wrapper import *
+=======
+from PySide6 import QtWidgets, QtCore 
+from CTC.src.CTCWrapper import MainWindow as CTC_Office
+from CTC.src.CTCWrapper import *
+>>>>>>> Stashed changes
 from TrackModel.src.TrackModel import MainWindow as TrackModel
 from TrainDeployer.src.TrainDeployer import TrainDeployer
 

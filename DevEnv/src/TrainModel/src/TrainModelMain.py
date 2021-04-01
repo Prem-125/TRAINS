@@ -1,4 +1,4 @@
-
+ 
 import sys
 import random 
 import math 
@@ -10,6 +10,7 @@ from TrainModel.src.UI import Ui_MainWindow
 from TrainModel.src.Train import Train as TrainModel
 from TrainControllerSW.src.TrainControllerSW import TrainController as TrainControllerSW
 from TrainControllerHW.src.TrainControllerHWInterface import TrainControllerHWInterface as TrainControllerHW
+from signals import signals
 
 
 class MainWindow(QMainWindow):
@@ -21,6 +22,10 @@ class MainWindow(QMainWindow):
 
 		self.train= TrainModel()
 		#if soft_or_hard is true, it is software, if false, it is hard
+		#self.train.cmdSpeed = commanded_speed
+		self.train.velocity = (float) current_speed
+		self.train.trainID = trainID
+
 		if(soft_or_hard):
 			self.train_controller = TrainControllerSW(self, commanded_speed, current_speed, authority, trainID)
 		else:
@@ -59,8 +64,20 @@ class MainWindow(QMainWindow):
 
 		self.powerTimer = QTimer()
 		self.powerTimer.timeout.connect(self.get_power)
-		self.powerTimer.start(1000) 
+		self.powerTimer.start(100) 
 
+<<<<<<< Updated upstream
+=======
+		if(line == 'Green'):
+			self.blockLen = 50
+			self.blockNum = 58
+			self.blockSlope = 0.0
+		else:
+			self.blockLen = 75
+			self.blockNum = 9
+			self.blockSlope = 0.0
+
+>>>>>>> Stashed changes
 
 
 	def open_left_doors(self):
@@ -123,6 +140,7 @@ class MainWindow(QMainWindow):
 		self.ui.Beacon.setText(text)
 	def set_announcments(self, text):
 		self.ui.announcmentOutput.setText(text)
+<<<<<<< Updated upstream
 	def emergency_brake(self):
 		if(self.train.EmergencyBrake==False):
 			self.train.EmergencyBrake = True
@@ -135,6 +153,37 @@ class MainWindow(QMainWindow):
 			self.ui.pushButton.setStyleSheet("background-color : red")
 			self.ui.pushButton.setText("Emergency Brake")
 		self.set_velocity()
+=======
+
+	# def emergency_brake(self):
+	# 	if(self.train.EmergencyBrake==False):
+	# 		self.train.EmergencyBrake = True
+	# 		self.ui.emergencyBreakOuput.setText("On")
+	# 		self.ui.pushButton.setStyleSheet("background-color : green")
+	# 		self.ui.pushButton.setText("Turn Off Emergency Brake")
+	# 	else:
+	# 		self.train.EmergencyBrake = False
+	# 		self.ui.emergencyBreakOuput.setText("Off")
+	# 		self.ui.pushButton.setStyleSheet("background-color : red")
+	# 		self.ui.pushButton.setText("Emergency Brake")
+	# 	self.set_velocity()
+
+	def emergency_brake_on(self):
+		self.train.EmergencyBrake = True
+		self.ui.emergencyBreakOuput.setText("On")
+		self.ui.pushButton.setStyleSheet("background-color : green")
+		self.ui.pushButton.setText("Turn Off Emergency Brake")
+		
+		#self.set_velocity()
+
+	def emergency_brake_off(self):
+		
+		self.train.EmergencyBrake = False
+		self.ui.emergencyBreakOuput.setText("Off")
+		self.ui.pushButton.setStyleSheet("background-color : red")
+		self.ui.pushButton.setText("Emergency Brake")
+		#self.set_velocity()
+>>>>>>> Stashed changes
 	def engine1_failure(self):
 		if(self.ui.engine1.isChecked()):
 			self.train.engineFailure= self.train.engineFailure + 1
@@ -208,11 +257,23 @@ class MainWindow(QMainWindow):
    		self.set_velocity()
 
 
+<<<<<<< Updated upstream
    	def	set_track_circuit(self,TrackInt)
    		self.train_controller.set_track_circuit(TrackInt)
 
    	def	set_beacon(self,BeaconInt)
    		self.train_controller.set_beacon(BeaconInt)												  
+=======
+	def	set_track_circuit(self,TrackInt):
+	    self.train_controller.set_track_circuit(TrackInt)
+
+	def	set_beacon(self,BeaconInt):
+		self.train_controller.set_beacon(BeaconInt)	
+
+	def set_acceleration_limit(self, accLimit)
+		self.train.accLimit = accLimit
+>>>>>>> Stashed changes
+
 
 
 
@@ -225,25 +286,80 @@ class MainWindow(QMainWindow):
 
 
 	def set_velocity(self):
+		# find force on train
+		try:
+			force = (self.train.power/self.train.velocity)
+			#calculate the force in the opposite direction based on slope of track
+			force -= self.train.fricCoef * self.train.mass * self.train.gravity * math.cos(self.blockSlope)
+		except ZeroDivisionError: #catches if train is stationary 
+			if(not serviceBrake and not EmergencyBrake):
+				force = 10 #chose arbitrary amount to get train moving
+				#calculate the force in the opposite direction based on slope of track
+				force -= self.train.fricCoef * self.train.mass * self.train.gravity * math.cos(self.blockSlope)
+			else:
+				force = 0.0
 
-		calcVelocity = (self.train.power/2  * (1 - .2 * self.train.engineFailure))
-		if((self.train.EmergencyBrake or self.train.serviceBrake) and not self.train.brakeFailure):
-			self.train.velocity = 0
-		elif(calcVelocity>self.train.spdLimit):
+		#find acceleration of the train
+		previousAcc = self.train.acceleration
+		self.train.acceleration = force/self.train.mass
+		if(self.train.acceleration > self.train.accLimit):
+			self.train.acceleration = self.train.accLimit
+		elif(EmergencyBrake):
+			self.train.acceleration = self.train.decLimitE
+		elif(serviceBrake):
+			self.train.acceleration = self.train.decLimitS
+
+
+		#calculate teh velocity (in meters per sec)
+		calcVelocity = (self.train.velocity + ( (self.train.sample /2) * (self.train.acceleration + previousAcc)  * (1 - .2 * self.train.engineFailure)))
+
+		if(calcVelocity>self.train.spdLimit):
 			self.train.velocity = self.train.spdLimit
 		else:
 			self.train.velocity = calcVelocity
 		self.ui.veloOutput.setText(str(round(self.train.velocity*2.23694,2))+ " mph")
+<<<<<<< Updated upstream
     
 	def get_power(self):
 		self.train.power = self.train_controller.get_power()
 		self.set_velocity()
     
+=======
+		self.train_controller.set_current_speed(self.train.velocity)
+
+		disCovered = (self.train.velocity * self.train.sample)
+
+		self.currPosition += disCovered
+
+		if(self.currPosition > self.blockLen):
+			self.currPosition -= self.blockLen
+			signals.need_new_block.emit(self.train.trainID)
+
+	
+	def get_power(self):
+		self.train.power = self.train_controller.get_power()
+		#self.set_velocity()
+	
+>>>>>>> Stashed changes
 	def set_speed_limit(self, text):
 		self.train.spdLimit = float(text)
 		self.train.spdLimit =self.train.spdLimit * .44704
-		self.set_velocity()
+		#self.set_velocity()
 		#print(self.train.spdLimit)
+
+	def set_block_info(self, blockNum, blockLen, blockSlope):
+		self.blockLen = blockLen
+		self.blockNum = blockNum
+		self.blockSlope = blockSlope
+		self.currPosition = 0.0
+
+	def change_passengers(self, delta)
+		self.train.passengers += delta
+		self.change_mass()
+
+	def change_mass(self)
+		self.train.mass = 37103.86 + (70*self.train.passengers) # average mass of a human = 70 kg
+
    
 
 if __name__ == "__main__":

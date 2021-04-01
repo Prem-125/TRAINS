@@ -580,24 +580,6 @@
       <string>Cabin Lights:</string>
      </property>
     </widget>
-    <widget class="QLabel" name="authOutput">
-     <property name="geometry">
-      <rect>
-       <x>160</x>
-       <y>90</y>
-       <width>141</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
     <widget class="QLabel" name="label_15">
      <property name="geometry">
       <rect>
@@ -616,24 +598,6 @@
       <string>Engine Failure:</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_28">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>120</y>
-       <width>161</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Commanded Speed:</string>
-     </property>
-    </widget>
     <widget class="QLabel" name="rightDoorsOutput">
      <property name="geometry">
       <rect>
@@ -650,42 +614,6 @@
      </property>
      <property name="text">
       <string>Closed</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_20">
-     <property name="geometry">
-      <rect>
-       <x>80</x>
-       <y>90</y>
-       <width>81</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Authority:</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_30">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>180</y>
-       <width>141</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Emergency Brake:</string>
      </property>
     </widget>
     <widget class="QLabel" name="cLightsOutput">
@@ -766,24 +694,6 @@
       <string>70 °F</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_31">
-     <property name="geometry">
-      <rect>
-       <x>90</x>
-       <y>60</y>
-       <width>81</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Velocity:</string>
-     </property>
-    </widget>
     <widget class="QLabel" name="circuitFailureOutput">
      <property name="geometry">
       <rect>
@@ -859,45 +769,6 @@
       <string/>
      </property>
     </widget>
-    <widget class="QLabel" name="emergencyBreakOuput">
-     <property name="geometry">
-      <rect>
-       <x>160</x>
-       <y>180</y>
-       <width>51</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-      </font>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
-     </property>
-     <property name="text">
-      <string>Off</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="cmdSpeedOutput">
-     <property name="geometry">
-      <rect>
-       <x>160</x>
-       <y>120</y>
-       <width>131</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
     <widget class="QLabel" name="brakeFailureOutput">
      <property name="geometry">
       <rect>
@@ -938,24 +809,6 @@
      </property>
      <property name="text">
       <string>Off</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_29">
-     <property name="geometry">
-      <rect>
-       <x>50</x>
-       <y>150</y>
-       <width>111</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Service Brake:</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_17">
@@ -1030,27 +883,6 @@
       <string>Closed</string>
      </property>
     </widget>
-    <widget class="QLabel" name="serviceBreakOuput">
-     <property name="geometry">
-      <rect>
-       <x>160</x>
-       <y>150</y>
-       <width>51</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-      </font>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
-     </property>
-     <property name="text">
-      <string>Off</string>
-     </property>
-    </widget>
     <widget class="QGroupBox" name="groupBox_10">
      <property name="geometry">
       <rect>
@@ -1076,34 +908,121 @@
      <property name="title">
       <string>Controller Outputs</string>
      </property>
+     <widget class="QLabel" name="label_31">
+      <property name="geometry">
+       <rect>
+        <x>80</x>
+        <y>50</y>
+        <width>81</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>Velocity:</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="serviceBreakOuput">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>90</y>
+        <width>51</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
+      <property name="text">
+       <string>Off</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_29">
+      <property name="geometry">
+       <rect>
+        <x>50</x>
+        <y>90</y>
+        <width>111</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>Service Brake:</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="emergencyBreakOuput">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>130</y>
+        <width>51</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
+      <property name="text">
+       <string>Off</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_30">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>130</y>
+        <width>141</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>Emergency Brake:</string>
+      </property>
+     </widget>
     </widget>
     <zorder>groupBox_11</zorder>
     <zorder>label_18</zorder>
-    <zorder>authOutput</zorder>
     <zorder>label_15</zorder>
-    <zorder>label_28</zorder>
     <zorder>rightDoorsOutput</zorder>
-    <zorder>label_20</zorder>
-    <zorder>label_30</zorder>
     <zorder>cLightsOutput</zorder>
     <zorder>label_16</zorder>
     <zorder>engineFailureOutput</zorder>
     <zorder>tempOuput</zorder>
-    <zorder>label_31</zorder>
     <zorder>circuitFailureOutput</zorder>
     <zorder>Door_label_3</zorder>
     <zorder>Door_label_2</zorder>
     <zorder>veloOutput</zorder>
-    <zorder>emergencyBreakOuput</zorder>
-    <zorder>cmdSpeedOutput</zorder>
     <zorder>brakeFailureOutput</zorder>
     <zorder>tLightsOutput</zorder>
-    <zorder>label_29</zorder>
     <zorder>label_17</zorder>
     <zorder>label_19</zorder>
     <zorder>label_14</zorder>
     <zorder>leftDoorsOutput</zorder>
-    <zorder>serviceBreakOuput</zorder>
     <zorder>groupBox_10</zorder>
    </widget>
    <widget class="QWidget" name="Test">
@@ -1886,10 +1805,10 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="rightDoorsGroup"/>
   <buttongroup name="serviceBrakeGroup"/>
-  <buttongroup name="leftDoorsGroup"/>
   <buttongroup name="tLightsGroup"/>
   <buttongroup name="cLightsGroup"/>
+  <buttongroup name="leftDoorsGroup"/>
+  <buttongroup name="rightDoorsGroup"/>
  </buttongroups>
 </ui>
