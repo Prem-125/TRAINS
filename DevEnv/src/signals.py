@@ -32,12 +32,14 @@ class SignalsClass(QObject):
     #track_rail_condition = Signal(bool)
     #track_circuiit_condition = Signal(bool)
 
-    need_new_block = Signal(int) #trainID train model sends to track model
+    need_new_block = Signal(int,int) #block num and trainID train model sends to track model
     new_block = Signal(int, int, float, int) #block number, block length, block slope and trainID ---Track model sends to train model
 
     num_passengers_changed = Signal(int, int) #when at station and number of passengers change this is the result 
     #first int is delta passengers (can be pos or neg), second int is train id
     
+    #need signal for beacon
+
 
 
 

@@ -314,7 +314,7 @@ class MainWindow(QMainWindow):
 
 		if(self.currPosition > self.blockLen):
 			self.currPosition -= self.blockLen
-			signals.need_new_block.emit(self.train.trainID)
+			signals.need_new_block.emit(self.blockNum,self.train.trainID)
 		self.train_controller.set_current_speed(self.train.velocity)
 	
 

@@ -23,7 +23,7 @@ class MainWindow(QMainWindow):
         self.authorityBlock
         self.switchState = True
         self.trackOccString = ""
-        self.block_offset = 58
+        self.block_offset = 33
         
         #Button Functions
         '''
@@ -34,39 +34,49 @@ class MainWindow(QMainWindow):
         '''
 
         #Signal Functions
-        signals.track_model_occupancy.connect(self.getOccupancy)
+        signals.track_model_occupancy.connect(self.getOccupancy, self.setComSpeed)
         #need broken track block signal
         signals.CTC_authority.connect(self.getAuthority)
+        #signals.CTC_suggested_speed.connect(self.getSugSpeed)
         #need suggested speed signal
         #need track maintenance signal
 
     #Gets the occupancy
     def getOccupancy(self, blockNum, occupied):
-        self.occupancy[blockNum] = occupied
+        self.occupancy[blockNum-self.block_offset] = occupied        #Use block offset to set the occupancy
         if(occupied == True):
             self.setOfficeOccupancy(blockNum)
             self.setTrackStats(blockNum)
+    
     #Update the CTC Office Occupancy
-    def setOfficeOccupancy(self, block):
-        #Sends the Occupancy Signal
-        signals.CTC_occupancy.emit(block)
+    def setOfficeOccupancy(self, blockNum):
+        signals.CTC_occupancy.emit(blockNum)    #Sends the Occupancy Signal
 
     #Gets the authority
     def getAuthority(self, blockNum):
-        self.authority[blockNum] = False
+        self.authority[blockNum-self.block_offset] = False
         self.blockAuthority = blockNum
+
     #Gets the suggested speed
     def getSugSpeed(self, blockNum):
         pass
     #Gets the commanded speed
-    def getComSpeed(self, blockNum):
-        pass
+    def setComSpeed(self, blockNum):
+        for i in range(0, 25):
+            self.commandedSpeed[i] = 70
+        for i in range(25, 30):
+            self.commandedSpeed[i] = 60
+        for i in range(30, 36):
+            self.commandedSpeed[i] = 70
+        for i in range(36, 41):
+            self.commandedSpeed[i] = 60   
+
     #Update Track Model of the authority and commanded speed
     def setTrackStats(self, blockNum):
         if(blockNum == blockAuthority):
             signals.wayside_to_track.emit(blockNum, 0, 0)
         else:
-            signals.wayside_to_track.emit(blockNum, 1, commandedSpeed[blockNum])
+            signals.wayside_to_track.emit(blockNum, 1, commandedSpeed[blockNum-self.block_offset])
 
     #Controls the Switch States
     '''

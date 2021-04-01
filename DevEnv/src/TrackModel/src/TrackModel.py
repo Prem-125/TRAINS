@@ -168,7 +168,7 @@ class Track:
 		
 	def get_occupied(self):
 		return self.occupied
-	def set_occupied(self, in_occupied):
+	def set_occupied(self, in_occupied, id = 0):
 		#every time a train leaves a block with a  station on it, it regenerates the tickets
 		#if(self.get_occupied()==True):
 		#	if(self.get_is_station() == True):	
@@ -178,7 +178,22 @@ class Track:
 		#if the block is becomming occupied, send signal to train model
 		if(in_occupied == True):
 			self.encode_track_circuit_signal()
-			signal.TC_signal.emit(self.encoded_TC, train)
+			signal.TC_signal.emit(self.encoded_TC, id)
+			#send beacon
+			if(self.block == 4):
+				signal.Beacon_Signal.emit(304954059, id) # ACTUALLY CALCULATE THE BEACON VAL AND BLOCK NUM
+			#sned block info
+			signal.new_block.emit(self.block, self.length, self.grade, id)
+
+
+	def encode_beacon(self):
+		   #encoding my beacon
+        self.encodedBeacon = int(self.ui.stationUpcoming.checkState()) >> 1
+        print(bin(self.encodedBeacon))
+        self.encodedBeacon += (int(self.ui.leftDoorsFake.checkState()) >> 1) << 1
+        self.encodedBeacon += (int(self.ui.rightDoorsFake.checkState()) >> 1) << 2
+        self.encodedBeacon += (int(self.ui.exteriorLightsFake.checkState()) >> 1) << 3
+        self.encodedBeacon += (beaconNum & 31) << 4
 
 	def get_connection_track_a(self):
 		return self.connection_track_a
@@ -354,6 +369,9 @@ class Track:
 			self.encoded_TC += ((cmd_Int + cmd_Float + auth_Float + auth_Int) & 1023) << 24	
 		#sned the signal 
 		#prem can you rerun the code pls
+	
+	
+
 
 #Code for the UI
 class MainWindow(QMainWindow):
@@ -387,6 +405,7 @@ class MainWindow(QMainWindow):
 		#if button pressed swap switch
 
 		self.ui.waySwitchBTN.clicked.connect(self.swap_switch)
+		
 
 	#function to load track from a file
 	def load_track(self):
@@ -465,7 +484,13 @@ class MainWindow(QMainWindow):
 					
 					
 		#close the opened file
-		csv_file.close()			
+		csv_file.close()
+		signals.need_new_block.connect(self.send_block_to_model)
+		
+	#function to tell me where teh train is
+	def send_block_to_model(self,block,id):
+		self.track_list[block].set_occupied(False)
+		self.track_list[block+1].set_occupied(True, id)				
 			
 	def get_track_info(self):
 		#get the text inputted by the user and check to see if it's a number
