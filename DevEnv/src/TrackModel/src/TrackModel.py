@@ -50,7 +50,7 @@ class Track:
 	def _init_(self):	
 		self.line = line
 		self.section = section
-		self.block = block
+		self.block = 0
 		self.length = length
 		self.grade = grade
 		self.infrastructure=infrastructure
@@ -184,7 +184,7 @@ class Track:
 			if(self.block == 4):
 				signal.Beacon_Signal.emit(304954059, id) # ACTUALLY CALCULATE THE BEACON VAL AND BLOCK NUM
 			#sned block info
-			signal.new_block.emit(self.block, self.length, self.grade, id)
+			signals.new_block.emit(self.block, self.length, self.grade, id)
 
 	def encode_beacon(self):
 		   #encoding my beacon

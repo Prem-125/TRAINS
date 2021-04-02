@@ -62,11 +62,11 @@ class TrainController:
         self.decodeTC(TrackInt)
 
     def decodeTC(self, TrackInt):
-        tempCmdInt = self.TrackInt & 255
-        tempCmdFloat = (self.TrackInt >> 8) & 15
-        tempAuthInt = (self.TrackInt >> 12) & 255
-        tempAuthFloat= (self.TrackInt >> 20) & 15
-        tempCheckSum = (self.TrackInt >> 24) & 1023
+        tempCmdInt = TrackInt & 255
+        tempCmdFloat = (TrackInt >> 8) & 15
+        tempAuthInt = (TrackInt >> 12) & 255
+        tempAuthFloat= (TrackInt >> 20) & 15
+        tempCheckSum = (TrackInt >> 24) & 1023
         if(tempCheckSum != tempCmdInt+ tempCmdFloat + tempAuthInt + tempAuthFloat):
             #print("Signal Pickup Failure")
             self.UI.textBrowser_15.setStyleSheet(u"background-color: rgb(255, 0, 0);")
@@ -108,7 +108,7 @@ class TrainController:
         if(authority == 0):
             self.AuthorityHandler()
         else:
-            self.set_service_brake(false)
+            self.set_service_brake(False)
         self.SR.authority = authority
 
     def AuthorityHandler(self):

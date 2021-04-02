@@ -47,7 +47,7 @@ class MainWindow(QMainWindow):
         self.utimer.timeout.connect(self.timerCallback)
         self.utimer.start(500)
         self.testval = 0
-        self.arduino = serial.Serial(port='COM3', baudrate=115200,timeout=.5)
+        self.arduino = serial.Serial(port='COM4', baudrate=115200,timeout=.5)
         self.eol = '\n'.encode('utf-8')
         self.nFlag=0
         self.encodedTC=0

@@ -78,7 +78,7 @@ class MainWindow(QMainWindow):
         if(blockNum == self.block_authority):
             signals.wayside_to_track.emit(blockNum, 0, 0)
         else:
-            signals.wayside_to_track.emit(blockNum, 1, commanded_speed[blockNum-self.block_offset])
+            signals.wayside_to_track.emit(blockNum, 1, self.commanded_speed[blockNum-self.block_offset])
     
     #Update the block status
     def setBlockStatus(self, blockNum, status):
