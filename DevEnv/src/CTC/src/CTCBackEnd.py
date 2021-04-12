@@ -78,6 +78,7 @@ class Train:
         self.route_queue = []
         if(self.track_line == "Green"):
             self.GenerateGreenRoute()
+            print("\nCTC- ROUTE QUEUE HAS BEEN GENERATED")
         elif(self.track_line == "Red"):
             self.GenerateRedRoute()
 
@@ -161,9 +162,12 @@ class Train:
 
     #Method to update position of train
     def UpdatePosition(self, block_num):
+        print("\nCTC- BLOCK FROM TRACK MODEL: " + str(block_num))
+        print("CTC- COMPARING " + str(block_num) + " WITH " + str(self.route_queue[1]))
         if(block_num == self.route_queue[1]):
             #Dequeue from list
-            route_queue.pop(0)
+            self.route_queue.pop(0)
+            print("\nCTC- QUEUE HAS BEEN POPPED\n")
         #End if
     #End method
 

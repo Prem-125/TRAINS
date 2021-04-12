@@ -50,6 +50,8 @@ class MainWindow(QMainWindow):
             self.setTrackStats(blockNum)
     #Update the CTC Office Occupancy
     def setOfficeOccupancy(self, blockNum):
+        print("\nSet the office occupancy function called\n")
+        print("Occupied Block Number: " + str(blockNum)+ "\n\n")
         signals.CTC_occupancy.emit(blockNum)    #Sends the Occupancy Signal
 
     #Gets the authority

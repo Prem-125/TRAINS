@@ -23,6 +23,8 @@ class TrainController:
         self.SR.setpoint_speed = 0.0
         self.SR.service_brake = False
         self.SR.emergency_brake = False
+        self.upcoming_station = False
+        self.station = "Undefined"
 
         self.TrainModelRef = TrainModel
         
@@ -67,6 +69,8 @@ class TrainController:
         tempAuthInt = (TrackInt >> 12) & 255
         tempAuthFloat= (TrackInt >> 20) & 15
         tempCheckSum = (TrackInt >> 24) & 1023
+        print("Temp commanded Int" + str(tempCmdInt))
+        print("Temp commanded Float" + str(tempCmdFloat))
         if(tempCheckSum != tempCmdInt+ tempCmdFloat + tempAuthInt + tempAuthFloat):
             #print("Signal Pickup Failure")
             self.UI.textBrowser_15.setStyleSheet(u"background-color: rgb(255, 0, 0);")
@@ -81,14 +85,15 @@ class TrainController:
         
 
     def DecodeBeacon(self, BeaconInt):
-        self.upcoming_station = (self.BeaconInt & 1)
-        self.left_doors_open = (self.BeaconInt >> 1)&1
-        self.right_doors_open = (self.BeaconInt >> 2)&1
-        self.exterior_lights_on = (self.BeaconInt >> 3)&1
-        self.station = self.stationArray[((self.BeaconInt >> 4) & 31)]
+        self.upcoming_station = (BeaconInt & 1)
+        print(self.upcoming_station)
+        self.left_doors_open = (BeaconInt >> 1)&1
+        self.right_doors_open = (BeaconInt >> 2)&1
+        self.exterior_lights_on = (BeaconInt >> 3)&1
+        self.station = self.stationArray[((BeaconInt >> 4) & 31)]
         #self.buildAnnouncement()
-        if(self.autoMode):
-            ...
+        if(self.is_auto):
+            self.AuthorityHandler()
             #self.onAnnouncement()
         self.DisplayUpdate()
         #print("Beacon Decoded!")
@@ -103,6 +108,15 @@ class TrainController:
     def set_current_speed(self, current_speed):
         self.SR.pidLoop()
         self.SR.current_speed = current_speed
+        #print("got before if statement")
+        print("upcoming station" + str(self.upcoming_station))
+        #print("current speed" + str(self.SR.current_speed))
+        if(self.upcoming_station and self.SR.current_speed == 0):
+            #print("inside if statement")
+            self.upcoming_station = False
+            if(self.SR.authority != 0):
+                self.set_service_brake(False)
+            #print("started going again")
     
     def set_authority(self, authority):
         if(authority == 0):
@@ -112,12 +126,16 @@ class TrainController:
         self.SR.authority = authority
 
     def AuthorityHandler(self):
-        if(self.SR.authority == 0 or upcoming_station):
+        if(self.upcoming_station):
+            print("STATION WAS UPCOMINE RHERE  ******************************************************************************************")
+        if(self.SR.authority == 0 or self.upcoming_station):
             #this is the equivalent of my station handler.
             self.set_service_brake(True)
+
         else:
             #when authority is false 
-            self.set_service_brake(True)
+            #self.set_service_brake(False)
+            ...
 
     def set_setpoint_speed(self, setpoint_speed):
         self.SR.setpoint_speed = setpoint_speed
@@ -153,8 +171,8 @@ class SpeedRegulator():
         self.setpoint_speed = 0.0
         self.service_brake = False
         self.emergency_brake = False
-        self.kp = 1.0
-        self.ki = 1.0
+        self.kp = 1000.0
+        self.ki = 1000.0
         self.power = 0.0
         self.train_ID = train_ID
         self.TrainController = TrainController

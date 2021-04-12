@@ -83,7 +83,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         #Set global clock
         self.utimer = QTimer()
         self.utimer.timeout.connect(self.timerUpdate)
-        self.utimer.start(100)
+        self.utimer.start(1000)
 
         #Initialize simulation timers
         self.gbl_seconds = 0
@@ -1284,7 +1284,9 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
     #Method to update train positions on scheduling table
     def UpdateTrainPositions(self):
         for trainObj in CTCSchedule.train_list:
-            self.ui.SchedTable.setItem(trainObj.number, 4, QTableWidgetItem("Block " + str(trainObj.route_queue[0])))
+            currPosition = "Block " + str(trainObj.route_queue[0])
+            self.ui.SchedTable.setItem(trainObj.number-1, 4, QTableWidgetItem(currPosition))
+            print("CTC- ROUTE TABLE HAS BEEN UPDATED " + str(trainObj.route_queue[0]))
     #End method
             
     """

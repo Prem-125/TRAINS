@@ -68,7 +68,7 @@ class MainWindow(QMainWindow):
 
 		if(line == 'Green'):
 			self.blockLen = 50
-			self.blockNum = 58
+			self.blockNum = 63
 			self.blockSlope = 0.0
 		else:
 			self.blockLen = 75
@@ -246,7 +246,8 @@ class MainWindow(QMainWindow):
 
 
 	def	set_track_circuit(self,TrackInt):
-	    self.train_controller.set_track_circuit(TrackInt)
+		print("Track circuit Int being sent to Controller: " + str(TrackInt))
+		self.train_controller.set_track_circuit(TrackInt)
 
 	def	set_beacon(self,BeaconInt):
 		self.train_controller.set_beacon(BeaconInt)	
@@ -303,7 +304,7 @@ class MainWindow(QMainWindow):
 			self.train.velocity = 0.0
 
 		self.ui.veloOutput.setText(str(round(self.train.velocity*2.23694,2))+ " mph")
-		print("the speedbeing sent to train controler " + str(self.train.velocity))
+		#print("the speedbeing sent to train controler " + str(self.train.velocity))
 		self.train_controller.set_current_speed(self.train.velocity)
 
 		disCovered = (self.train.velocity * self.train.samplePeriod)
@@ -311,6 +312,9 @@ class MainWindow(QMainWindow):
 		self.currPosition += disCovered
 
 		if(self.currPosition > self.blockLen):
+			print("Curr Position is:" + str(self.currPosition))
+			print("Block Len is:" + str(self.blockLen))
+
 			self.currPosition -= self.blockLen
 			signals.need_new_block.emit(self.blockNum,self.train.trainID)
 
@@ -329,6 +333,7 @@ class MainWindow(QMainWindow):
 		#print(self.train.spdLimit)
 
 	def set_block_info(self, blockNum, blockLen, blockSlope):
+		print("Got a new block")
 		self.blockLen = blockLen
 		self.blockNum = blockNum
 		self.blockSlope = blockSlope

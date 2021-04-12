@@ -27,7 +27,7 @@ class SignalsClass(QObject):
     CTC_authority = Signal(int) #Paramter is block number
 
     track_model_occupancy = Signal(int, bool)
-    wayside_to_track = Signal(int, int, float)
+    wayside_to_track = Signal(int, int, float) # Block Num, Auth, Cmd Speed
     
     #track_rail_condition = Signal(bool)
     #track_circuiit_condition = Signal(bool)
