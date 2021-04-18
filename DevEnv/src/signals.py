@@ -23,7 +23,7 @@ class SignalsClass(QObject):
 
 
     #Signals exchanged between CTC and wayside
-    CTC_occupancy = Signal(int) #Paramter is block number
+    CTC_occupancy = Signal(int, bool) #Paramter is block number
     CTC_authority = Signal(int) #Paramter is block number
 
     track_model_occupancy = Signal(int, bool)

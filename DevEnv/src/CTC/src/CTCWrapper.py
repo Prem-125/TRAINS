@@ -75,7 +75,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         #Define block status informational display
         self.ui.TrackComboBox4.currentTextChanged.connect(self.StatusTrackSections)
         self.ui.SectionComboBox4.currentTextChanged.connect(self.StatusTrackBlocks)
-        self.ui.BlockComboBox3.currentTextChanged.connect(self.UpdateBlockInfo)
+        #self.ui.BlockComboBox3.currentTextChanged.connect(self.UpdateBlockInfo)
 
         #Define switch status informational display
         self.ui.TrackComboBox5.currentTextChanged.connect(self.StatusSwitchNums)
@@ -392,6 +392,9 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
         #Update train positions on schedule table
         self.UpdateTrainPositions()
+
+        #Update block information in block status group of maintenance mode
+        self.UpdateBlockInfo()
 
         #Restart timout period
         self.utimer.start(1000)
@@ -863,6 +866,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                 self.ui.SectionComboBox4.addItem(letter)
         #End if-else block
 
+        '''
         #Evaluate block display
         if(str(self.ui.SectionComboBox4.currentText()) != '' and str(self.ui.BlockComboBox3.currentText()) != ''):
             if(str(self.ui.TrackComboBox4.currentText()) == "Green"):
@@ -872,10 +876,10 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                 blockObj = GreenLine.block_list[block_num-1]
 
                 self.ui.BlockSectionLabel.setText("Section: " + blockObj.section)
-                self.ui.BlockLengthLabel.setText("Block Length: " + blockObj.section)
-                self.ui.SpeedLimitLabel.setText("Speed Limit: " + blockObj.section)
-                self.ui.OcupancyLabel.setText("Occupancy: " + blockObj.section)
-                self.ui.BlockStatusLabel.setText("Status: " + blockObj.section)
+                self.ui.BlockLengthLabel.setText("Block Length: " + str(blockObj.length))
+                self.ui.SpeedLimitLabel.setText("Speed Limit: " + str(blockObj.speed_limit))
+                self.ui.OccupancyLabel.setText("Occupancy: " + str(blockObj.occupancy))
+                self.ui.BlockStatusLabel.setText("Status: " + str(blockObj.status))
 
             elif(str(self.ui.TrackComboBox4.currentText()) == "Red"):
                 #Obtain block number
@@ -884,12 +888,13 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                 blockObj = RedLine.block_list[block_num-1]
 
                 self.ui.BlockSectionLabel.setText("Section: " + blockObj.section)
-                self.ui.BlockLengthLabel.setText("Block Length: " + blockObj.section)
-                self.ui.SpeedLimitLabel.setText("Speed Limit: " + blockObj.section)
-                self.ui.OcupancyLabel.setText("Occupancy: " + blockObj.section)
-                self.ui.BlockStatusLabel.setText("Status: " + blockObj.section)
+                self.ui.BlockLengthLabel.setText("Block Length: " + str(blockObj.length))
+                self.ui.SpeedLimitLabel.setText("Speed Limit: " + str(blockObj.speed_limit))
+                self.ui.OccupancyLabel.setText("Occupancy: " + str(blockObj.occupancy))
+                self.ui.BlockStatusLabel.setText("Status: " + str(blockObj.status))
             #End if
         #End if
+        '''
     #End method
 
     #Method to set track block combo box in block status group of maintenance mode
@@ -1081,6 +1086,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                 self.ui.BlockComboBox3.addItem(str(76))
         #End track line if-elif block
 
+        '''
         #Evaluate block display
         if(str(self.ui.SectionComboBox4.currentText()) != '' and str(self.ui.BlockComboBox3.currentText()) != ''):
             if(str(self.ui.TrackComboBox4.currentText()) == "Green"):
@@ -1090,10 +1096,10 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                 blockObj = GreenLine.block_list[block_num-1]
 
                 self.ui.BlockSectionLabel.setText("Section: " + blockObj.section)
-                self.ui.BlockLengthLabel.setText("Block Length: " + blockObj.section)
-                self.ui.SpeedLimitLabel.setText("Speed Limit: " + blockObj.section)
-                self.ui.OcupancyLabel.setText("Occupancy: " + blockObj.section)
-                self.ui.BlockStatusLabel.setText("Status: " + blockObj.section)
+                self.ui.BlockLengthLabel.setText("Block Length: " + str(blockObj.length))
+                self.ui.SpeedLimitLabel.setText("Speed Limit: " + str(blockObj.speed_limit))
+                self.ui.OccupancyLabel.setText("Occupancy: " + str(blockObj.occupancy))
+                self.ui.BlockStatusLabel.setText("Status: " + str(blockObj.status))
 
             elif(str(self.ui.TrackComboBox4.currentText()) == "Red"):
                 #Obtain block number
@@ -1102,28 +1108,36 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                 blockObj = RedLine.block_list[block_num-1]
 
                 self.ui.BlockSectionLabel.setText("Section: " + blockObj.section)
-                self.ui.BlockLengthLabel.setText("Block Length: " + blockObj.section)
-                self.ui.SpeedLimitLabel.setText("Speed Limit: " + blockObj.section)
-                self.ui.OcupancyLabel.setText("Occupancy: " + blockObj.section)
-                self.ui.BlockStatusLabel.setText("Status: " + blockObj.section)
+                self.ui.BlockLengthLabel.setText("Block Length: " + str(blockObj.length))
+                self.ui.SpeedLimitLabel.setText("Speed Limit: " + str(blockObj.speed_limit))
+                self.ui.OccupancyLabel.setText("Occupancy: " + str(blockObj.occupancy))
+                self.ui.BlockStatusLabel.setText("Status: " + str(blockObj.status))
 
             #End if
         #End if
+        '''
     #End Method
 
-    #Method to update block informatino when specified track block changes
+    #Method to update block information when specified track block changes
     def UpdateBlockInfo(self):
+        #Leave function is a block has not been specified
+        if(str(self.ui.SectionComboBox4.currentText()) == ''):
+            return
+
         if(str(self.ui.TrackComboBox4.currentText()) == "Green"):
                 #Obtain block number
                 block_num = int(self.ui.BlockComboBox3.currentText())
                 #Retrieve block object
                 blockObj = GreenLine.block_list[block_num-1]
 
+                #Convert speed limit from meters/second to miles/hour
+                block_speed_limit = round(blockObj.speed_limit * 2.23694, 2)
+
                 self.ui.BlockSectionLabel.setText("Section: " + blockObj.section)
-                self.ui.BlockLengthLabel.setText("Block Length: " + blockObj.section)
-                self.ui.SpeedLimitLabel.setText("Speed Limit: " + blockObj.section)
-                self.ui.OcupancyLabel.setText("Occupancy: " + blockObj.section)
-                self.ui.BlockStatusLabel.setText("Status: " + blockObj.section)
+                self.ui.BlockLengthLabel.setText("Block Length: " + str(blockObj.length) + " m")
+                self.ui.SpeedLimitLabel.setText("Speed Limit: " + str(block_speed_limit) + " mph")
+                self.ui.OccupancyLabel.setText("Occupancy: " + str(blockObj.occupancy))
+                self.ui.BlockStatusLabel.setText("Status: " + str(blockObj.status))
 
         elif(str(self.ui.TrackComboBox4.currentText()) == "Red"):
             #Obtain block number
@@ -1131,12 +1145,16 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
             #Retrieve block object
             blockObj = RedLine.block_list[block_num-1]
 
+            #Convert speed limit from meters/second to miles/hour
+            block_speed_limit = round(blockObj.speed_limit * 2.23694, 2)
+
             self.ui.BlockSectionLabel.setText("Section: " + blockObj.section)
-            self.ui.BlockLengthLabel.setText("Block Length: " + blockObj.section)
-            self.ui.SpeedLimitLabel.setText("Speed Limit: " + blockObj.section)
-            self.ui.OcupancyLabel.setText("Occupancy: " + blockObj.section)
-            self.ui.BlockStatusLabel.setText("Status: " + blockObj.section)
+            self.ui.BlockLengthLabel.setText("Block Length: " + str(blockObj.length) + " m")
+            self.ui.SpeedLimitLabel.setText("Speed Limit: " + str(block_speed_limit) + " mph")
+            self.ui.OccupancyLabel.setText("Occupancy: " + str(blockObj.occupancy))
+            self.ui.BlockStatusLabel.setText("Status: " + str(blockObj.status))
         #End if
+    #End method
 
     #Method to set switch number combo box in switch status group of maintenance mode
     def StatusSwitchNums(self):
@@ -1248,7 +1266,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
             #Update block closure list in maintenance mode of GUI
             for row in range(0, self.ui.BlockClosureTable.rowCount()):
-                if(str(self.ui.BlockClosureTable.item(row, 1)) == "Green" and str(self.ui.BlockClosureTable.item(row, 1)) == str(block_num)):
+                if(str(self.ui.BlockClosureTable.item(row, 0).text()) == "Green" and str(self.ui.BlockClosureTable.item(row, 1).text()) == str(block_num)):
                     self.ui.BlockClosureTable.removeRow(row)
                     break
             #End for loop
