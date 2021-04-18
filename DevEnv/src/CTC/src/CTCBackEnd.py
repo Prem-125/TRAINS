@@ -78,6 +78,7 @@ class Train:
         self.route_queue = []
         if(self.track_line == "Green"):
             self.GenerateGreenRoute()
+            print("\nCTC- ROUTE QUEUE HAS BEEN GENERATED")
         elif(self.track_line == "Red"):
             self.GenerateRedRoute()
 
@@ -161,17 +162,18 @@ class Train:
 
     #Method to update position of train
     def UpdatePosition(self, block_num):
-        if(block_num == route_queue[1]):
+        print("\nCTC- BLOCK FROM TRACK MODEL: " + str(block_num))
+        print("CTC- COMPARING " + str(block_num) + " WITH " + str(self.route_queue[1]))
+        if(block_num == self.route_queue[1]):
             #Dequeue from list
-            route_queue.pop(0)
+            self.route_queue.pop(0)
+            print("\nCTC- QUEUE HAS BEEN POPPED\n")
         #End if
     #End method
 
 
     #MUST COMPLETE Each instance of train must respond to occupany conditions of track
     
-
-#End Train class definition
 
 #End Train class definition
 
@@ -342,7 +344,7 @@ class Schedule:
     #End constructor
 
     #Define method for manual train dispatch
-    def ManualSchedule(self, block_destination, train_arrival_time, TrackLineObj):
+    def ManualSchedule(self, block_destination, train_arrival_time, TrackLineObj, curr_time):
         global gbl_seconds
         
         #Assign train number
@@ -351,11 +353,13 @@ class Schedule:
         #Compute train travel time
         travel_time = self.ComputeTravelTime(block_destination, train_arrival_time, TrackLineObj)
 
+        print("TRAVEL TIME: " + str(travel_time))
+
         #Compute train departure time
         train_departure_time = train_arrival_time - travel_time
 
         #Determine if specified arrival time is valid
-        if(train_departure_time < 0):
+        if(train_departure_time < curr_time):
             return False
 
         #Determine if computed depature time matches that of another train

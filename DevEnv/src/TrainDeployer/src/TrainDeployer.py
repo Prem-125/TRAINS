@@ -8,11 +8,12 @@ class TrainDeployer:
     def __init__(self):
         self.number_of_trains = 0 
         self.trains = []
-
-        self.CreateTrains("Red", 0)
+        self.trains.append(None)
+        
+        #self.CreateTrains("Red", 1)
         #self.CreateTrains(3, 2, 1, True)
 
-        self.trains.append(None)
+        
         signals.TC_signal.connect(self.SendTC)
         signals.Beacon_signal.connect(self.SendBeacon)
         signals.train_creation.connect(self.CreateTrains)
@@ -39,21 +40,21 @@ class TrainDeployer:
     #if soft_or_hard is true, it is software, if false, it is hard
 
 
-    def SendTC(self,TC, TrainID):
-        self.trains[TrainID].set_track_circuit(TC)
 
-    def SendBeacon(self,Beacon, TrainID):
-        self.trains[TrainID].set_beacon(TC)
 
-    def PropogateTime(self,time):
-        for i in range(1, self.number_of_trains+1): 
-            self.trains[i].set_time(time)
+ 
 
     def sendBlockInfo(self, blockNum, blockLen, blockSlope, trainID):
+       # print("Deployer Block Num is :" + str(blockNum))
+      #  print("Deployer Block Len is :" + str(blockLen))
+      #  print("Deployer Block Id is :" + str(trainID))
+       # print("Deployer Block Slope is :" + str(blockSlope))
+
         self.trains[trainID].set_block_info(blockNum, blockLen, blockSlope)
 
     def change_passengers(self, delta, trainID):
         self.trains[trainID].change_passengers(delta)
+
 
 
 
@@ -70,7 +71,7 @@ class TrainDeployer:
         self.trains[TrainID].set_track_circuit(TC)
 
     def SendBeacon(self,Beacon, TrainID):
-        self.trains[TrainID].set_beacon(TC)
+        self.trains[TrainID].set_beacon(Beacon)
 
     def PropogateTime(self,time):
         for i in range(1 , self.number_of_trains):
@@ -80,12 +81,12 @@ class TrainDeployer:
     def CreateTrains(self,line, id):
         if(id == 2):
             #self.trains.insert(id, TrainModel(0, 0, 0, False, line, id)
-            self.trains.append(TrainModel(0, 0, 0, False, line, id))
+            self.trains.insert(id,TrainModel(0, 0, 0, False, line, id))
         else:
             #self.trains.insert(id, TrainModel(0, 0, 0, True, line, id )
             #self.trains[id] = TrainModel(0, 0, 0, True, line, id)
-            self.trains.append(TrainModel(0, 0, 0, True, line, id))
-            
+            self.trains.insert(id,TrainModel(15, 0, 0, True, line, id))
+        print(len(self.trains))
         self.trains[id].show()
         self.number_of_trains = self.number_of_trains + 1
 

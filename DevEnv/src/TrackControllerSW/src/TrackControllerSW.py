@@ -12,14 +12,17 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
         
         #Variables
-        self.block_open = [True for i in range(44)]
-        self.occupancy = [False for i in range(44)]
-        self.authority = [True for i in range(44)]
-        self.suggested_speed = [0 for i in range(44)]
-        self.commanded_speed = [0 for i in range(44)]
+        self.block_open = [True for i in range(150)]
+        self.occupancy = [False for i in range(150)]
+        self.authority = [True for i in range(150)]
+        self.suggested_speed = [0 for i in range(150)]
+        self.commanded_speed = [0 for i in range(150)]
         self.authority_block = 0
         self.switch_state = True
-        self.block_offset = 33
+        self.block_offset
+        self.switch_exit_num
+        self.switch_in_a
+        self.switch_in_b
 
         #UI used variables
         self.ui_block = 0
@@ -33,29 +36,36 @@ class MainWindow(QMainWindow):
         '''
 
         #Signal Functions
-        signals.track_model_occupancy.connect(self.getOccupancy, self.getSugSpeed)
+        signals.track_model_occupancy.connect(self.getOccupancy)
         #need broken track block signal
         signals.CTC_authority.connect(self.getAuthority)
         #signals.CTC_suggested_speed.connect(self.getSugSpeed)
         #need track maintenance signal
         #need wayside to track switch signals
 
+    #Sets the block offset for the track controller
+    def setBlockOffset(self, b_offset):
+        self.block_offset = b_offset
+
     #Gets the occupancy
     def getOccupancy(self, blockNum, occupied):
+        self.getSugSpeed(blockNum)
         self.occupancy[blockNum-self.block_offset] = occupied        #Use block offset to set the occupancy
         self.UIBlockOutput()
+        self.setOfficeOccupancy(blockNum)
         if(occupied == True):
-            self.setOfficeOccupancy(blockNum)
             self.setTrackStats(blockNum)
+    
     #Update the CTC Office Occupancy
     def setOfficeOccupancy(self, blockNum):
+        print("\nSet the office occupancy function called\n")
+        print("Occupied Block Number: " + str(blockNum)+ "\n\n")
         signals.CTC_occupancy.emit(blockNum)    #Sends the Occupancy Signal
 
     #Gets the authority
     def getAuthority(self, blockNum):
         self.authority[blockNum-self.block_offset] = False
         self.block_authority = blockNum
-
 
     #Gets the suggested speed
     def getSugSpeed(self, blockNum):
@@ -74,14 +84,14 @@ class MainWindow(QMainWindow):
 
     #Update Track Model of the authority and commanded speed
     def setTrackStats(self, blockNum):
-        if(blockNum == blockAuthority):
+        if(blockNum == self.block_authority):
             signals.wayside_to_track.emit(blockNum, 0, 0)
         else:
-            signals.wayside_to_track.emit(blockNum, 1, commanded_speed[blockNum-self.block_offset])
+            signals.wayside_to_track.emit(blockNum, 1, self.commanded_speed[blockNum-self.block_offset])
     
     #Update the block status
     def setBlockStatus(self, blockNum, status):
-        self.block_open[blockNum-block_offset] = status
+        self.block_open[blockNum-self.block_offset] = status
         self.UIBlockOutput()
 
     #Import PLC
@@ -97,78 +107,28 @@ class MainWindow(QMainWindow):
             self.ui.Authority.setText("N/A")
             self.ui.CommandedSpeed.setText("N/A")
             self.ui.CrossingStatus.setText("N/A")
-            self.ui.SignalStatus.setText("N/A")
+            self.ui.SwitchStatus.setText("N/A")
         else:
-            self.ui_block = type(int(self.ui.BlockInput.currentText())) #Convert block input to string
+            self.ui_block = int(self.ui.BlockInput.currentText()) #Convert block input to string
             
-            if(self.block_open[ui_block-block_offset] == True):
+            if(self.block_open[self.ui_block-self.block_offset] == True):
                 self.ui.BlockStatus.setText("Open")
-                self.ui.Occupancy.setText(type(str(self.occupancy(ui_block-block_offset))))
-                self.ui.Authority.setText(type(str(self.authority(ui_block-block_offset))))
-                self.ui.CommandedSpeed.setText(type(str(self.commanded_speed(ui_block-block_offset))))
+                self.ui.Occupancy.setText(str(self.occupancy[self.ui_block-self.block_offset]))
+                self.ui.Authority.setText(str(self.authority[self.ui_block-self.block_offset]))
+                self.ui.CommandedSpeed.setText(str(self.commanded_speed[self.ui_block-self.block_offset]))
                 self.ui.CrossingStatus.setText("N/A")
-                self.ui.SignalStatus.setText("N/A")
+                self.ui.SwitchStatus.setText("N/A")
             else:
                 self.ui.BlockStatus.setText("Closed")
                 self.ui.Occupancy.setText("N/A")
                 self.ui.Authority.setText("N/A")
                 self.ui.CommandedSpeed.setText("N/A")
                 self.ui.CrossingStatus.setText("N/A")
-                self.ui.SignalStatus.setText("N/A")
-            
-
-
+                self.ui.SwitchStatus.setText("N/A")
+    
     #Controls the Switch States
     '''
     def ControlSwitch(self):
-        if(self.occupancy[4]):
-            if(self.occupancy[5] == False):
-                if(self.occupancy[10] == False):
-                    if((int(self.authority[4]) < 11)):
-                        if(int(self.authority[4]) > 5):
-                            self.switchState = True
-                    elif(int(self.authority[4]) >11):
-                        self.switchState = False
-                else:
-                    self.switchState = True
-            else:
-                self.switchState = False
-        elif (self.occupancy[10] == True):
-            self.switchState = False
-        elif (self.occupancy[5] == True):
-            self.switchState = True
-        self.SwitchDisp()
-       
-    #Clears the system
-    def ClearSystem(self):
-        self.trackClosed = [False, False, False, False, False, False, False, False, False, False, False, False,  False, False, False]
-        self.occupancy = [False, False, False, False, False, False, False, False, False, False, False, False,  False, False, False]
-        self.authority = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-        self.suggestedSpeed = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-        self.switchState = True
-        self.TrackStatDisp()
-        self.OccupancyDisp()
-        self.ControlSwitch()
-        self.AuthorityDisp()
-        self.SugSpeedDisp()
-        self.UpdateOutputs()
-    
-   
-        self.ui.SugSpeedB1.setText(str(self.suggestedSpeed[0]) +"MPH")
-        self.ui.SugSpeedB2.setText(str(self.suggestedSpeed[1]) +"MPH")
-        self.ui.SugSpeedB3.setText(str(self.suggestedSpeed[2]) +"MPH")
-        self.ui.SugSpeedB4.setText(str(self.suggestedSpeed[3]) +"MPH")
-        self.ui.SugSpeedB5.setText(str(self.suggestedSpeed[4]) +"MPH")
-        self.ui.SugSpeedB6.setText(str(self.suggestedSpeed[5]) +"MPH")
-        self.ui.SugSpeedB7.setText(str(self.suggestedSpeed[6]) +"MPH")
-        self.ui.SugSpeedB8.setText(str(self.suggestedSpeed[7]) +"MPH")
-        self.ui.SugSpeedB9.setText(str(self.suggestedSpeed[8]) +"MPH")
-        self.ui.SugSpeedB10.setText(str(self.suggestedSpeed[9]) +"MPH")
-        self.ui.SugSpeedB11.setText(str(self.suggestedSpeed[10]) +"MPH")
-        self.ui.SugSpeedB12.setText(str(self.suggestedSpeed[11]) +"MPH")
-        self.ui.SugSpeedB13.setText(str(self.suggestedSpeed[12]) +"MPH")
-        self.ui.SugSpeedB14.setText(str(self.suggestedSpeed[13]) +"MPH")
-        self.ui.SugSpeedB15.setText(str(self.suggestedSpeed[14]) +"MPH")
     '''
 
 if __name__ == "__main__":

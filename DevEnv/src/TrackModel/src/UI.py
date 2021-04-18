@@ -313,4 +313,3 @@ class Ui_Dialog(object):
         self.trackFileValid.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p><span style=\" font-size:10pt;\">.</span></p></body></html>", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QCoreApplication.translate("Dialog", u"Track Editor", None))
     # retranslateUi
-
