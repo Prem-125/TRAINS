@@ -27,7 +27,7 @@
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
-     <string>Blue Line</string>
+     <string>Green Line</string>
     </attribute>
     <widget class="QGroupBox" name="LineBox">
      <property name="geometry">
@@ -39,7 +39,7 @@
       </rect>
      </property>
      <property name="title">
-      <string>Blue Line</string>
+      <string>Green Line</string>
      </property>
      <widget class="QLineEdit" name="trackSelector">
       <property name="geometry">
@@ -89,55 +89,6 @@
       <property name="text">
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Valid&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
-     </widget>
-     <widget class="QLabel" name="label_10">
-      <property name="geometry">
-       <rect>
-        <x>410</x>
-        <y>50</y>
-        <width>271</width>
-        <height>71</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Current Occupied Blocks:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-      </property>
-     </widget>
-     <widget class="QScrollArea" name="scrollArea">
-      <property name="geometry">
-       <rect>
-        <x>660</x>
-        <y>20</y>
-        <width>371</width>
-        <height>121</height>
-       </rect>
-      </property>
-      <property name="widgetResizable">
-       <bool>true</bool>
-      </property>
-      <widget class="QWidget" name="scrollAreaWidgetContents">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>369</width>
-         <height>119</height>
-        </rect>
-       </property>
-       <widget class="QLabel" name="occupied_block_list">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>10</y>
-          <width>55</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;temp&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-       </widget>
-      </widget>
      </widget>
     </widget>
     <widget class="QGroupBox" name="trackBox">
