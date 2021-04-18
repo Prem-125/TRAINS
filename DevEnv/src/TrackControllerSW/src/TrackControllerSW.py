@@ -45,14 +45,15 @@ class MainWindow(QMainWindow):
         self.getSugSpeed(blockNum)
         self.occupancy[blockNum-self.block_offset] = occupied        #Use block offset to set the occupancy
         self.UIBlockOutput()
+        self.setOfficeOccupancy(blockNum, occupied)
+
         if(occupied == True):
-            self.setOfficeOccupancy(blockNum)
             self.setTrackStats(blockNum)
     #Update the CTC Office Occupancy
-    def setOfficeOccupancy(self, blockNum):
+    def setOfficeOccupancy(self, blockNum, occupied):
         print("\nSet the office occupancy function called\n")
         print("Occupied Block Number: " + str(blockNum)+ "\n\n")
-        signals.CTC_occupancy.emit(blockNum)    #Sends the Occupancy Signal
+        signals.CTC_occupancy.emit(blockNum, occupied)    #Sends the Occupancy Signal
 
     #Gets the authority
     def getAuthority(self, blockNum):

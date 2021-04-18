@@ -5108,7 +5108,7 @@ class Ui_CTCOffice(object):
 
         self.StackedWidget1.setCurrentIndex(0)
         self.StackedWidget2.setCurrentIndex(0)
-        self.BlockStatusTab.setCurrentIndex(1)
+        self.BlockStatusTab.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(CTCOffice)

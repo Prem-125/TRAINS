@@ -161,10 +161,12 @@ class Train:
     #End method
 
     #Method to update position of train
-    def UpdatePosition(self, block_num):
+    def UpdatePosition(self, block_num, occupancy):
         print("\nCTC- BLOCK FROM TRACK MODEL: " + str(block_num))
         print("CTC- COMPARING " + str(block_num) + " WITH " + str(self.route_queue[1]))
-        if(block_num == self.route_queue[1]):
+        #Update block information
+        #FIX: I NEED TO KNOW WHAT TRACK LINE THE BLOCK IS ON
+        if(occupancy == True and block_num == self.route_queue[1]):
             #Dequeue from list
             self.route_queue.pop(0)
             print("\nCTC- QUEUE HAS BEEN POPPED\n")
@@ -198,6 +200,9 @@ class TrackLine:
 
         #Initialize instance variable to hold the total number of tickets sold on track line
         self.ticket_sales = 0
+
+        #Declare a list of closed blocks
+        self.closed_blocks = []
 
     #End contructor
 
