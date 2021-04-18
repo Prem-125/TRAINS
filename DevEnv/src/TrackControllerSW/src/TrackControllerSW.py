@@ -19,7 +19,10 @@ class MainWindow(QMainWindow):
         self.commanded_speed = [0 for i in range(150)]
         self.authority_block = 0
         self.switch_state = True
-        self.block_offset = 33
+        self.block_offset
+        self.switch_exit_num
+        self.switch_in_a
+        self.switch_in_b
 
         #UI used variables
         self.ui_block = 0
@@ -40,14 +43,19 @@ class MainWindow(QMainWindow):
         #need track maintenance signal
         #need wayside to track switch signals
 
+    #Sets the block offset for the track controller
+    def setBlockOffset(self, b_offset):
+        self.block_offset = b_offset
+
     #Gets the occupancy
     def getOccupancy(self, blockNum, occupied):
         self.getSugSpeed(blockNum)
         self.occupancy[blockNum-self.block_offset] = occupied        #Use block offset to set the occupancy
         self.UIBlockOutput()
+        self.setOfficeOccupancy(blockNum)
         if(occupied == True):
-            self.setOfficeOccupancy(blockNum)
             self.setTrackStats(blockNum)
+    
     #Update the CTC Office Occupancy
     def setOfficeOccupancy(self, blockNum):
         print("\nSet the office occupancy function called\n")
@@ -58,7 +66,6 @@ class MainWindow(QMainWindow):
     def getAuthority(self, blockNum):
         self.authority[blockNum-self.block_offset] = False
         self.block_authority = blockNum
-
 
     #Gets the suggested speed
     def getSugSpeed(self, blockNum):
@@ -122,23 +129,6 @@ class MainWindow(QMainWindow):
     #Controls the Switch States
     '''
     def ControlSwitch(self):
-        if(self.occupancy[4]):
-            if(self.occupancy[5] == False):
-                if(self.occupancy[10] == False):
-                    if((int(self.authority[4]) < 11)):
-                        if(int(self.authority[4]) > 5):
-                            self.switchState = True
-                    elif(int(self.authority[4]) >11):
-                        self.switchState = False
-                else:
-                    self.switchState = True
-            else:
-                self.switchState = False
-        elif (self.occupancy[10] == True):
-            self.switchState = False
-        elif (self.occupancy[5] == True):
-            self.switchState = True
-        self.SwitchDisp()
     '''
 
 if __name__ == "__main__":
