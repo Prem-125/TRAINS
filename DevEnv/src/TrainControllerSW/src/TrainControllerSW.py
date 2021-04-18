@@ -135,7 +135,7 @@ class TrainController:
 
             #If you arrive at your destination station, open the corresponding doors until 
             if(self.SR.authority == 0):
-                self.atDestination = true
+                self.atDestination = True
                 if(self.leftDoors):
                     print("TODO: Open Left Doors Here")
                     self.leftDoors = True

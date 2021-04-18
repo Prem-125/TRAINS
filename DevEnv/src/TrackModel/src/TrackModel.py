@@ -29,6 +29,7 @@ class Switch:
 	def get_y_stem(self):
 		return self.y_stem
 	def set_y_stem(self, newy_stem):
+			
 		self.y_stem=newy_stem
 
 	def get_y_zero(self):
@@ -51,7 +52,7 @@ class Track:
 
 		self.stationArray = ("SHADYSIDE","HERRONAVE","SWISSVILLE","PENNSTATION","STEELPLAZA","FIRSTAVE","STATIONSQUARE","SOUTHILLSJUNCTION", 
                             "PIONEER","EDGEBROOK","WHITED","SOUTHBANK","CENTRAL","INGLEWOOD","OVERBROOK","GLENBURY","DORMONT","MTLEBANON", "POPLAR","CASTLESHANNON")
-		print("got here 1")
+		#print("got here 1")
 		self.line = 0
 		self.section = 0
 		self.block = 0
@@ -73,6 +74,8 @@ class Track:
 		self.rail_condition = 0
 		self.circuit_condition = 0
 		self.power_condition = 0 #power_condition
+		self.condition_list=[True,True,True]
+		self.condition_int = 0 
 		self.ambient_temp = 0 #ambient_temp
 		self.authority = 0  #authority
 		self.is_underground = 0
@@ -102,7 +105,7 @@ class Track:
 		self.cmd_Float = 0 #cmd_Float
 		self.auth_Int = 0 #a0 uth_Int
 		self.auth_Float = 0
-		print("got here 1")
+		#print("got here 1")
 
 	#set and get functions for each variable 
 	#make output signal variable for each module and have an update function to update them all
@@ -179,9 +182,9 @@ class Track:
 	
 	def set_occupied(self, in_occupied, id = 0):
 		#every time a train leaves a block with a  station on it, it regenerates the tickets
-		#if(self.get_occupied()==True):
-		#	if(self.get_is_station() == True):	
-		#		self.generate_random_ticket()
+		if(self.get_occupied()==True):
+			if(self.get_is_station() == True):	
+				self.generate_random_ticket()
 		self.occupied=in_occupied
 		signals.track_model_occupancy.emit(self.block, self.occupied)
 		#if the block is becomming occupied, send signal to train model
@@ -233,16 +236,22 @@ class Track:
 		return self.rail_condition
 	def set_rail_condition(self, in_condition):
 		self.rail_condition=in_condition
+		if(self.rail_condition == False):
+			signals.track_break.emit(self.line, self.block, 0)
 
 	def get_circuit_condition(self):
 		return self.circuit_condition
 	def set_circuit_condition(self, in_condition):
 		self.circuit_condition=in_condition
+		if(self.circuit_condition == False):
+			signals.track_break.emit(self.line, self.block, 1)
 
 	def get_power_condition(self):
 		return self.power_condition
 	def set_power_condition(self, in_condition):
 		self.power_condition= in_condition
+		if(self.power_condition == False):
+			signals.track_break.emit(self.line, self.block, 2)
 
 	def get_ambient_temp(self):
 		return self.ambient_temp
@@ -261,6 +270,7 @@ class Track:
 		self.ticket_count=in_condition
 		if(self.get_is_station()==True):
 			signals.station_ticket_sales.emit(self.line, self.ticket_count)
+			print("emitting ticket sales for " + self.station_name)
 
 	def get_is_underground(self):
 		return self.is_underground
@@ -337,7 +347,7 @@ class Track:
 					sample_string = self.get_station_name()
 					#print(sample_string)
 					self.set_beacon('Welcome to ' + sample_string)
-					self.generate_random_ticket()
+					self.generate_random_ticket() 
 					if(self.station_side == 'Left'):
 						self.set_station_side(1)
 					if(self.station_side == 'Right'):
@@ -489,7 +499,7 @@ class MainWindow(QMainWindow):
 						continue
 					
 					#add information to each track object
-					print(row)
+					#print(row)
 					self.track_list.append(Track())
 					self.track_list[self.num_lines].set_line(row[0])
 					self.track_list[self.num_lines].set_section(row[1])
@@ -537,7 +547,7 @@ class MainWindow(QMainWindow):
 		signals.wayside_to_track.connect(self.get_wayside_info)
 		signals.train_creation.connect(self.set_occupied_initial)
 		
-	#function to tell me where teh train is
+	#function to tell me where the train is
 	def send_block_to_model(self,block,id):
 		print("sent block123")
 		print("block length: " + str(self.track_list[block+1].get_length()))
@@ -546,8 +556,9 @@ class MainWindow(QMainWindow):
 		if(self.track_list[block+2].is_station):
 			self.track_list[block+2].encode_beacon()
 			signals.Beacon_signal.emit(self.track_list[block+2].encodedBeacon, id) # ACTUALLY CALCULATE THE BEACON VAL AND BLOCK NUM
+		self.update_track_info(self.current_block)
 
-
+	#function for inital train spawn
 	def set_occupied_initial(self, track_line, id):
 		if (track_line == "Green"):
 			self.track_list[63].set_occupied(True, id)

@@ -19,10 +19,10 @@ class MainWindow(QMainWindow):
         self.commanded_speed = [0 for i in range(150)]
         self.authority_block = 0
         self.switch_state = True
-        self.block_offset
-        self.switch_exit_num
-        self.switch_in_a
-        self.switch_in_b
+        self.block_offset = 33
+        self.switch_exit_num = 0
+        self.switch_in_a = 0
+        self.switch_in_b = 0
 
         #UI used variables
         self.ui_block = 0
@@ -39,6 +39,8 @@ class MainWindow(QMainWindow):
         signals.track_model_occupancy.connect(self.getOccupancy)
         #need broken track block signal
         signals.CTC_authority.connect(self.getAuthority)
+        signals.track_break.connect(self.setBlockClosure)
+        #signals.wayside_block_status(self.UpdateBlockStatus)
         #signals.CTC_suggested_speed.connect(self.getSugSpeed)
         #need track maintenance signal
         #need wayside to track switch signals
@@ -90,10 +92,22 @@ class MainWindow(QMainWindow):
         else:
             signals.wayside_to_track.emit(blockNum, 1, self.commanded_speed[blockNum-self.block_offset])
     
-    #Update the block status
-    def setBlockStatus(self, blockNum, status):
-        self.block_open[blockNum-self.block_offset] = status
+    #Update the block closure
+    def setBlockClosure(self, line, blockNum, break_type):
+        self.block_open[blockNum-self.block_offset] = false
+        self.UpdateCTCFailure(line, blockNum, break_type)
         self.UIBlockOutput()
+    
+    #Update the CTC Office of Block Closures
+    def UpdateCTCFailure(self, line, blockNum, break_type):
+        signals.CTC_failure(line, blockNum, break_type)
+
+    #Update the Track model of block openings
+    #def UpdateTMOpenings(self, line, blockNum):
+
+    #Update the block status
+    def UpdateBlockStatus(self, line, blockNum, bool):
+        ...
 
     #Import PLC
     def ImportPLC(self):

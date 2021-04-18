@@ -1,4 +1,4 @@
-import sys
+""" import sys
 from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtCore import QFile
 from .UI import Ui_TrackControllerUI
@@ -32,6 +32,6 @@ class MainWindow(QMainWindow):
 
     def setSwitchIn(self, track_controller, a, b):
         track_controller.switch_in_a = a
-        track_controller.switch_in_b = b
+        track_controller.switch_in_b = b """
 
 

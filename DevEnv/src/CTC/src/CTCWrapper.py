@@ -1181,7 +1181,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
         #Display throughput for red line
         red_throughput = RedLine.ComputeThroughput(curr_time)
-        self.ui.ThroughputLabel2.setText(str(round(green_throughput, 2)))
+        self.ui.ThroughputLabel2.setText(str(round(red_throughput, 2)))
     #End method
             
     #Method to close block at the request of the dispatcher

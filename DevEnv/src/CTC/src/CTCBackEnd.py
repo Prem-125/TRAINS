@@ -176,7 +176,6 @@ class Train:
 
     #MUST COMPLETE Each instance of train must respond to occupany conditions of track
     
-
 #End Train class definition
 
 
@@ -321,7 +320,7 @@ class TrackLine:
     #Method to update ticket count
     def UpdateTicketSales(self, track_line_name, new_ticket_sales):
         #Add new ticket sales to total ticket sales
-        if(track_line_name == "Blue"):
+        if(track_line_name == self.color):
             self.ticket_sales += new_ticket_sales
     #End method
 
