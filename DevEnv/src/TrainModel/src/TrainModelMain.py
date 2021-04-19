@@ -29,7 +29,7 @@ class MainWindow(QMainWindow):
 			self.train_controller = TrainControllerSW(self, commanded_speed, current_speed, 1, trainID)
 		else:
 			self.train_controller = TrainControllerHW(self,trainID = trainID)
-
+			time.sleep(1)
 
 		self.ui.pwrInput.textChanged.connect(self.get_power)
 		self.ui.speedLimit.textChanged.connect(self.set_speed_limit)
