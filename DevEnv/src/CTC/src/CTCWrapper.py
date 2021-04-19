@@ -70,7 +70,6 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         
         self.ui.CloseBlockButton.clicked.connect(self.GUICloseBlock)
         self.ui.ReopenBlockButton.clicked.connect(self.GUIReopenBlock)
-        
 
         #Define block status informational display
         self.ui.TrackComboBox4.currentTextChanged.connect(self.StatusTrackSections)
@@ -1191,6 +1190,9 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         track_section = str(self.ui.SectionComboBox2.currentText())
         block_num = int(self.ui.BlockComboBox1.currentText())
 
+        #Send closure information to wayside controller
+        signals.wayside_block_status.emit(track_line, block_num, False)
+
         if(track_line == "Green"):
             #Ensure block is not already closed
             if(block_num in GreenLine.closed_blocks):
@@ -1246,6 +1248,9 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         track_line = str(self.ui.TrackComboBox3.currentText())
         track_section = str(self.ui.SectionComboBox3.currentText())
         block_num = int(self.ui.BlockComboBox2.currentText())
+
+        #Send closure information to wayside controller
+        signals.wayside_block_status.emit(track_line, block_num, True)
 
         if(track_line == "Green"):
             #Ensure block is not already open
@@ -1304,7 +1309,6 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         for trainObj in CTCSchedule.train_list:
             currPosition = "Block " + str(trainObj.route_queue[0])
             self.ui.SchedTable.setItem(trainObj.number-1, 4, QTableWidgetItem(currPosition))
-            print("CTC- ROUTE TABLE HAS BEEN UPDATED " + str(trainObj.route_queue[0]))
     #End method
             
     """

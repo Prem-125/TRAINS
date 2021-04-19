@@ -183,10 +183,11 @@ class Track:
 	def set_occupied(self, in_occupied, id = 0):
 		#every time a train leaves a block with a  station on it, it regenerates the tickets
 		if(self.get_occupied()==True):
-			if(self.get_is_station() == True):	
+			if(self.get_is_station() == True):	#maybe add in if "&& in_occupied == False"
 				self.generate_random_ticket()
 		self.occupied=in_occupied
 		signals.track_model_occupancy.emit(self.block, self.occupied)
+	
 		#if the block is becomming occupied, send signal to train model
 		if(in_occupied == True):
 			self.encode_track_circuit_signal()
@@ -539,13 +540,14 @@ class MainWindow(QMainWindow):
 					
 					#print(self.track_list[self.num_lines].get_block())
 					self.num_lines+=1
-					
-					
+
 		#close the opened file
 		csv_file.close()
 		signals.need_new_block.connect(self.send_block_to_model)
 		signals.wayside_to_track.connect(self.get_wayside_info)
 		signals.train_creation.connect(self.set_occupied_initial)
+		signals.wayside_block_open.connect(self.get_open_block)
+		
 		
 	#function to tell me where the train is
 	def send_block_to_model(self,block,id):
@@ -570,8 +572,12 @@ class MainWindow(QMainWindow):
 	def get_wayside_info(self, block_in, authority_in, commanded_speed_in):
 		self.track_list[block_in].set_authority(authority_in)
 		self.track_list[block_in].set_commanded_speed(commanded_speed_in*(5.0/18.0))
+		print("Sending occupancy to wayside")
 
-
+	def get_open_block(self, line_in, in_block): ##ad line field for when red line is added 
+		self.track_list[in_block].set_rail_condition(True)
+		self.track_list[in_block].set_circuit_condition(True)
+		self.track_list[in_block].set_power_condition(True)
 
 	def get_track_info(self):
 		#get the text inputted by the user and check to see if it's a number
@@ -606,6 +612,7 @@ class MainWindow(QMainWindow):
 		if(temp == False):
 			self.track_list[self.current_block].set_rail_condition(False)
 			self.track_list[self.current_block].set_signal_light('Stop')
+			self.track_list[self.current_block].set_occupied(True)
 			self.update_track_info(self.current_block)
 			print("CAUTION! RAIL FAILURE ON BLOCK ", self.current_block) 
 		else:
@@ -613,6 +620,7 @@ class MainWindow(QMainWindow):
 			#make sure to send go if all track conditions are good
 			if(self.track_list[self.current_block].get_circuit_condition() == True) and (self.track_list[self.current_block].get_power_condition() == True):
 				self.track_list[self.current_block].set_signal_light('Go')
+			self.track_list[self.current_block].set_occupied(False)
 			self.update_track_info(self.current_block)
 			print("RAIL Fixed on BLOCK ", self.current_block) 
 
@@ -623,15 +631,15 @@ class MainWindow(QMainWindow):
 		if(temp == False):
 			self.track_list[self.current_block].set_circuit_condition(False)
 			self.track_list[self.current_block].set_signal_light('Stop')
-			self.update_track_info(self.current_block)
 			print("CAUTION! CIRCUIT FAILURE ON BLOCK ", self.current_block) 
+			self.update_track_info(self.current_block)
 		else:
 			self.track_list[self.current_block].set_circuit_condition(True)
 			#make sure to send go if all track conditions are good
 			if(self.track_list[self.current_block].get_rail_condition() == True) and (self.track_list[self.current_block].get_power_condition() == True):
 				self.track_list[self.current_block].set_signal_light('Go')
-			self.update_track_info(self.current_block)
 			print("CIRCUIT Fixed on BLOCK ", self.current_block) 
+			self.update_track_info(self.current_block)
 
 	def cause_power_fail(self):
 		#toggle status
@@ -687,7 +695,7 @@ class MainWindow(QMainWindow):
 	
 	def update_track_info(self,blckNum):
 		
-		print("-----------------------------------------------------------------------------------")
+		#print("-----------------------------------------------------------------------------------")
 		#update any connections
 		#make track connections
 		i=1
@@ -719,8 +727,8 @@ class MainWindow(QMainWindow):
 					self.track_list[Track.switch_list[1].get_y_zero()].set_connection_track_a(None)				
 				
 				
-			
-			print(self.track_list[i].get_block()," Con A = ", self.track_list[i].get_connection_track_a(), "Con B = ",self.track_list[i].get_connection_track_b())
+			#this prints all the connections for debug
+			#print(self.track_list[i].get_block()," Con A = ", self.track_list[i].get_connection_track_a(), "Con B = ",self.track_list[i].get_connection_track_b())
 			
 			i+=1
 		
@@ -803,8 +811,8 @@ class MainWindow(QMainWindow):
 		
 		#wayside input
 		self.ui.wayCommandedSpeed.display(self.track_list[blckNum].get_commanded_speed())
-		self.ui.wayAuthority.display(self.track_list[blckNum].get_authority())
-		self.ui.waySignal.setText(self.track_list[blckNum].get_signal_light())
+		self.ui.wayAuthority.display(str(self.track_list[blckNum].get_authority()))
+		self.ui.waySignal.setText(str(self.track_list[blckNum].get_signal_light()))
 		
 		#train outputs
 		self.ui.trainSpeedLimitO.display(self.track_list[blckNum].get_speed_limit())
