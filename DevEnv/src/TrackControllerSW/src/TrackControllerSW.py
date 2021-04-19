@@ -19,7 +19,7 @@ class MainWindow(QMainWindow):
         self.commanded_speed = [0 for i in range(150)]
         self.authority_block = 0
         self.switch_state = True
-        self.block_offset = 33
+        self.block_offset = 0
         self.switch_exit_num = 0
         self.switch_in_a = 0
         self.switch_in_b = 0
@@ -32,9 +32,6 @@ class MainWindow(QMainWindow):
         #UI Functions
         self.ui.BlockInput.currentTextChanged.connect(self.UIBlockOutput)
         self.ui.ImportButton.clicked.connect(self.ImportPLC)
-        '''
-        self.ui.ClearButton.clicked.connect(self.ClearSystem)
-        '''
 
         #Signal Functions
         signals.track_model_occupancy.connect(self.getOccupancy)
@@ -49,32 +46,32 @@ class MainWindow(QMainWindow):
         self.block_offset = b_offset
 
     #Gets the occupancy
-    def getOccupancy(self, blockNum, occupied):
-        self.getSugSpeed(blockNum)
-        self.occupancy[blockNum-self.block_offset] = occupied        #Use block offset to set the occupancy
+    def getOccupancy(self, block_num, occupied):
+        self.getSugSpeed(block_num)
+        self.occupancy[block_num-self.block_offset] = occupied        #Use block offset to set the occupancy
         self.UIBlockOutput()
-        self.setOfficeOccupancy(blockNum, occupied)
+        self.setOfficeOccupancy(block_num, occupied)
 
         if(occupied == True):
-            self.setTrackStats(blockNum)
+            self.setTrackStats(block_num)
     
     #Update the CTC Office Occupancy
-    def setOfficeOccupancy(self, blockNum, occupied):
+    def setOfficeOccupancy(self, block_num, occupied):
         print("\nSet the office occupancy function called\n")
-        print("Occupied Block Number: " + str(blockNum)+ "\n\n")
-        signals.CTC_occupancy.emit("Green",blockNum, occupied)    #Sends the Occupancy Signal
+        print("Occupied Block Number: " + str(block_num)+ "\n\n")
+        signals.CTC_occupancy.emit("Green",block_num, occupied)    #Sends the Occupancy Signal
 
     #Gets the authority
-    def getAuthority(self, line, blockNum):
-        self.authority[blockNum-self.block_offset] = False
-        self.block_authority = blockNum
+    def getAuthority(self, line, block_num):
+        self.authority[block_num-self.block_offset] = False
+        self.block_authority = block_num
 
     #Gets the suggested speed
-    def getSugSpeed(self, blockNum):
-        self.setComSpeed(blockNum)
+    def getSugSpeed(self, block_num):
+        self.setComSpeed(block_num)
 
     #Gets the commanded speed
-    def setComSpeed(self, blockNum):
+    def setComSpeed(self, block_num):
         for i in range(0, 25):
             self.commanded_speed[i] = 70
         for i in range(25, 30):
@@ -85,32 +82,32 @@ class MainWindow(QMainWindow):
             self.commanded_speed[i] = 60   
 
     #Update Track Model of the authority and commanded speed
-    def setTrackStats(self, blockNum):
-        if(blockNum == self.block_authority):
-            signals.wayside_to_track.emit(blockNum, 0, 0)
+    def setTrackStats(self, block_num):
+        if(block_num == self.block_authority):
+            signals.wayside_to_track.emit(block_num, 0, 0)
         else:
-            signals.wayside_to_track.emit(blockNum, 1, self.commanded_speed[blockNum-self.block_offset])
+            signals.wayside_to_track.emit(block_num, 1, self.commanded_speed[block_num-self.block_offset])
     
     #Update the block closure
-    def setBlockClosure(self, line, blockNum, break_type):
-        self.block_open[blockNum-self.block_offset] = False
-        self.UpdateCTCFailure(line, blockNum, break_type)
+    def setBlockClosure(self, line, block_num, break_type):
+        self.block_open[block_num-self.block_offset] = False
+        self.UpdateCTCFailure(line, block_num, break_type)
         self.UIBlockOutput()
     
     #Update the CTC Office of Block Closures
-    def UpdateCTCFailure(self, line, blockNum, break_type):
-        signals.CTC_failure.emit(line, blockNum, break_type)
+    def UpdateCTCFailure(self, line, block_num, break_type):
+        signals.CTC_failure.emit(line, block_num, break_type)
         self.UIBlockOutput()
 
     #Update the Track model of block openings
-    def UpdateTMOpenings(self, line, blockNum):
-        signals.wayside_block_open.emit(line, blockNum)
+    def UpdateTMOpenings(self, line, block_num):
+        signals.wayside_block_open.emit(line, block_num)
 
     #Update the block status
-    def UpdateBlockStatus(self, line, blockNum, status):
-        self.block_open[blockNum-self.block_offset] = status
+    def UpdateBlockStatus(self, line, block_num, status):
+        self.block_open[block_num-self.block_offset] = status
         if(status == True):
-            self.UpdateTMOpenings(line,blockNum)
+            self.UpdateTMOpenings(line,block_num)
         self.UIBlockOutput()
 
     #Import PLC
