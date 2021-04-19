@@ -12,10 +12,11 @@ class Block:
         self.length = block_length   #Meters
         self.speed_limit = block_speed_limit #Meters/Second
         self.occupancy = 0
-        self.status = 1
+        self.status = False
 
         #Compute fastest traveral time in seconds
         self.min_traveral_time = round(block_length / block_speed_limit , 2)
+
     #End contructor
 
 #End Block class definition
@@ -86,7 +87,7 @@ class Train:
         signals.CTC_occupancy.connect(self.UpdatePosition)
 
         #Send destination (authority) to track controller TEMPORARY SETUP
-        signals.CTC_authority.emit(self.destination)
+        signals.CTC_authority.emit(self.track_line, self.destination)
         
     #End contructor
 
@@ -161,12 +162,11 @@ class Train:
     #End method
 
     #Method to update position of train
-    def UpdatePosition(self, block_num, occupancy):
-        print("\nCTC- BLOCK FROM TRACK MODEL: " + str(block_num))
-        print("CTC- COMPARING " + str(block_num) + " WITH " + str(self.route_queue[1]))
-        #Update block information
-        #FIX: I NEED TO KNOW WHAT TRACK LINE THE BLOCK IS ON
-        if(occupancy == True and block_num == self.route_queue[1]):
+    def UpdatePosition(self, track_line_name, block_num, occupancy):
+        print("ENTERED UPDATE TRAIN POSITION FUNCTION")
+        print("COMPARING " + str(block_num) + " WITH " + str(self.route_queue[1]) + " ON QUEUE")
+        #Determine if occupancy corresponds to movement of self
+        if(occupancy == True and block_num == self.route_queue[1] and track_line_name == self.track_line):
             #Dequeue from list
             self.route_queue.pop(0)
             print("\nCTC- QUEUE HAS BEEN POPPED\n")
@@ -193,6 +193,9 @@ class TrackLine:
 
         #Obtain ticket sales from TrackModel
         signals.station_ticket_sales.connect(self.UpdateTicketSales)
+
+        #Obtain occupancy from wayside controller
+        signals.CTC_occupancy.connect(self.UpdateOccupancy)
 
         #Initialize block composition of TrackLine
         self.TrackSetup(filepath, sheet_index)
@@ -330,6 +333,14 @@ class TrackLine:
         throughput = self.ticket_sales / curr_time
 
         return throughput
+    #End method
+
+    #Method to update block occupancy
+    def UpdateOccupancy(self, track_line_name, block_number, block_occupancy):
+        #Determine if occupancy signal corresponds to self
+        if(track_line_name == self.color):
+            self.block_list[block_number-1].occupancy = block_occupancy
+        #End if
     #End method
 
 #End TrackLine class definition
