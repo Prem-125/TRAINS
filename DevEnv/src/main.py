@@ -29,7 +29,7 @@ def start():
     TC = TrackControllerSW()
     TC.show()
     TrainConsole = TrainDeployer()
-    #TrainConsole.CreateTrains(GreenLine, 1)
+    TrainConsole.CreateTrains(GreenLine, 1)
     #signals.train_creation.emit('Green',1)
 
     sys.exit(app.exec_())
