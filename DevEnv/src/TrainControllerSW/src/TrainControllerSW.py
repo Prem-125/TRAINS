@@ -3,6 +3,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtCore import QFile, QTimer
 from TrainControllerSW.src.UI import Ui_TrainControllerSW
 from simple_pid import PID
+from TrainControllerSW.src.PIDBackup import PID as backupPID
 
 
 
@@ -170,14 +171,23 @@ class TrainController:
         else:
             self.TrainModel.t_lights_off()
 
-
-    #SPEED REGULATOR SETTERS
     def set_commanded_speed(self, commanded_speed):
         self.SR.commanded_speed = commanded_speed
     
     def set_current_speed(self, current_speed):
+        #main loop stuff
         self.SR.pidLoop()
+        self.SR.backupPIDLoop()
+        
+
         self.SR.current_speed = current_speed
+
+        #backup loop stuff
+
+        ##self.SR.backupPIDLoop()
+        ##self.SR.backupPID.update(current_speed)
+        
+        #If we are approaching a station
         if(self.upcoming_station and self.SR.current_speed == 0):
             
             #Having the car start going again
@@ -243,7 +253,7 @@ class TrainController:
 
     #SPEED REGULATOR GETTERS
     def get_power(self):
-        return self.SR.power
+        return self.SR.get_power()
 
     #SPEED REGULATOR BUTTONS
     
@@ -258,21 +268,32 @@ class SpeedRegulator():
         self.setpoint_speed = 0.0
         self.service_brake = False
         self.emergency_brake = False
-        self.kp = 1000.0
-        self.ki = 1000.0
-        self.power = 0.0
         self.train_ID = train_ID
         self.TrainController = TrainController
 
 
-        #setting up the PID Loop
+        #variables for main PID loop
+        self.kp = 1000.0
+        self.ki = 1000.0
+        self.power = 0.0
+        self.previous_power = 0.0
         self.pid = PID(self.kp, self.ki, 0)
         self.pid.output_limits = (0, 120000)
+
+        #variables for backup PID loop;
+        self.power_backup = 0
+        self.previous_power_backup = 0.0
+        self.backupPID = PID(self.kp, self.ki, 0)
+        self.backupPID.output_limits = (0, 120000)
+        ##self.backupPID = backupPID.PID(self.kp, self.ki, 1)
+
 
 
 
     #pidLoop: used to calculate power
     def pidLoop(self):
+
+        print("Main called. Main power is: " + str(self.power))
 
         #If in Auto Mode, go off the commanded speed
         if(self.TrainController.is_auto and ((not self.service_brake ) and (not self.emergency_brake))):
@@ -285,8 +306,9 @@ class SpeedRegulator():
                     self.TrainController.toggleLeftDoors
                 self.atDestination = False
 
-            #Doing the power math
+            #updating setpoint
             self.pid.setpoint = self.commanded_speed
+            self.previous_power = self.power
             self.power = self.pid(self.current_speed, dt = 1)
             
         #If in Manual Mode, go off the setpoint speed
@@ -307,10 +329,55 @@ class SpeedRegulator():
         ##print("Got to end of pidLoop:")
         ##print("Power:" + str(self.power))
 
+        #pidLoop: used to calculate power
+    
+    #backupPID: used to backup our process
+    def backupPIDLoop(self):
+
+        print("Backup called. Backup power is: " + str(self.power_backup))
+        #If in Auto Mode, go off the commanded speed
+        if(self.TrainController.is_auto and ((not self.service_brake ) and (not self.emergency_brake))):
+            #updating setpoint
+            self.backupPID.setpoint = self.commanded_speed
+            
+            #updating power variables
+            self.previous_power_backup = self.power_backup
+            self.power_backup = self.pid(self.current_speed, dt = 1)
+            #Doing the power math
+            ##self.backupPID.SetPoint = self.commanded_speed
+            ##3self.power_backup = max(min( int(self.backupPID.output), 120000 ),0)
+            
+        #If in Manual Mode, go off the setpoint speed
+        elif(not(self.setpoint_speed == 0) and not self.service_brake and not self.emergency_brake):
+            self.pid.setpoint = self.setpoint_speed
+            self.power_backup = self.pid(self.current_speed, dt = 1)
+            ##self.power_backup = self.backupPID.output
+
+        #If either brake is active, power is 0
+        else:
+            self.pid.setpoint=0
+            self.power_backup = 0
+
+        #Updating the display
+        self.TrainController.DisplayUpdate()
+
+        # send power here
+        ##print(self.power)
+        ##print("Got to end of pidLoop:")
+        ##print("Power:" + str(self.power))
     
     def get_power(self):
-        print(self.power)
-        ...
+        if(self.power == 0):
+            return self.power
+        elif(not(self.power == 0 or self.power_backup == 0)):
+            if(self.power / self.power_backup > 2):
+                print("TOO MUCH POWER DIFFERENCE")
+                return 0
+            else:
+                return self.power
+        else:
+            return self.power
+            ...
     
     def OnSBrakeOn(self):
         self.service_brake = True
@@ -338,6 +405,11 @@ class SpeedRegulator():
         if(self.setpoint_speed > 0):
             self.setpoint_speed = self.setpoint_speed - 1
         self.TrainController.DisplayUpdate()
+
+    def DetectEngineFailure(self):
+        if(self.current_speed == 666):
+            self.engine_failure = True
+
         
 
 #MainWindow class - interfaces with TrainController UI
@@ -368,8 +440,6 @@ class MainWindow(QMainWindow):
         #self.pidTimer.start(1000)
 
 
-
-        
     def DisplayUpdate(self):
         #Displaying Speeds
         self.ui.setPointSpeedVal.display(self.TrainController.SR.setpoint_speed * 2.23694)
@@ -410,6 +480,7 @@ class MainWindow(QMainWindow):
         self.TrainController.SR.pid.Kp = float(self.ui.kpInput.toPlainText())
         self.TrainController.set_kp_ki(float(self.ui.kpInput.toPlainText()), float(self.ui.kiInput.toPlainText()))
         #print("Sent Kp: " + str(float(self.ui.kpInput.toPlainText())) + "Sent Ki: " + str(float(self.ui.kiInput.toPlainText())))
+
 
 
 
