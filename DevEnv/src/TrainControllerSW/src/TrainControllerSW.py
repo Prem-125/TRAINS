@@ -13,15 +13,24 @@ class TrainController:
     def __init__(self, TrainModel, commanded_speed = 0.0, current_speed = 0.0, authority = 0.0, TrainID = 0.0):
         
         self.TrainModel = TrainModel
+
         #setting important variables
         self.train_ID = TrainID
         self.is_auto = True
         self.upcoming_station = False
         
+        #Station Variables
         self.atDestination = False
         self.station = ""
         self.left_doors_at_dest = False
         self.right_doors_at_dest = False
+
+        #Failures
+        self.any_failure = False
+        self.engine_failure = False
+        self.brake_failure = False
+        self.signal_pickup_failure = False
+        self.passenger_brake_detected = False
 
         #Auxilliary Variables
         self.left_doors = False
@@ -39,13 +48,9 @@ class TrainController:
         self.SR.service_brake = False
         self.SR.emergency_brake = False
 
-
-        self.TrainModelRef = TrainModel
-        
         #UI Stuff
         self.UI = MainWindow(self)
         self.UI.show()
-
 
         #other variables
         self.stationArray = ("Shadyside","Herron Ave","Swissville","Penn Station","Steel Plaza","First Ave","Station Square","South Hills Junction", 
@@ -54,18 +59,16 @@ class TrainController:
 
         self.DisplayUpdate()
 
-        #all my connections
-
 
     #COMMUNICATING WITH CORRESPONDING TRAIN MODEL
     def SendServiceBrakeOn(self):
-        self.TrainModelRef.s_brake_on()
+        self.TrainModel.s_brake_on()
     
     def SendServiceBrakeOff(self):
-        self.TrainModelRef.s_brake_off()
+        self.TrainModel.s_brake_off()
 
     def SendEmergencyBrakeOn(self):
-        self.TrainModelRef.emergency_brake()
+        self.TrainModel.emergency_brake()
 
     def toggle_is_auto(self):
         self.is_auto = not(self.is_auto)
@@ -88,6 +91,7 @@ class TrainController:
         if(tempCheckSum != tempCmdInt+ tempCmdFloat + tempAuthInt + tempAuthFloat):
             #print("Signal Pickup Failure")
             self.UI.textBrowser_15.setStyleSheet(u"background-color: rgb(255, 0, 0);")
+            self.signal_pickup_failure = True
             self.VitalFault()
         else:
             self.set_commanded_speed(tempCmdFloat/100 + tempCmdInt)
@@ -124,8 +128,21 @@ class TrainController:
         else:
             self.announcement += ""
         
+    def DetectBrakeFailure(self):
+        if(self.SR.service_brake and (self.SR.current_speed >= self.SR.previous_speed)):
+            self.brake_failure = True
+            self.UI.textBrowser_14.setStyleSheet(u"background-color: rgb(255, 0, 0);")
+            self.VitalFault()
+
+    def set_passenger_brake(self):
+        self.passenger_brake_detected = True
+        self.UI.textBrowser_16.setStyleSheet(u"background-color: rgb(255, 0, 0);")
+        self.VitalFault()
+
     def VitalFault(self):
-        self.SR.OnEBrakeOn()
+        self.any_failure = True
+        print("********************************************************* VITAL FAULT DETECTED *********************************************************")
+        self.set_emergency_brake(True)
 
     def toggleLeftDoors(self):
         self.left_doors = not(self.left_doors)
@@ -179,13 +196,11 @@ class TrainController:
         self.SR.pidLoop()
         self.SR.backupPIDLoop()
         
-
+        self.SR.previous_previous_speed = self.SR.previous_speed
+        self.SR.previous_speed = self.SR.current_speed
         self.SR.current_speed = current_speed
 
-        #backup loop stuff
-
-        ##self.SR.backupPIDLoop()
-        ##self.SR.backupPID.update(current_speed)
+        self.DetectBrakeFailure()
         
         #If we are approaching a station
         if(self.upcoming_station and self.SR.current_speed == 0):
@@ -263,6 +278,8 @@ class SpeedRegulator():
 
     def __init__(self, TrainController, commanded_speed = 0, current_speed = 0, authority = 0, train_ID = 0):
         self.commanded_speed = commanded_speed
+        self.previous_previous_speed = 0.0
+        self.previous_speed = 0.0 
         self.current_speed = current_speed
         self.authority = authority
         self.setpoint_speed = 0.0
@@ -286,6 +303,10 @@ class SpeedRegulator():
         self.backupPID = PID(self.kp, self.ki, 0)
         self.backupPID.output_limits = (0, 120000)
         ##self.backupPID = backupPID.PID(self.kp, self.ki, 1)
+
+        
+
+
 
 
 
@@ -409,7 +430,7 @@ class SpeedRegulator():
     def DetectEngineFailure(self):
         if(self.current_speed == 666):
             self.engine_failure = True
-
+            self.UI.textBrowser_13.setStyleSheet(u"background-color: rgb(255, 0, 0);")
         
 
 #MainWindow class - interfaces with TrainController UI
