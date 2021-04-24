@@ -38,6 +38,10 @@ class TrainControllerHWInterface(QMainWindow):
 	def connectArduino(self):
 		try:
 			self.arduino = serial.Serial(port='COM3', baudrate=115200,timeout=1)
+			self.arduino.setDTR(True)
+			time.sleep(.5)
+			self.arduino.setDTR(False)
+
 			self.run=True
 			self.utimer.start(500)
 			self.show()
