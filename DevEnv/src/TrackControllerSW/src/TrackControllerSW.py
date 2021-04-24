@@ -116,6 +116,18 @@ class TrackController:
                 self.crossing_signal = False
                 #send the crossing deactivate signal
 
+    #Collision Detection
+    def checkCollision(self, block_num):
+        if(self.direction[block_num] == True):
+            if(self.occupancy(block_num+1) == True):
+                self.authority(block_num) =0
+                #send signal
+        if(self.direction[block_num] == False):
+            if(self.occupancy(block_num-1) == True):
+                self.authority(block_num) =0
+                #send signal
+
+
     #Controls the Switch States
     '''
     def ControlSwitch(self):
