@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>554</width>
-    <height>385</height>
+    <width>579</width>
+    <height>425</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -36,7 +36,7 @@
      <enum>QTabWidget::Triangular</enum>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <property name="elideMode">
      <enum>Qt::ElideNone</enum>
@@ -113,13 +113,16 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>140</y>
+        <y>130</y>
         <width>111</width>
         <height>21</height>
        </rect>
       </property>
       <property name="text">
-       <string/>
+       <string>Invalid File</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
      <widget class="QLabel" name="label_3">
@@ -194,6 +197,11 @@
         <height>22</height>
        </rect>
       </property>
+      <item>
+       <property name="text">
+        <string>1</string>
+       </property>
+      </item>
      </widget>
     </widget>
     <widget class="QWidget" name="TrackStatus">
@@ -216,9 +224,9 @@
      <widget class="QComboBox" name="BlockInput">
       <property name="geometry">
        <rect>
-        <x>150</x>
+        <x>170</x>
         <y>90</y>
-        <width>71</width>
+        <width>81</width>
         <height>22</height>
        </rect>
       </property>
@@ -242,7 +250,7 @@
        <rect>
         <x>30</x>
         <y>90</y>
-        <width>101</width>
+        <width>131</width>
         <height>21</height>
        </rect>
       </property>
@@ -261,7 +269,7 @@
        <rect>
         <x>30</x>
         <y>120</y>
-        <width>101</width>
+        <width>131</width>
         <height>21</height>
        </rect>
       </property>
@@ -275,7 +283,7 @@
      <widget class="QLabel" name="BlockStatus">
       <property name="geometry">
        <rect>
-        <x>150</x>
+        <x>170</x>
         <y>120</y>
         <width>71</width>
         <height>21</height>
@@ -293,7 +301,7 @@
        <rect>
         <x>30</x>
         <y>150</y>
-        <width>101</width>
+        <width>131</width>
         <height>21</height>
        </rect>
       </property>
@@ -307,7 +315,7 @@
      <widget class="QLabel" name="Occupancy">
       <property name="geometry">
        <rect>
-        <x>150</x>
+        <x>170</x>
         <y>150</y>
         <width>71</width>
         <height>21</height>
@@ -325,7 +333,7 @@
        <rect>
         <x>30</x>
         <y>180</y>
-        <width>101</width>
+        <width>131</width>
         <height>21</height>
        </rect>
       </property>
@@ -339,7 +347,7 @@
      <widget class="QLabel" name="Authority">
       <property name="geometry">
        <rect>
-        <x>150</x>
+        <x>170</x>
         <y>180</y>
         <width>71</width>
         <height>21</height>
@@ -357,7 +365,7 @@
        <rect>
         <x>30</x>
         <y>210</y>
-        <width>101</width>
+        <width>131</width>
         <height>21</height>
        </rect>
       </property>
@@ -371,7 +379,7 @@
      <widget class="QLabel" name="CommandedSpeed">
       <property name="geometry">
        <rect>
-        <x>150</x>
+        <x>170</x>
         <y>210</y>
         <width>71</width>
         <height>21</height>
@@ -389,7 +397,7 @@
        <rect>
         <x>30</x>
         <y>240</y>
-        <width>101</width>
+        <width>131</width>
         <height>21</height>
        </rect>
       </property>
@@ -403,7 +411,7 @@
      <widget class="QLabel" name="CrossingStatus">
       <property name="geometry">
        <rect>
-        <x>150</x>
+        <x>170</x>
         <y>240</y>
         <width>71</width>
         <height>21</height>
@@ -421,7 +429,7 @@
        <rect>
         <x>30</x>
         <y>270</y>
-        <width>101</width>
+        <width>131</width>
         <height>21</height>
        </rect>
       </property>
@@ -435,7 +443,7 @@
      <widget class="QLabel" name="SwitchStatus">
       <property name="geometry">
        <rect>
-        <x>150</x>
+        <x>170</x>
         <y>270</y>
         <width>71</width>
         <height>21</height>
@@ -453,7 +461,7 @@
        <rect>
         <x>30</x>
         <y>30</y>
-        <width>101</width>
+        <width>131</width>
         <height>21</height>
        </rect>
       </property>
@@ -470,10 +478,10 @@
      <widget class="QComboBox" name="StatusLineBox">
       <property name="geometry">
        <rect>
-        <x>150</x>
+        <x>170</x>
         <y>30</y>
-        <width>71</width>
-        <height>20</height>
+        <width>81</width>
+        <height>21</height>
        </rect>
       </property>
       <item>
@@ -497,7 +505,7 @@
        <rect>
         <x>30</x>
         <y>60</y>
-        <width>101</width>
+        <width>131</width>
         <height>21</height>
        </rect>
       </property>
@@ -514,9 +522,9 @@
      <widget class="QComboBox" name="StatusControllerBox">
       <property name="geometry">
        <rect>
-        <x>150</x>
+        <x>170</x>
         <y>60</y>
-        <width>71</width>
+        <width>81</width>
         <height>21</height>
        </rect>
       </property>
@@ -534,8 +542,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>554</width>
-     <height>22</height>
+     <width>579</width>
+     <height>24</height>
     </rect>
    </property>
   </widget>
