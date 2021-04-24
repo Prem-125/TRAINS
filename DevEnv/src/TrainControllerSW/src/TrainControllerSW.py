@@ -444,8 +444,11 @@ class MainWindow(QMainWindow):
         #Button To Function Connections
         self.ui.serviceBrake.pressed.connect(self.TrainController.SR.OnSBrakeOn)
         self.ui.serviceBrake.released.connect(self.TrainController.SR.OnSBrakeOff)
-        self.ui.emergencyBrake.pressed.connect(self.TrainController.SR.OnEBrakeOn)
-        self.ui.trainNumber.setPlainText(str(self.TrainController.train_ID))
+        self.ui.emergencyBrake.pressed.connect(self.TrainController.SR.OnEBrakeOn) 
+        self.ui.trainNumber.setAcceptRichText(True)
+        self.Text1 = "<p style=\"font-size:20px\">"
+        self.Text2 = "</p>"
+        self.ui.trainNumber.setText(self.Text1 + "<b>" + "Train ID: " + str(self.TrainController.train_ID) + "</b>" + self.Text2)
         self.ui.speedDownButton.clicked.connect(self.TrainController.SR.DecreaseSetpoint)
         self.ui.speedUpButton.clicked.connect(self.TrainController.SR.IncreaseSetpoint)
         self.ui.automaticMode.toggled.connect(self.TrainController.toggle_is_auto)
