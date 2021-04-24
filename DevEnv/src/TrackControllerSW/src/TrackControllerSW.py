@@ -12,6 +12,7 @@ class TrackController:
         self.authority = [True for i in range(150)]
         self.suggested_speed = [0 for i in range(150)]
         self.commanded_speed = [0 for i in range(150)]
+        self.direction = [True for i in range(150)]
         self.authority_block = 0
         self.switch_state = True
         self.block_offset = offset
@@ -19,6 +20,8 @@ class TrackController:
         self.switch_in_a = 0
         self.switch_in_b = 0
         self.block_authority = 0
+        self.crossing_signal = False
+        self.crossing_pos = 0
         #UI used variables
         self.ui_block = 0
 
@@ -34,7 +37,7 @@ class TrackController:
 
         if(occupied == True):
             self.setTrackStats(block_num)
-    
+
     #Update the CTC Office Occupancy
     def setOfficeOccupancy(self, block_num, occupied):
         print("\nSet the office occupancy function called\n")
@@ -59,7 +62,7 @@ class TrackController:
         for i in range(30, 36):
             self.commanded_speed[i] = 70
         for i in range(36, 41):
-            self.commanded_speed[i] = 60   
+            self.commanded_speed[i] = 60
 
     #Update Track Model of the authority and commanded speed
     def setTrackStats(self, block_num):
@@ -67,12 +70,12 @@ class TrackController:
             signals.wayside_to_track.emit(block_num, 0, 0)
         else:
             signals.wayside_to_track.emit(block_num, 1, self.commanded_speed[block_num-self.block_offset])
-    
+
     #Update the block closure
     def setBlockClosure(self, block_num, break_type):
         self.block_open[block_num-self.block_offset] = False
         self.UpdateCTCFailure(line, block_num, break_type)
-    
+
     #Update the CTC Office of Block Closures
     def UpdateCTCFailure(self, line, block_num, break_type):
         signals.CTC_failure.emit(line, block_num, break_type)
@@ -86,7 +89,33 @@ class TrackController:
         self.block_open[block_num-self.block_offset] = status
         if(status == True):
             self.UpdateTMOpenings(line,block_num)
-    
+
+    #Turn on the crossing signal
+    def ActivateCrossingSignal(self, block_num):
+        #Forward
+        if(self.direction[block_num] == True):
+            if(self.crossing_pos == block_num+5):
+                self.crossing_signal = True
+                #send the crossing activate signal
+        #backward
+        elif(self.direction[block_num] == False);
+            if(self.crossing_pos == block_num+5):
+                self.crossing_signal = True
+                #send the crossing activate signal
+
+    #Turn off the crossing signal
+    def DeactivateCrossingSignal(self, block_num):
+        #Forward
+        if(self.direction[block_num] == True):
+            if(self.crossing_pos == block_num-1):
+                self.crossing_signal = False
+                #send the crossing deactivate signal
+        #backward
+        elif(self.direction[block_num] == False);
+            if(self.crossing_pos == block_num+1):
+                self.crossing_signal = False
+                #send the crossing deactivate signal
+
     #Controls the Switch States
     '''
     def ControlSwitch(self):
