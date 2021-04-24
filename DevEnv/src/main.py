@@ -9,7 +9,7 @@ from CTC.src.CTCWrapper import *
 
 from TrackModel.src.TrackModel import MainWindow as TrackModel
 from TrainDeployer.src.TrainDeployer import TrainDeployer
-from TrackControllerSW.src.TrackControllerSW import MainWindow as TrackControllerSW
+from TrackControllerSW.src.TrackControllerSWInterface import MainWindow as TrackControllerSW
 from signals import signals 
 #from src.UI.window_manager import window_list
 
