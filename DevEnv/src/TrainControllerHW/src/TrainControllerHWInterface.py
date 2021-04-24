@@ -14,6 +14,7 @@ class TrainControllerHWInterface(QMainWindow):
 		self.utimer = QTimer()
 		self.utimer.timeout.connect(self.timerCallback)
 		self.ui.setParams.clicked.connect(self.set_kp_ki)
+		self.ui.IDVal.setPlainText(str(trainID))
 		self.power = 0
 		self.curSpeed = current_speed
 		self.encodedB=0
@@ -37,6 +38,10 @@ class TrainControllerHWInterface(QMainWindow):
 	def connectArduino(self):
 		try:
 			self.arduino = serial.Serial(port='COM3', baudrate=115200,timeout=1)
+			self.arduino.setDTR(True)
+			time.sleep(.5)
+			self.arduino.setDTR(False)
+
 			self.run=True
 			self.utimer.start(500)
 			self.show()
@@ -62,32 +67,32 @@ class TrainControllerHWInterface(QMainWindow):
 		while(self.arduino.in_waiting > 0):
 			raw = self.arduino.readline()
 			status = raw.decode('ascii').strip('\r\n')
-			print("Status Val is: ")
-			print(status)
+			#print("Status Val is: ")
+			#print(status)
 			status = int(status)
 			if (status == 1):
 				raw = self.arduino.readline()
 				status = raw.decode('ascii').strip('\r\n')
-				print(status)
+				#print(status)
 				self.rawToggle = int(status)
 				self.decodeToggleStates()
 				self.updateToggleDisp()
 			elif (status == 2):
 				raw = self.arduino.readline()
 				status = raw.decode('ascii').strip('\r\n')
-				print(status)
+				#print(status)
 				self.power = float(status)
 				self.ui.PowerVal.setPlainText(str(round(self.power/1000.0 , 2))+ " kW")
 			elif(status ==3):
 				raw = self.arduino.readline()
 				status = raw.decode('ascii').strip('\r\n')
-				print(status)
+				#print(status)
 				self.announcement = status
 				self.ui.AnnounceVal.setPlainText(status)
 			elif(status ==4):
 				raw = self.arduino.readline()
 				status = raw.decode('ascii').strip('\r\n')
-				print(status)
+				#print(status)
 				self.temperature = int(status)
 				self.ui.TemperatureVal.setPlainText(status + "°F")
 
@@ -103,15 +108,20 @@ class TrainControllerHWInterface(QMainWindow):
 		
 		
 	def set_track_circuit(self,TC):				
+		print("SETTING TC")
 		self.arduino.write(str(2).encode('utf-8')+ self.eol)
 		self.arduino.write(str(TC).encode('utf-8')+ self.eol)
 
 	def set_beacon(self,Beacon):
+		print("SETTING Beacon")
+
 		self.arduino.write(str(3).encode('utf-8')+ self.eol)
 		self.arduino.write(str(Beacon).encode('utf-8')+ self.eol)
 
 	
 	def set_current_speed(self,speed):
+		print("SETTING Current Speed" + str(speed))
+
 		self.curSpeed= speed
 		self.ui.CurSpeedVal.setPlainText(str(round(self.curSpeed,2)))
 		self.arduino.write(str(1).encode('utf-8')+ self.eol)
@@ -131,7 +141,7 @@ class TrainControllerHWInterface(QMainWindow):
 
 
 	def get_power(self):
-		return self.power/1000
+		return self.power
 
 	def decodeToggleStates(self):
 		self.ExtLightsOn = self.rawToggle & 1

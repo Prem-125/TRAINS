@@ -1,8 +1,5 @@
 import xlrd
-
-#Global variable to serve as system-wide clock
-gbl_seconds = 0
-gbl_centiseconds = 0
+from signals import signals
 
 #Define Block class
 class Block:
@@ -15,10 +12,11 @@ class Block:
         self.length = block_length   #Meters
         self.speed_limit = block_speed_limit #Meters/Second
         self.occupancy = 0
-        self.status = 1
+        self.status = False
 
         #Compute fastest traveral time in seconds
         self.min_traveral_time = round(block_length / block_speed_limit , 2)
+
     #End contructor
 
 #End Block class definition
@@ -79,10 +77,17 @@ class Train:
         
         #Initialize route queue
         self.route_queue = []
-        if(track_line == "Green"):
+        if(self.track_line == "Green"):
             self.GenerateGreenRoute()
-        elif(track_line == "Red"):
+            print("\nCTC- ROUTE QUEUE HAS BEEN GENERATED")
+        elif(self.track_line == "Red"):
             self.GenerateRedRoute()
+
+        #Obtain occupancy from wayside controller
+        signals.CTC_occupancy.connect(self.UpdatePosition)
+
+        #Send destination (authority) to track controller TEMPORARY SETUP
+        signals.CTC_authority.emit(self.track_line, self.destination)
         
     #End contructor
 
@@ -154,13 +159,23 @@ class Train:
 
         #Train ends always ends at yard
         self.route_queue.append(0)
-    #End Method
+    #End method
+
+    #Method to update position of train
+    def UpdatePosition(self, track_line_name, block_num, occupancy):
+        print("ENTERED UPDATE TRAIN POSITION FUNCTION")
+        print("COMPARING " + str(block_num) + " WITH " + str(self.route_queue[1]) + " ON QUEUE")
+        #Determine if occupancy corresponds to movement of self
+        if(occupancy == True and block_num == self.route_queue[1] and track_line_name == self.track_line):
+            #Dequeue from list
+            self.route_queue.pop(0)
+            print("\nCTC- QUEUE HAS BEEN POPPED\n")
+        #End if
+    #End method
 
 
-        
-        
-
-
+    #MUST COMPLETE Each instance of train must respond to occupany conditions of track
+    
 #End Train class definition
 
 
@@ -176,11 +191,20 @@ class TrackLine:
         #Declare a list of stations
         self.station_list = []
 
+        #Obtain ticket sales from TrackModel
+        signals.station_ticket_sales.connect(self.UpdateTicketSales)
+
+        #Obtain occupancy from wayside controller
+        signals.CTC_occupancy.connect(self.UpdateOccupancy)
+
         #Initialize block composition of TrackLine
         self.TrackSetup(filepath, sheet_index)
 
         #Initialize instance variable to hold the total number of tickets sold on track line
         self.ticket_sales = 0
+
+        #Declare a list of closed blocks
+        self.closed_blocks = []
 
     #End contructor
 
@@ -296,15 +320,27 @@ class TrackLine:
 
     #End method
 
-    #Method to compute throughput
-    def ComputeThroughput(new_ticket_sales):
+    #Method to update ticket count
+    def UpdateTicketSales(self, track_line_name, new_ticket_sales):
         #Add new ticket sales to total ticket sales
-        self.ticket_sales += new_ticket_sales
+        if(track_line_name == self.color):
+            self.ticket_sales += new_ticket_sales
+    #End method
 
+    #Method to compute throughput
+    def ComputeThroughput(self, curr_time):
         #Recompute throughput
-        throughput = ticket_sales / gbl_centiseconds / 36000
+        throughput = self.ticket_sales / curr_time
 
         return throughput
+    #End method
+
+    #Method to update block occupancy
+    def UpdateOccupancy(self, track_line_name, block_number, block_occupancy):
+        #Determine if occupancy signal corresponds to self
+        if(track_line_name == self.color):
+            self.block_list[block_number-1].occupancy = block_occupancy
+        #End if
     #End method
 
 #End TrackLine class definition
@@ -323,7 +359,7 @@ class Schedule:
     #End constructor
 
     #Define method for manual train dispatch
-    def ManualSchedule(self, block_destination, train_arrival_time, TrackLineObj):
+    def ManualSchedule(self, block_destination, train_arrival_time, TrackLineObj, curr_time):
         global gbl_seconds
         
         #Assign train number
@@ -332,12 +368,19 @@ class Schedule:
         #Compute train travel time
         travel_time = self.ComputeTravelTime(block_destination, train_arrival_time, TrackLineObj)
 
+        print("TRAVEL TIME: " + str(travel_time))
+
         #Compute train departure time
         train_departure_time = train_arrival_time - travel_time
 
         #Determine if specified arrival time is valid
-        if(train_departure_time < 0):
+        if(train_departure_time < curr_time):
             return False
+
+        #Determine if computed depature time matches that of another train
+        for trainObj in self.train_list:
+            if(trainObj.departure_time == train_departure_time):
+                return False
 
         """
         #Determine if specified destination is valid
@@ -480,9 +523,20 @@ class Schedule:
 
         #Return travel time back to calling environment
         return travel_time
-
     #End method
 
+    #Define method to check if a scheduled train needs to be dispatched
+    def CheckForDispatch(self, curr_time):
+        #Loop through train list to inspect departure times
+        for trainObj in self.train_list:
+            if(int(trainObj.departure_time) == curr_time):
+                #MUST COMPELTE: Inform Train Deployer of newly created train object
+                signals.train_creation.emit(trainObj.track_line, trainObj.number)
+                break
+
+        
+
+        #MUST COMPLETE: Send authority to track controller as the block number of destination
 #End Schedule class defintion
     
     
