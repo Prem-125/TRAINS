@@ -79,7 +79,7 @@ class TrainDeployer:
 
 
     def CreateTrains(self,line, id):
-        if(id == 1):
+        if(id == 2):
             #self.trains.insert(id, TrainModel(0, 0, 0, False, line, id)
             self.trains.insert(id,TrainModel(0, 0, 0, False, line, id))
         else:

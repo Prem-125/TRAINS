@@ -152,10 +152,11 @@ class TrainController:
         self.SR.authority = authority
 
     def AuthorityHandler(self):
-        if(self.SR.authority == 0 or self.upcoming_station):
+        if(self.SR.authority == 0 and self.upcoming_station):
             #this is the equivalent of my station handler.
             self.set_service_brake(True)
-
+        elif(self.SR.authority == 0 and not self.upcoming_station):
+            self.set_emergency_brake(True)
         else:
             #when authority is false 
             #self.set_service_brake(False)
