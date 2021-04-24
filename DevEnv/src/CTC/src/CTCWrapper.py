@@ -84,9 +84,10 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         signals.CTC_failure.connect(self.WaysideCloseBlock)
 
         #Set global clock
+        self.timer_interval = 250
         self.utimer = QTimer()
         self.utimer.timeout.connect(self.timerUpdate)
-        self.utimer.start(1000)
+        self.utimer.start(self.timer_interval)
 
         #Initialize simulation timers
         self.gbl_seconds = 0
@@ -386,7 +387,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         self.gbl_seconds += 1
 
         #Emit seconds to all modules/functions
-        signals.time_signal.emit(self.gbl_seconds)
+        signals.time_signal.emit(self.gbl_seconds,self.timer_interval)
 
         #Convert seconds to hours:minutes:seconds
         hour = int(self.gbl_seconds / 3600)
@@ -410,7 +411,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         self.UpdateBlockInfo()
 
         #Restart timout period
-        self.utimer.start(1000)
+        self.utimer.start(self.timer_interval)
     #End method
 
     #Method to set track section combo box in closure tab of maintenance mode

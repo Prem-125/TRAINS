@@ -72,25 +72,25 @@ class MainWindow(QMainWindow):
     # Block Closure
     def setBlockClosure(self, line, block_num, break_type):
         if(block_num < 33 or block_num > 146):
-            self.GreenController1.setBlockClosure(block_num, break_type)
+            self.GreenController1.setBlockClosure(line, block_num, break_type)
         elif(block_num > 32 and block_num < 74):
-            self.GreenController2.setBlockClosure(block_num, break_type)
+            self.GreenController2.setBlockClosure(line, block_num, break_type)
         elif(block_num > 73 and block_num < 105):
-            self.GreenController3.setBlockClosure(block_num, break_type)
+            self.GreenController3.setBlockClosure(line, block_num, break_type)
         elif(block_num > 104 and block_num < 147):
-            self.GreenController4.setBlockClosure(block_num, break_type)
+            self.GreenController4.setBlockClosure(line, block_num, break_type)
         self.UIBlockOutput()
     
     # Block Status Updates
     def UpdateBlockStatus(self, line, block_num, status):
         if(block_num < 33 or block_num > 146):
-            self.GreenController1.UpdateBlockStatus(block_num, status)
+            self.GreenController1.UpdateBlockStatus(line, block_num, status)
         elif(block_num > 32 and block_num < 74):
-            self.GreenController2.UpdateBlockStatus(block_num, status)
+            self.GreenController2.UpdateBlockStatus(line, block_num, status)
         elif(block_num > 73 and block_num < 105):
-            self.GreenController3.UpdateBlockStatus(block_num, status)
+            self.GreenController3.UpdateBlockStatus(line, block_num, status)
         elif(block_num > 104 and block_num < 147):
-            self.GreenController4.UpdateBlockStatus(block_num, status)
+            self.GreenController4.UpdateBlockStatus(line, block_num, status)
         self.UIBlockOutput()
 
     #Output for the UI

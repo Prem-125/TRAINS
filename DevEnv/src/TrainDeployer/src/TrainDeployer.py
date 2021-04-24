@@ -73,13 +73,14 @@ class TrainDeployer:
     def SendBeacon(self,Beacon, TrainID):
         self.trains[TrainID].set_beacon(Beacon)
 
-    def PropogateTime(self,time):
-        for i in range(1 , self.number_of_trains):
-            self.trains[i].set_time(time)
+    def PropogateTime(self,time,peroid):
+        for i in range(1 , self.number_of_trains+1):
+            #print('inPropTime')
+            self.trains[i].set_time(time,peroid)
 
 
     def CreateTrains(self,line, id):
-        if(id == 1):
+        if(id == 2):
             #self.trains.insert(id, TrainModel(0, 0, 0, False, line, id)
             self.trains.insert(id,TrainModel(0, 0, 0, False, line, id))
         else:

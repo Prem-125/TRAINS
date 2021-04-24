@@ -13,7 +13,7 @@ class SignalsClass(QObject):
 
     TC_signal = Signal(int,int)
     Beacon_signal = Signal(int,int)
-    time_signal = Signal(int)
+    time_signal = Signal(int,int)
 
     #Signal to exchange ticket sales information per track line
     station_ticket_sales = Signal(str, int) #Parameters are track line name and new ticket sales
