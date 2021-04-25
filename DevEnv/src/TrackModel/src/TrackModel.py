@@ -840,8 +840,10 @@ class MainWindow(QMainWindow):
 		
 		for j in range (1,len(self.track_list)):
 			#this prints all the connections for debug
-			print(self.track_list[j].get_block()," Con A = ", self.track_list[j].get_connection_track_a().get_block(), " Con B = ",self.track_list[j].get_connection_track_b().get_block())
-			
+			try:
+				print(self.track_list[j].get_block()," Con A = ", self.track_list[j].get_connection_track_a().get_block(), " Con B = ",self.track_list[j].get_connection_track_b().get_block())
+			except:
+				print(self.track_list[j].get_block())
 
 		#update every label with relevant information
 		self.ui.selTrackSection.setText(str(self.track_list[blckNum].get_line()))
