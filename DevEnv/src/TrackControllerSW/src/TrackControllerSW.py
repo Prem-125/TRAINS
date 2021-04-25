@@ -72,7 +72,7 @@ class TrackController:
             signals.wayside_to_track.emit(block_num, 1, self.commanded_speed[block_num-self.block_offset])
 
     #Update the block closure
-    def setBlockClosure(self, block_num, break_type):
+    def setBlockClosure(self, line, block_num, break_type):
         self.block_open[block_num-self.block_offset] = False
         self.UpdateCTCFailure(line, block_num, break_type)
 
@@ -85,7 +85,7 @@ class TrackController:
         signals.wayside_block_open.emit(line, block_num)
 
     #Update the block status
-    def UpdateBlockStatus(self, block_num, status):
+    def UpdateBlockStatus(self, line, block_num, status):
         self.block_open[block_num-self.block_offset] = status
         if(status == True):
             self.UpdateTMOpenings(line,block_num)
@@ -98,7 +98,7 @@ class TrackController:
                 self.crossing_signal = True
                 #send the crossing activate signal
         #backward
-        elif(self.direction[block_num] == False);
+        elif(self.direction[block_num] == False):
             if(self.crossing_pos == block_num+5):
                 self.crossing_signal = True
                 #send the crossing activate signal
@@ -111,7 +111,7 @@ class TrackController:
                 self.crossing_signal = False
                 #send the crossing deactivate signal
         #backward
-        elif(self.direction[block_num] == False);
+        elif(self.direction[block_num] == False):
             if(self.crossing_pos == block_num+1):
                 self.crossing_signal = False
                 #send the crossing deactivate signal
@@ -120,11 +120,11 @@ class TrackController:
     def checkCollision(self, block_num):
         if(self.direction[block_num] == True):
             if(self.occupancy(block_num+1) == True):
-                self.authority(block_num) =0
+                self.authority[block_num] =0
                 #send signal
         if(self.direction[block_num] == False):
             if(self.occupancy(block_num-1) == True):
-                self.authority(block_num) =0
+                self.authority[block_num] =0
                 #send signal
 
 
