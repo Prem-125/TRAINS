@@ -6,6 +6,7 @@ from signals import signals
 
 class TrackController:
     def __init__(self, offset):
+
         #Variables
         self.block_open = [True for i in range(150)]
         self.occupancy = [False for i in range(150)]
@@ -17,8 +18,7 @@ class TrackController:
         self.switch_state = True
         self.block_offset = offset
         self.switch_exit_num = 0
-        self.switch_in_a = 0
-        self.switch_in_b = 0
+        self.switch_in = 0
         self.block_authority = 0
         self.crossing_signal = False
         self.crossing_pos = 0

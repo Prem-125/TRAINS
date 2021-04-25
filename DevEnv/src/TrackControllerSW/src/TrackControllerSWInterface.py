@@ -12,10 +12,13 @@ class MainWindow(QMainWindow):
         self.ui = Ui_TrackControllerUI()
         self.ui.setupUi(self)
 
+        # Green Track Controllers
         self.GreenController1 = TrackController(0)
         self.GreenController2 = TrackController(33)
         self.GreenController3 = TrackController(74)
         self.GreenController4 = TrackController(105)
+
+        #self.RedController1 = TrackController(0)
 
         #UI used variables
         self.ui_block = 0
@@ -35,16 +38,6 @@ class MainWindow(QMainWindow):
         #signals.CTC_suggested_speed.connect(self.getSugSpeed)
         #need wayside to track switch signals
         #need crossing signals
-
-    def setFirstSwitchBlocks(self, track_controller, in_a, in_b, end):
-        track_controller.switch_1_in_a = in_a
-        track_controller.switch_1_in_b = in_b
-        track_controller.switch_1_end = end
-
-    def setSecondSwitchBlocks(self, track_controller, in_a, in_b, end):
-        track_controller.switch_2_in_a = in_a
-        track_controller.switch_2_in_b = in_b
-        track_controller.switch_2_end = end
 
     # Occupancy Call
     def getOccupancy(self, block_num, occupied):
@@ -209,4 +202,4 @@ if __name__ == "__main__":
     window = MainWindow()
     window.show()
 
-    sys.exit(app.exec_()) 
+    sys.exit(app.exec_())
