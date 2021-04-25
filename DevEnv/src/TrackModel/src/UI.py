@@ -38,6 +38,9 @@ class Ui_Dialog(object):
         self.trackSelectorValid = QLabel(self.LineBox)
         self.trackSelectorValid.setObjectName(u"trackSelectorValid")
         self.trackSelectorValid.setGeometry(QRect(210, 60, 201, 31))
+        self.green_line_table = QTableWidget(self.LineBox)
+        self.green_line_table.setObjectName(u"green_line_table")
+        self.green_line_table.setGeometry(QRect(530, 10, 561, 151))
         self.trackBox = QGroupBox(self.tab)
         self.trackBox.setObjectName(u"trackBox")
         self.trackBox.setGeometry(QRect(10, 180, 371, 561))
@@ -313,3 +316,4 @@ class Ui_Dialog(object):
         self.trackFileValid.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p><span style=\" font-size:10pt;\">.</span></p></body></html>", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QCoreApplication.translate("Dialog", u"Track Editor", None))
     # retranslateUi
+

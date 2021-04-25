@@ -2,6 +2,7 @@ import sys
 from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtCore import QFile
 from TrackModel.src.UI import Ui_Dialog
+#from UI import Ui_Dialog
 from signals import signals
 
 
@@ -695,9 +696,30 @@ class MainWindow(QMainWindow):
 	
 	def update_track_info(self,blckNum):
 		
+		
+		#update the table with current occupied blocks
+		self.green_line_table.setItem(0,0, QTableWidgetItem("Block Number"))
+        self.green_line_table.setItem(0,1, QTableWidgetItem("Status"))
+		
+		#creat a variable that hold the number of occupied blocks
+		#num_occupied_blocks = 0
+		#loop through the whole track list to find if any occupied blocks
+		#for(i=0, i<=len(self.track_list), i++)
+		#	if(if(self.track_list[i-1].get_occupied == True)
+		
+		
+		for(i=1, i<=len(self.track_list), i++)
+			if(self.track_list[i-1].get_occupied == True)
+				self.green_line_table.setItem(i,0, QTableWidgetItem(str(self.track_list[i].get_block()))
+				self.green_line_table.setItem(i,1, QTableWidgetItem("Occupied"))	
+			else
+				self.green_line_table.setItem(i,0, QTableWidgetItem(str(self.track_list[i].get_block()))
+				self.green_line_table.setItem(i,1, QTableWidgetItem("Open"))	
+		
 		#print("-----------------------------------------------------------------------------------")
 		#update any connections
 		#make track connections
+		
 		i=1
 		while (i <= self.num_lines-1):
 			#print(self.track_list[i].get_block())
