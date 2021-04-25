@@ -1,5 +1,5 @@
 import sys
-from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6.QtWidgets import *
 from PySide6.QtCore import QFile
 from TrackModel.src.UI import Ui_Dialog
 #from UI import Ui_Dialog
@@ -470,6 +470,11 @@ class MainWindow(QMainWindow):
 	#function to load track from a file
 	def load_track(self):
 
+		#reset the table
+		self.ui.green_line_table.setRowCount(0)
+		self.ui.green_line_table.setColumnCount(0)
+
+
 		#if self.upTrackBlue.getChecked()==true
 		inputFileName=self.ui.lineEdit.text()
 		#open csv reader for inputFile
@@ -549,18 +554,24 @@ class MainWindow(QMainWindow):
 		signals.train_creation.connect(self.set_occupied_initial)
 		signals.wayside_block_open.connect(self.get_open_block)
 		
+		#initialize the table
+		self.ui.green_line_table.setColumnCount(2)
+		self.ui.green_line_table.setRowCount(len(self.track_list))
+		#for i in range(0, len(self.track_list)+1):
+			#self.ui.green_line_table.insertRow(i)
 		
 	#function to tell me where the train is
 	def send_block_to_model(self,block,id):
 		print("sent block123")
 		print("block length: " + str(self.track_list[block+1].get_length()))
 		self.track_list[block].set_occupied(False)
-		self.track_list[block+1].set_occupied(True, id)
+		self.track_list[block.connection_track_b.get_block()].set_occupied(True, id)
 		if(self.track_list[block+2].is_station):
 			self.track_list[block+2].encode_beacon()
 			signals.Beacon_signal.emit(self.track_list[block+2].encodedBeacon, id) # ACTUALLY CALCULATE THE BEACON VAL AND BLOCK NUM
 		self.update_track_info(self.current_block)
-
+		print("track model updating")
+	
 	#function for inital train spawn
 	def set_occupied_initial(self, track_line, id):
 		if (track_line == "Green"):
@@ -696,10 +707,8 @@ class MainWindow(QMainWindow):
 	
 	def update_track_info(self,blckNum):
 		
-		
 		#update the table with current occupied blocks
-		self.green_line_table.setItem(0,0, QTableWidgetItem("Block Number"))
-        self.green_line_table.setItem(0,1, QTableWidgetItem("Status"))
+	
 		
 		#creat a variable that hold the number of occupied blocks
 		#num_occupied_blocks = 0
@@ -707,15 +716,17 @@ class MainWindow(QMainWindow):
 		#for(i=0, i<=len(self.track_list), i++)
 		#	if(if(self.track_list[i-1].get_occupied == True)
 		
+		self.ui.green_line_table.setItem(0,0, QTableWidgetItem("Block Number"))
+		self.ui.green_line_table.setItem(0,1, QTableWidgetItem("Status"))	
 		
-		for(i=1, i<=len(self.track_list), i++)
-			if(self.track_list[i-1].get_occupied == True)
-				self.green_line_table.setItem(i,0, QTableWidgetItem(str(self.track_list[i].get_block()))
-				self.green_line_table.setItem(i,1, QTableWidgetItem("Occupied"))	
-			else
-				self.green_line_table.setItem(i,0, QTableWidgetItem(str(self.track_list[i].get_block()))
-				self.green_line_table.setItem(i,1, QTableWidgetItem("Open"))	
-		
+		for i in range(1, len(self.track_list)):
+			if(self.track_list[i-1].get_occupied == True):
+				self.ui.green_line_table.setItem(i,0, QTableWidgetItem(str(self.track_list[i].get_block())))
+				self.ui.green_line_table.setItem(i,1, QTableWidgetItem("Occupied"))	
+			else:
+				self.ui.green_line_table.setItem(i,0, QTableWidgetItem(str(self.track_list[i].get_block())))
+				self.ui.green_line_table.setItem(i,1, QTableWidgetItem("Unoccupied"))	
+
 		#print("-----------------------------------------------------------------------------------")
 		#update any connections
 		#make track connections
@@ -750,7 +761,7 @@ class MainWindow(QMainWindow):
 				
 				
 			#this prints all the connections for debug
-			#print(self.track_list[i].get_block()," Con A = ", self.track_list[i].get_connection_track_a(), "Con B = ",self.track_list[i].get_connection_track_b())
+			print(self.track_list[i].get_block()," Con A = ", self.track_list[i].get_connection_track_a(), "Con B = ",self.track_list[i].get_connection_track_b())
 			
 			i+=1
 		
@@ -839,7 +850,7 @@ class MainWindow(QMainWindow):
 		#train outputs
 		self.ui.trainSpeedLimitO.display(self.track_list[blckNum].get_speed_limit())
 		self.ui.trainAuthorityO.display(self.track_list[blckNum].get_authority())
-		self.ui.trainBeaconO.setText(self.track_list[blckNum].get_beacon())
+		self.ui.trainBeaconO.setText(str(self.track_list[blckNum].get_beacon()))
 	
 		
 		#Wayside outputs

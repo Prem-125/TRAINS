@@ -53,6 +53,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         #Define functionality of radio buttons and combo boxes in manual scheduler
         self.ui.StationRadioButton.clicked.connect(self.SetManDispStations)
         self.ui.BlockRadioButton.clicked.connect(self.SetManDispBlocks)
+        self.ui.TrackComboBox1.currentTextChanged.connect(self.UpdateManDispDisplay)
 
         #Define connection for manual dispatch button
         self.ui.ManDispButton.clicked.connect(self.GUIManualDispatch)
@@ -79,10 +80,14 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         #Define switch status informational display
         self.ui.TrackComboBox5.currentTextChanged.connect(self.StatusSwitchNums)
 
+        #Connect signal to obtain block closures from wayside controller
+        signals.CTC_failure.connect(self.WaysideCloseBlock)
+
         #Set global clock
+        self.timer_interval = 250
         self.utimer = QTimer()
         self.utimer.timeout.connect(self.timerUpdate)
-        self.utimer.start(1000)
+        self.utimer.start(self.timer_interval)
 
         #Initialize simulation timers
         self.gbl_seconds = 0
@@ -132,7 +137,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
     #Method to fill destination combo box with blocks in manual scheduler
     def SetManDispBlocks(self):
-         #Determine which track line is currently being viewed
+        #Determine which track line is currently being viewed
         if(str(self.ui.TrackComboBox1.currentText()) == "Green"): #Green line is being viewed
             #Create list of Green line blocks
             green_line_blocks = list(range(1,151))
@@ -156,6 +161,16 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                 self.ui.DestComboBox1.addItem(str(block_num))
         
         #End if-elif block
+    #End method
+
+    #Method to update destination combo boxes in respose to changes in track line
+    def UpdateManDispDisplay(self):
+        #Determine which radio button is selected
+        if(self.ui.StationRadioButton.isChecked()):
+            self.SetManDispStations() 
+        elif(self.ui.BlockRadioButton.isChecked()):
+            self.SetManDispBlocks()
+        #End if-else
     #End method
 
     #Method to initiate manual dispatch and update scheduler accordingly
@@ -372,7 +387,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         self.gbl_seconds += 1
 
         #Emit seconds to all modules/functions
-        signals.time_signal.emit(self.gbl_seconds)
+        signals.time_signal.emit(self.gbl_seconds,self.timer_interval)
 
         #Convert seconds to hours:minutes:seconds
         hour = int(self.gbl_seconds / 3600)
@@ -396,7 +411,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         self.UpdateBlockInfo()
 
         #Restart timout period
-        self.utimer.start(1000)
+        self.utimer.start(self.timer_interval)
     #End method
 
     #Method to set track section combo box in closure tab of maintenance mode
@@ -1124,19 +1139,19 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
             return
 
         if(str(self.ui.TrackComboBox4.currentText()) == "Green"):
-                #Obtain block number
-                block_num = int(self.ui.BlockComboBox3.currentText())
-                #Retrieve block object
-                blockObj = GreenLine.block_list[block_num-1]
+            #Obtain block number
+            block_num = int(self.ui.BlockComboBox3.currentText())
+            #Retrieve block object
+            blockObj = GreenLine.block_list[block_num-1]
 
-                #Convert speed limit from meters/second to miles/hour
-                block_speed_limit = round(blockObj.speed_limit * 2.23694, 2)
+            #Convert speed limit from meters/second to miles/hour
+            block_speed_limit = round(blockObj.speed_limit * 2.23694, 2)
 
-                self.ui.BlockSectionLabel.setText("Section: " + blockObj.section)
-                self.ui.BlockLengthLabel.setText("Block Length: " + str(blockObj.length) + " m")
-                self.ui.SpeedLimitLabel.setText("Speed Limit: " + str(block_speed_limit) + " mph")
-                self.ui.OccupancyLabel.setText("Occupancy: " + str(blockObj.occupancy))
-                self.ui.BlockStatusLabel.setText("Status: " + str(blockObj.status))
+            self.ui.BlockSectionLabel.setText("Section: " + blockObj.section)
+            self.ui.BlockLengthLabel.setText("Block Length: " + str(blockObj.length) + " m")
+            self.ui.SpeedLimitLabel.setText("Speed Limit: " + str(block_speed_limit) + " mph")
+            self.ui.OccupancyLabel.setText("Occupancy: " + str(blockObj.occupancy))
+            self.ui.BlockStatusLabel.setText("Status: Open" if blockObj.status else "Status: Closed")
 
         elif(str(self.ui.TrackComboBox4.currentText()) == "Red"):
             #Obtain block number
@@ -1151,7 +1166,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
             self.ui.BlockLengthLabel.setText("Block Length: " + str(blockObj.length) + " m")
             self.ui.SpeedLimitLabel.setText("Speed Limit: " + str(block_speed_limit) + " mph")
             self.ui.OccupancyLabel.setText("Occupancy: " + str(blockObj.occupancy))
-            self.ui.BlockStatusLabel.setText("Status: " + str(blockObj.status))
+            self.ui.BlockStatusLabel.setText("Status: Open" if blockObj.status else "Status: Closed")
         #End if
     #End method
 
@@ -1207,6 +1222,9 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                 return
             #End if
 
+            #Set block status to false
+            GreenLine.block_list[block_num-1].status = False
+
             #Add block to closure list in track object
             GreenLine.closed_blocks.append(block_num)
 
@@ -1230,6 +1248,9 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                 return
             #End if
 
+            #Set block status to false
+            RedLine.block_list[block_num-1].status = False
+
             #Add block to closure list in track object
             RedLine.closed_blocks.append(block_num)
 
@@ -1240,6 +1261,105 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
             self.ui.BlockClosureTable.setItem(numRows, 1, QTableWidgetItem(str(block_num)))
 
         #End if-elif block
+    #End method
+
+    #Method to close block due to track fault
+    def WaysideCloseBlock(self, track_line, block_num, error_type):
+        if(track_line == "Green"):
+            #Ensure block is not already closed
+            if(block_num in GreenLine.closed_blocks):
+                #Create error message box
+                ClosureInfoMsg = QMessageBox()
+                ClosureInfoMsg.setWindowTitle("Block Closure")
+                if(error_type == 0):
+                    ClosureInfoMsg.setText("INFO: Green Line block " + str(block_num) + " has also suffered a rail failure\nThis block is already closed for maintenance")
+                elif(error_type == 1):
+                    ClosureInfoMsg.setText("INFO: Green Line block " + str(block_num) + " has also suffered a circuit failure\nThis block is already closed for maintenance")
+                elif(error_type == 2):
+                    ClosureInfoMsg.setText("INFO: Green Line block " + str(block_num) + " has also suffered a power failure\nThis block is already closed for maintenance")
+                #End if-else block
+
+                ClosureInfoMsg.setIcon(QMessageBox.Information)
+
+                MsgWin = ClosureInfoMsg.exec()
+
+                return
+            #End if
+
+            #Create inform user of closure
+            ClosureInfoMsg = QMessageBox()
+            ClosureInfoMsg.setWindowTitle("Block Closure")
+            if(error_type == 0):
+                ClosureInfoMsg.setText("INFO: Green Line block " + str(block_num) + " has suffered a rail failure\nThis block is now closed for maintenance")
+            elif(error_type == 1):
+                ClosureInfoMsg.setText("INFO: Green Line block " + str(block_num) + " has suffered a circuit failure\nThis block is now closed for maintenance")
+            elif(error_type == 2):
+                ClosureInfoMsg.setText("INFO: Green Line block " + str(block_num) + " has suffered a power failure\nThis block is now closed for maintenance")
+            #End if-else block
+
+            ClosureInfoMsg.setIcon(QMessageBox.Information)
+
+            MsgWin = ClosureInfoMsg.exec()
+
+            #Set block status to false
+            GreenLine.block_list[block_num-1].status = False
+
+            #Add block to closure list in track object
+            GreenLine.closed_blocks.append(block_num)
+
+            #Update block closure list in maintenance mode of GUI
+            numRows = self.ui.BlockClosureTable.rowCount()
+            self.ui.BlockClosureTable.insertRow(numRows)
+            self.ui.BlockClosureTable.setItem(numRows, 0, QTableWidgetItem("Green"))
+            self.ui.BlockClosureTable.setItem(numRows, 1, QTableWidgetItem(str(block_num)))
+        
+        elif(track_line == "Red"):
+            #Ensure block is not already closed
+            if(block_num in RedLine.closed_blocks):
+                ClosureInfoMsg = QMessageBox()
+                ClosureInfoMsg.setWindowTitle("Block Closure")
+                if(error_type == 0):
+                    ClosureInfoMsg.setText("INFO: Red Line block " + str(block_num) + " has also suffered a rail failure\nThis block is already closed for maintenance")
+                elif(error_type == 1):
+                    ClosureInfoMsg.setText("INFO: Red Line block " + str(block_num) + " has also suffered a circuit failure\nThis block is already closed for maintenance")
+                elif(error_type == 2):
+                    ClosureInfoMsg.setText("INFO: Red Line block " + str(block_num) + " has also suffered a power failure\nThis block is already closed for maintenance")
+                #End if-else block
+
+                ClosureInfoMsg.setIcon(QMessageBox.Information)
+
+                MsgWin = ClosureInfoMsg.exec()
+
+                return
+            #End if
+
+            #Create inform user of closure
+            ClosureInfoMsg = QMessageBox()
+            ClosureInfoMsg.setWindowTitle("Block Closure")
+            if(error_type == 0):
+                ClosureInfoMsg.setText("INFO: Red Line block " + str(block_num) + " has suffered a rail failure\nThis block is now closed for maintenance")
+            elif(error_type == 1):
+                ClosureInfoMsg.setText("INFO: Red Line block " + str(block_num) + " has suffered a circuit failure\nThis block is now closed for maintenance")
+            elif(error_type == 2):
+                ClosureInfoMsg.setText("INFO: Red Line block " + str(block_num) + " has suffered a power failure\nThis block is now closed for maintenance")
+            #End if-else block
+
+            ClosureInfoMsg.setIcon(QMessageBox.Information)
+
+            MsgWin = ClosureInfoMsg.exec()
+
+            #Set block status to false
+            RedLine.block_list[block_num-1].status = False
+
+            #Add block to closure list in track object
+            RedLine.closed_blocks.append(block_num)
+
+            #Update block closure list in maintenance mode of GUI
+            numRows = self.ui.BlockClosureTable.rowCount()
+            self.ui.BlockClosureTable.insertRow(numRows)
+            self.ui.BlockClosureTable.setItem(numRows, 0, QTableWidgetItem("Red"))
+            self.ui.BlockClosureTable.setItem(numRows, 1, QTableWidgetItem(str(block_num)))
+        #End if-else block
     #End method
 
     #Method to reopen block at the request of the dispatcher
@@ -1266,6 +1386,9 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                 return
             #End if
 
+            #Set block status to true
+            GreenLine.block_list[block_num-1].status = True
+
             #Remove block from closure list in track object
             GreenLine.closed_blocks.remove(block_num)
 
@@ -1291,6 +1414,9 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                 return
             #End if
 
+            #Set block status to true
+            RedLine.block_list[block_num-1].status = True
+
             #Remove block from closure list in track object
             RedLine.closed_blocks.remove(block_num)
 
@@ -1308,18 +1434,29 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
     def UpdateTrainPositions(self):
         for trainObj in CTCSchedule.train_list:
             currPosition = "Block " + str(trainObj.route_queue[0])
+
+            #Append to string if current position is a station
+            if(trainObj.track_line == "Green"):
+                #Loop over all stations of Green line
+                for stationObj in GreenLine.station_list:
+                    if(stationObj.block_num == trainObj.route_queue[0]):
+                        currPosition = currPosition + " (" + stationObj.name + ")"
+                    #End if
+                #End for loop
+            #End if
+
+            if(trainObj.track_line == "Red"):
+                #Loop over all stations of Green line
+                for stationObj in RedLine.station_list:
+                    if(stationObj.block_num == trainObj.route_queue[0]):
+                        currPosition = currPosition + " (" + stationObj.name + ")"
+                    #End if
+                #End for loop
+            #End if
+
             self.ui.SchedTable.setItem(trainObj.number-1, 4, QTableWidgetItem(currPosition))
+        #End for loop
     #End method
-            
-    """
-    #Method to close block at the request of the dispatcher
-    def GUICloseBlock(self):
-        #Initialize temporary variables to hold details of block to be closed
-        track_line = self.ui.TrackComboBox2.currentText()
-        track_section = self.ui.SectionComboBox2.currentText()
-        block_num = self.ui.BlockComboBox1.currentText()
-    """
-    
 
 
 #End MainWindow class definition

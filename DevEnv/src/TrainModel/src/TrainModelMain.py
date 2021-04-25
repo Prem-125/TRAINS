@@ -29,7 +29,7 @@ class MainWindow(QMainWindow):
 			self.train_controller = TrainControllerSW(self, commanded_speed, current_speed, 1, trainID)
 		else:
 			self.train_controller = TrainControllerHW(self,trainID = trainID)
-
+			time.sleep(1)
 
 		self.ui.pwrInput.textChanged.connect(self.get_power)
 		self.ui.speedLimit.textChanged.connect(self.set_speed_limit)
@@ -61,9 +61,9 @@ class MainWindow(QMainWindow):
 		self.ui.serviceBreakOn.clicked.connect(self.s_brake_on)
 		self.ui.serviceBreakOff.clicked.connect(self.s_brake_off)
 
-		self.powerTimer = QTimer()
-		self.powerTimer.timeout.connect(self.get_power)
-		self.powerTimer.start(500) 
+		#self.powerTimer = QTimer()
+		#self.powerTimer.timeout.connect(self.get_power)
+		#self.powerTimer.start(500) 
 		self.currPosition = 0.0
 
 		if(line == 'Green'):
@@ -77,8 +77,11 @@ class MainWindow(QMainWindow):
 
 
 
-	def set_time(self, time):
-		timer = time
+	def set_time(self, time, period):
+		#print('in set_time')
+		self.get_power()
+		#self.train.samplePeriod = period/2
+		QTimer.singleShot(period/2, self.get_power)
 		
 
 	def open_left_doors(self):

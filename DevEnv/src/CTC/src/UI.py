@@ -5107,8 +5107,13 @@ class Ui_CTCOffice(object):
         self.retranslateUi(CTCOffice)
 
         self.StackedWidget1.setCurrentIndex(0)
+        self.TrackComboBox1.setCurrentIndex(-1)
         self.StackedWidget2.setCurrentIndex(0)
         self.BlockStatusTab.setCurrentIndex(0)
+        self.TrackComboBox2.setCurrentIndex(-1)
+        self.TrackComboBox3.setCurrentIndex(-1)
+        self.TrackComboBox4.setCurrentIndex(-1)
+        self.TrackComboBox5.setCurrentIndex(-1)
 
 
         QMetaObject.connectSlotsByName(CTCOffice)
