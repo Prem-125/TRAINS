@@ -83,8 +83,12 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         #Connect signal to obtain block closures from wayside controller
         signals.CTC_failure.connect(self.WaysideCloseBlock)
 
+        #Initialize simulation speed to real time
+        self.timer_interval = 1000
+        #Define functionality for simulation speed slider
+        self.ui.SimSpeedSlider.valueChanged.connect(self.GUISetSimSpeed)
+
         #Set global clock
-        self.timer_interval = 250
         self.utimer = QTimer()
         self.utimer.timeout.connect(self.timerUpdate)
         self.utimer.start(self.timer_interval)
@@ -387,7 +391,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         self.gbl_seconds += 1
 
         #Emit seconds to all modules/functions
-        signals.time_signal.emit(self.gbl_seconds,self.timer_interval)
+        signals.time_signal.emit(self.gbl_seconds, self.timer_interval)
 
         #Convert seconds to hours:minutes:seconds
         hour = int(self.gbl_seconds / 3600)
@@ -1456,6 +1460,15 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
             self.ui.SchedTable.setItem(trainObj.number-1, 4, QTableWidgetItem(currPosition))
         #End for loop
+    #End method
+
+    #Method to set the simulation speed based on position of horization slider in GUI
+    def GUISetSimSpeed(self):
+        #Obtain position of slider
+        slider_position = self.ui.SimSpeedSlider.value()
+
+        #Set interval for system clock
+        self.timer_interval = 1000/(slider_position + 1)
     #End method
 
 
