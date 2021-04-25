@@ -274,7 +274,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>130</y>
+        <y>170</y>
         <width>171</width>
         <height>41</height>
        </rect>
@@ -301,7 +301,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>90</y>
+        <y>130</y>
         <width>331</width>
         <height>41</height>
        </rect>
@@ -560,7 +560,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>170</y>
+        <y>210</y>
         <width>171</width>
         <height>41</height>
        </rect>
@@ -587,7 +587,7 @@
       <property name="geometry">
        <rect>
         <x>180</x>
-        <y>170</y>
+        <y>210</y>
         <width>161</width>
         <height>41</height>
        </rect>
@@ -614,7 +614,7 @@
       <property name="geometry">
        <rect>
         <x>180</x>
-        <y>130</y>
+        <y>170</y>
         <width>161</width>
         <height>41</height>
        </rect>
@@ -670,6 +670,113 @@
       </property>
       <property name="text">
        <string>Transit Schedule</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QSlider" name="SimSpeedSlider">
+      <property name="geometry">
+       <rect>
+        <x>100</x>
+        <y>30</y>
+        <width>160</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="maximum">
+       <number>9</number>
+      </property>
+      <property name="sliderPosition">
+       <number>0</number>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="tickPosition">
+       <enum>QSlider::TicksBelow</enum>
+      </property>
+     </widget>
+     <widget class="QLabel" name="SimSpeedLabel1">
+      <property name="geometry">
+       <rect>
+        <x>100</x>
+        <y>-10</y>
+        <width>171</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>Simulation Speed</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_2">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>60</y>
+        <width>101</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>1x
+(Real Time)</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_3">
+      <property name="geometry">
+       <rect>
+        <x>130</x>
+        <y>50</y>
+        <width>81</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>5x</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_4">
+      <property name="geometry">
+       <rect>
+        <x>220</x>
+        <y>50</y>
+        <width>71</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>10x</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
