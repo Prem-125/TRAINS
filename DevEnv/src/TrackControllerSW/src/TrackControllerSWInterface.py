@@ -44,7 +44,7 @@ class MainWindow(QMainWindow):
         self.RedController3.setSwitch(27, 28, 76)
         self.RedController4.setSwitch(33, 32, 72)
         self.RedController5.setSwitch(38, 39, 71)
-        self.RedController6.setSwtich(44, 43, 67)
+        self.RedController6.setSwitch(44, 43, 67)
         self.RedController7.setSwitch(52, 53, 66)
 
         #UI used variables
