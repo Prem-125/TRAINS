@@ -317,9 +317,6 @@ class MainWindow(QMainWindow):
 
 			self.currPosition -= self.blockLen
 			signals.need_new_block.emit(self.blockNum,self.train.trainID)
-
-	
-
     
 	def get_power(self):
 		self.train.power = self.train_controller.get_power()

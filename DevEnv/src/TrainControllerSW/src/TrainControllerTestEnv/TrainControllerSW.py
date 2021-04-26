@@ -128,19 +128,15 @@ class TrainController:
         else:
             self.announcement += ""
         
-    def SendAnnouncement(self):
-        ...
-
     def DetectBrakeFailure(self):
         if(self.SR.service_brake and (self.SR.current_speed >= self.SR.previous_speed)):
             self.brake_failure = True
-            self.UI.ui.textBrowser_14.setStyleSheet(u"background-color: rgb(255, 0, 0);")
+            self.UI.textBrowser_14.setStyleSheet(u"background-color: rgb(255, 0, 0);")
             self.VitalFault()
-            self.TrainModel.brake_failure_on()
 
     def set_passenger_brake(self):
         self.passenger_brake_detected = True
-        self.UI.ui.textBrowser_16.setStyleSheet(u"background-color: rgb(255, 0, 0);")
+        self.UI.textBrowser_16.setStyleSheet(u"background-color: rgb(255, 0, 0);")
         self.VitalFault()
 
     def VitalFault(self):
@@ -208,7 +204,7 @@ class TrainController:
 
         self.DetectBrakeFailure()
         
-        #If we reach a station and our current speed is 0, open doors and all that jazz
+        #If we are approaching a station
         if(self.upcoming_station and self.SR.current_speed == 0):
             
             #Having the car start going again
@@ -246,7 +242,6 @@ class TrainController:
         if(self.SR.authority==0 and self.upcoming_station):
             self.set_Service_brake(True)
             self.UI.Announce(self.announcement)
-            self.sendAnnouncement
 
         elif(self.SR.authority == 0 or self.upcoming_station):
             #this is the equivalent of my station handler.
