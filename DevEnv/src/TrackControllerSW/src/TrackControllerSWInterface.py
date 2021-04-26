@@ -14,11 +14,22 @@ class MainWindow(QMainWindow):
 
         # Green Track Controllers
         self.GreenController1 = TrackController(0)
-        self.GreenController2 = TrackController(33)
-        self.GreenController3 = TrackController(74)
-        self.GreenController4 = TrackController(105)
+        #self.GreenController1.setSwitch(12, 13, 1)
+        self.GreenController2 = TrackController(21)
+        self.GreenController3 = TrackController(33)
+        self.GreenController4 = TrackController(61)
+        self.GreenController5 = TrackController(74)
+        self.GreenController6 = TrackController(82)
+        self.GreenController7 = TrackController(105)
 
-        #self.RedController1 = TrackController(0)
+        # Red Track Controllers
+        self.RedController1 = TrackController(7)
+        self.RedController2 = TrackController(0)
+        self.RedController3 = TrackController(21)
+        self.RedController4 = TrackController(30)
+        self.RedController5 = TrackController(35)
+        self.RedController6 = TrackController(41)
+        self.RedController7 = TrackController(49)
 
         #UI used variables
         self.ui_block = 0
@@ -39,51 +50,95 @@ class MainWindow(QMainWindow):
         #need wayside to track switch signals
         #need crossing signals
 
+    # Returns the proper controller
+    def getController(self, line, block_num):
+        if(line == "Green"):
+            if(block_num <21):
+                return self.GreenController1
+            elif(block_num <33 or block_num >146):
+                return self.GreenController2
+            elif(block_num <61):
+                return self.GreenController3
+            elif(block_num <74):
+                return self.GreenController4
+            elif(block_num <82 or (block_num > 100 and block_num <105)):
+                return self.GreenController5
+            elif(block_num <101):
+                return self.GreenController6
+            elif(block_num < 147):
+                return self.GreenController7
+        if(line == "Red"):
+            if(block_num <7 or (block_num >12 and block_num <21)):
+                return self.RedController1
+            elif(block_num <13):
+                return self.RedController2
+            elif(block_num <30 or block_num > 74):
+                return self.RedController3
+            elif(block_num <35 or (block_num > 71 and block_num <75)):
+                return self.RedController4
+            elif(block_num <40 or (block_num > 68 and block_num <72)):
+                return self.RedController5
+            elif(block_num <49 or (block_num > 66 and block_num <69)):
+                return self.RedController6
+            elif(block_num > 48):
+                return self.RedController7
+
     # Occupancy Call
     def getOccupancy(self, block_num, occupied):
-        if(block_num < 33 or block_num > 146):
-            self.GreenController1.getOccupancy(block_num, occupied)
-        elif(block_num > 32 and block_num < 74):
-            self.GreenController2.getOccupancy(block_num, occupied)
-        elif(block_num > 73 and block_num < 105):
-            self.GreenController3.getOccupancy(block_num, occupied)
-        elif(block_num > 104 and block_num < 147):
-            self.GreenController4.getOccupancy(block_num, occupied)
+
+        self.getController("Green", block_num).getOccupancy(block_num, occupied)
+
+        # if(block_num < 33 or block_num > 146):
+        #     self.GreenController1.getOccupancy(block_num, occupied)
+        # elif(block_num > 32 and block_num < 74):
+        #     self.GreenController2.getOccupancy(block_num, occupied)
+        # elif(block_num > 73 and block_num < 105):
+        #     self.GreenController3.getOccupancy(block_num, occupied)
+        # elif(block_num > 104 and block_num < 147):
+        #     self.GreenController4.getOccupancy(block_num, occupied)
         self.UIBlockOutput()
 
     # Authority Call
     def getAuthority(self, line, block_num):
-        if(block_num < 33 or block_num > 146):
-            self.GreenController1.getAuthority(block_num)
-        elif(block_num > 32 and block_num < 74):
-            self.GreenController2.getAuthority(block_num)
-        elif(block_num > 73 and block_num < 105):
-            self.GreenController3.getAuthority(block_num)
-        elif(block_num > 104 and block_num < 147):
-            self.GreenController4.getAuthority(block_num)
+
+        self.getController("Green", block_num).getAuthority(block_num)
+
+        # if(block_num < 33 or block_num > 146):
+        #     self.GreenController1.getAuthority(block_num)
+        # elif(block_num > 32 and block_num < 74):
+        #     self.GreenController2.getAuthority(block_num)
+        # elif(block_num > 73 and block_num < 105):
+        #     self.GreenController3.getAuthority(block_num)
+        # elif(block_num > 104 and block_num < 147):
+        #     self.GreenController4.getAuthority(block_num)
 
     # Block Closure
     def setBlockClosure(self, line, block_num, break_type):
-        if(block_num < 33 or block_num > 146):
-            self.GreenController1.setBlockClosure(line, block_num, break_type)
-        elif(block_num > 32 and block_num < 74):
-            self.GreenController2.setBlockClosure(line, block_num, break_type)
-        elif(block_num > 73 and block_num < 105):
-            self.GreenController3.setBlockClosure(line, block_num, break_type)
-        elif(block_num > 104 and block_num < 147):
-            self.GreenController4.setBlockClosure(line, block_num, break_type)
+
+        self.getController("Green", block_num).setBlockClosure(line, block_num, break_type)
+        # if(block_num < 33 or block_num > 146):
+        #     self.GreenController1.setBlockClosure(line, block_num, break_type)
+        # elif(block_num > 32 and block_num < 74):
+        #     self.GreenController2.setBlockClosure(line, block_num, break_type)
+        # elif(block_num > 73 and block_num < 105):
+        #     self.GreenController3.setBlockClosure(line, block_num, break_type)
+        # elif(block_num > 104 and block_num < 147):
+        #     self.GreenController4.setBlockClosure(line, block_num, break_type)
         self.UIBlockOutput()
 
     # Block Status Updates
     def UpdateBlockStatus(self, line, block_num, status):
-        if(block_num < 33 or block_num > 146):
-            self.GreenController1.UpdateBlockStatus(line, block_num, status)
-        elif(block_num > 32 and block_num < 74):
-            self.GreenController2.UpdateBlockStatus(line, block_num, status)
-        elif(block_num > 73 and block_num < 105):
-            self.GreenController3.UpdateBlockStatus(line, block_num, status)
-        elif(block_num > 104 and block_num < 147):
-            self.GreenController4.UpdateBlockStatus(line, block_num, status)
+
+        self.getController("Green", block_num).UpdateBlockStatus(line, block__num, status)
+
+        # if(block_num < 33 or block_num > 146):
+        #     self.GreenController1.UpdateBlockStatus(line, block_num, status)
+        # elif(block_num > 32 and block_num < 74):
+        #     self.GreenController2.UpdateBlockStatus(line, block_num, status)
+        # elif(block_num > 73 and block_num < 105):
+        #     self.GreenController3.UpdateBlockStatus(line, block_num, status)
+        # elif(block_num > 104 and block_num < 147):
+        #     self.GreenController4.UpdateBlockStatus(line, block_num, status)
         self.UIBlockOutput()
 
     #Output for the UI
@@ -133,7 +188,6 @@ class MainWindow(QMainWindow):
 
                 #Call controller display function
                 self.displayUIOutput(self.GreenController2)
-
             elif(str(self.ui.StatusControllerBox.currentText()) == "3"):
 
                 #list of Blocks
@@ -148,7 +202,6 @@ class MainWindow(QMainWindow):
 
                 #Call controller display function
                 self.displayUIOutput(self.GreenController3)
-
             elif(str(self.ui.StatusControllerBox.currentText()) == "4"):
 
                 #list of Blocks

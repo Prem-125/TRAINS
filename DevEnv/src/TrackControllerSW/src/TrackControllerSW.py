@@ -14,20 +14,19 @@ class TrackController:
         self.suggested_speed = [0 for i in range(150)]
         self.commanded_speed = [0 for i in range(150)]
         self.direction = [True for i in range(150)]
-        self.authority_block = 0
-        self.switch_state = True
         self.block_offset = offset
-        self.switch_exit_num = 0
-        self.switch_in = 0
         self.block_authority = 0
         self.crossing_signal = False
         self.crossing_pos = 0
+
+        #Switch
+        self.switch = Switch(-1,-1,-1)
         #UI used variables
         self.ui_block = 0
 
     #Sets the block offset for the track controller
-    def setBlockOffset(self, b_offset):
-        self.block_offset = b_offset
+    def setSwitch(self, block_num, branch_a, branch_b):
+        self.switch.setValues(block_num, branch_a, branch_b)
 
     #Gets the occupancy
     def getOccupancy(self, block_num, occupied):
@@ -127,8 +126,28 @@ class TrackController:
                 self.authority[block_num] =0
                 #send signal
 
-
     #Controls the Switch States
     '''
     def ControlSwitch(self):
     '''
+
+class SwitchObj:
+    def __init__(self, block_num, branch_a, branch_b):
+
+        # Variables
+        self.block = block_num
+        self.branch_a = branch_a
+        self.branch_b = branch_b
+        self.cur_branch = -1
+
+    def ToggleBranch(self):
+        if(self.cur_branch == self.branch_a):
+            self.cur_branch = self.branch_b
+        elif(self.cur_branch == self.branch_b):
+            self.cur_branch = self.branch_a
+
+    def setValues(self, block, branch_a, branch_b):
+        self.block = block
+        self.branch_a = branch_a
+        self.branch_b = branch_b
+        self.cur_branch = branch_a
