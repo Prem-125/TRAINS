@@ -132,7 +132,7 @@ class TrainController:
         ...
 
     def DetectBrakeFailure(self):
-        if(self.SR.service_brake and (self.SR.current_speed >= self.SR.previous_speed)):
+        if(self.SR.service_brake and (self.SR.current_speed >= self.SR.previous_speed) and not(self.SR.current_speed == 0)):
             self.brake_failure = True
             self.UI.ui.textBrowser_14.setStyleSheet(u"background-color: rgb(255, 0, 0);")
             self.VitalFault()
@@ -172,15 +172,15 @@ class TrainController:
 
     def HandleExteriorLights(self):
         if(self.exterior_lights):
-            if(self.ui.exteriorLights.isChecked() == False):
-                self.ui.exteriorLights.setChecked(True)
+            if(self.UI.ui.exteriorLights.isChecked() == False):
+                self.UI.ui.exteriorLights.setChecked(True)
             print("Should turn exterior lights on")
             #self.TrainModel.t_lights_on()
             self.DisplayUpdate()
         else:
-            if(self.ui.exteriorLights.isChecked() == True):
-                self.ui.exteriorLights.setChecked(False)
-            print("Shoudl turn exterior Lights off")
+            if(self.UI.ui.exteriorLights.isChecked() == True):
+                self.UI.ui.exteriorLights.setChecked(False)
+            print("Should turn exterior Lights off")
             #self.TrainModel.t_lights_off()
             self.DisplayUpdate()
 
@@ -321,7 +321,7 @@ class SpeedRegulator():
     #pidLoop: used to calculate power
     def pidLoop(self):
 
-        print("Main called. Main power is: " + str(self.power))
+        #print("Main called. Main power is: " + str(self.power))
 
         #If in Auto Mode, go off the commanded speed
         if(self.TrainController.is_auto and ((not self.service_brake ) and (not self.emergency_brake))):
@@ -362,7 +362,7 @@ class SpeedRegulator():
     #backupPID: used to backup our process
     def backupPIDLoop(self):
 
-        print("Backup called. Backup power is: " + str(self.power_backup))
+        #print("Backup called. Backup power is: " + str(self.power_backup))
         #If in Auto Mode, go off the commanded speed
         if(self.TrainController.is_auto and ((not self.service_brake ) and (not self.emergency_brake))):
             #updating setpoint

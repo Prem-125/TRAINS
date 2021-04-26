@@ -12,7 +12,7 @@ class Block:
         self.length = block_length   #Meters
         self.speed_limit = block_speed_limit #Meters/Second
         self.occupancy = 0
-        self.status = False
+        self.status = True
 
         #Compute fastest traveral time in seconds
         self.min_traveral_time = round(block_length / block_speed_limit , 2)
