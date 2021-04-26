@@ -20,7 +20,7 @@ class TrackController:
         self.crossing_pos = 0
 
         #Switch
-        self.switch = Switch(-1,-1,-1)
+        self.switch = SwitchObj(-1,-1,-1)
         #UI used variables
         self.ui_block = 0
 
