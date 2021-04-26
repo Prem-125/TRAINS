@@ -14,13 +14,20 @@ class MainWindow(QMainWindow):
 
         # Green Track Controllers
         self.GreenController1 = TrackController(0)
-        #self.GreenController1.setSwitch(12, 13, 1)
         self.GreenController2 = TrackController(21)
         self.GreenController3 = TrackController(33)
         self.GreenController4 = TrackController(61)
         self.GreenController5 = TrackController(74)
         self.GreenController6 = TrackController(82)
         self.GreenController7 = TrackController(105)
+
+        # Green switches
+        self.GreenController1.setSwitch(12, 13, 1)
+        self.GreenController2.setSwitch(29, 30, 150)
+        self.GreenController3.setSwitch(57, 151, 58)
+        self.GreenController4.setSwitch(63, 62, 151)
+        self.GreenController5.setSwitch(77, 76, 101)
+        self.GreenController6.setSwitch(85, 86, 100)
 
         # Red Track Controllers
         self.RedController1 = TrackController(7)
@@ -30,6 +37,15 @@ class MainWindow(QMainWindow):
         self.RedController5 = TrackController(35)
         self.RedController6 = TrackController(41)
         self.RedController7 = TrackController(49)
+
+        # Red switches
+        self.RedController1.setSwitch(9, 10, 151)
+        self.RedController2.setSwitch(16, 1, 15)
+        self.RedController3.setSwitch(27, 28, 76)
+        self.RedController4.setSwitch(33, 32, 72)
+        self.RedController5.setSwitch(38, 39, 71)
+        self.RedController6.setSwtich(44, 43, 67)
+        self.RedController7.setSwitch(52, 53, 66)
 
         #UI used variables
         self.ui_block = 0
