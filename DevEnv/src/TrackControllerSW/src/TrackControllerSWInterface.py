@@ -164,6 +164,7 @@ class MainWindow(QMainWindow):
         #     self.GreenController3.getAuthority(block_num)
         # elif(block_num > 104 and block_num < 147):
         #     self.GreenController4.getAuthority(block_num)
+        self.UIBlockOutput()
 
     # Block Closure
     def setBlockClosure(self, line, block_num, break_type):

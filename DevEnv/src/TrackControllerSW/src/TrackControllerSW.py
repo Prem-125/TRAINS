@@ -126,11 +126,6 @@ class TrackController:
                 self.authority[block_num] =0
                 #send signal
 
-    #Controls the Switch States
-    '''
-    def ControlSwitch(self):
-    '''
-
 class SwitchObj:
     def __init__(self, block_num, branch_a, branch_b):
 
