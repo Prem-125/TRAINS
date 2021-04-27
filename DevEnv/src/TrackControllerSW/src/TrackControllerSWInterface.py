@@ -285,7 +285,7 @@ class MainWindow(QMainWindow):
             if(str(self.ui.StatusControllerBox.currentText()) == "1"):
 
                 #list of Blocks
-                controller1_blocks = ["" for i in range(6)]
+                controller1_blocks = ["" for i in range(7)]
                 controller1_blocks[0] = "Choose"
                 for i in range(7,13):
                     controller1_blocks[i-6] = str(i)
@@ -300,7 +300,7 @@ class MainWindow(QMainWindow):
             elif(str(self.ui.StatusControllerBox.currentText()) == "2"):
 
                 #list of Blocks
-                controller2_blocks = ["" for i in range(14)]
+                controller2_blocks = ["" for i in range(15)]
                 controller2_blocks[0] = "Choose"
                 for i in range(1,7):
                     controller2_blocks[i] = str(i)
@@ -322,12 +322,12 @@ class MainWindow(QMainWindow):
             elif(str(self.ui.StatusControllerBox.currentText()) == "3"):
 
                 #list of Blocks
-                controller3_blocks = ["" for i in range(11)]
+                controller3_blocks = ["" for i in range(12)]
                 controller3_blocks[0] = "Choose"
                 for i in range(21,30):
                     controller3_blocks[i-20] = str(i)
-                controller3_blocks[9] = "75"
-                controller3_blocks[10] = "76"
+                controller3_blocks[10] = "75"
+                controller3_blocks[11] = "76"
 
                 #Enter Block Inputs
                 for block_name in controller3_blocks:
