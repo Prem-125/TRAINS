@@ -73,6 +73,7 @@ class TrackController:
     #Update the block closure
     def setBlockClosure(self, line, block_num, break_type):
         self.block_open[block_num-self.block_offset] = False
+        self.occupancy[block_num-self.block_offset] = True
         self.UpdateCTCFailure(line, block_num, break_type)
 
     #Update the CTC Office of Block Closures
@@ -88,6 +89,7 @@ class TrackController:
         self.block_open[block_num-self.block_offset] = status
         if(status == True):
             self.UpdateTMOpenings(line,block_num)
+            self.occupancy[block_num - self.block_offset] = False
 
     #Turn on the crossing signal
     def ActivateCrossingSignal(self, block_num):
