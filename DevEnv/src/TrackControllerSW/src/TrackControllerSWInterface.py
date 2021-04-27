@@ -163,47 +163,47 @@ class MainWindow(QMainWindow):
     def ToggleSwitchBranch(self):
         if(self.ui.MainLineBox.currentText() == "Green"):
             if(self.ui.MainControllerBox.currentText() == "1"):
-                self.GreenController1.ToggleBranch()
+                self.GreenController1.switch.ToggleBranch()
                 self.UISwitchOutput(self.GreenController1)
             elif(self.ui.MainControllerBox.currentText() == "2"):
-                self.GreenController2.ToggleBranch()
+                self.GreenController2.switch.ToggleBranch()
                 self.UISwitchOutput(self.GreenController2)
             elif(self.ui.MainControllerBox.currentText() == "3"):
-                self.GreenController3.ToggleBranch()
+                self.GreenController3.switch.ToggleBranch()
                 self.UISwitchOutput(self.GreenController3)
             elif(self.ui.MainControllerBox.currentText() == "4"):
-                self.GreenController4.ToggleBranch()
+                self.GreenController4.switch.ToggleBranch()
                 self.UISwitchOutput(self.GreenController4)
             elif(self.ui.MainControllerBox.currentText() == "5"):
-                self.GreenController5.ToggleBranch()
+                self.GreenController5.switch.ToggleBranch()
                 self.UISwitchOutput(self.GreenController5)
             elif(self.ui.MainControllerBox.currentText() == "6"):
-                self.GreenController6.ToggleBranch()
+                self.GreenController6.switch.ToggleBranch()
                 self.UISwitchOutput(self.GreenController6)
             elif(self.ui.MainControllerBox.currentText() == "7"):
-                self.GreenController7.ToggleBranch()
+                self.GreenController7.switch.ToggleBranch()
                 self.UISwitchOutput(self.GreenController7)
         elif(self.ui.MainLineBox.currentText() == "Red"):
             if(self.ui.MainControllerBox.currentText() == "1"):
-                self.RedController1.ToggleBranch()
+                self.RedController1.switch.ToggleBranch()
                 self.UISwitchOutput(self.RedController1)
             elif(self.ui.MainControllerBox.currentText() == "2"):
-                self.RedController2.ToggleBranch()
+                self.RedController2.switch.ToggleBranch()
                 self.UISwitchOutput(self.RedController2)
             elif(self.ui.MainControllerBox.currentText() == "3"):
-                self.RedController3.ToggleBranch()
+                self.RedController3.switch.ToggleBranch()
                 self.UISwitchOutput(self.RedController3)
             elif(self.ui.MainControllerBox.currentText() == "4"):
-                self.RedController4.ToggleBranch()
+                self.RedController4.switch.ToggleBranch()
                 self.UISwitchOutput(self.RedController4)
             elif(self.ui.MainControllerBox.currentText() == "5"):
-                self.RedController5.ToggleBranch()
+                self.RedController5.switch.ToggleBranch()
                 self.UISwitchOutput(self.RedController5)
             elif(self.ui.MainControllerBox.currentText() == "6"):
-                self.RedController6.ToggleBranch()
+                self.RedController6.switch.ToggleBranch()
                 self.UISwitchOutput(self.RedController6)
             elif(self.ui.MainControllerBox.currentText() == "7"):
-                self.RedController7.ToggleBranch()
+                self.RedController7.switch.ToggleBranch()
                 self.UISwitchOutput(self.RedController7)
 
     #Output for the UI
