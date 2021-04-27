@@ -170,26 +170,26 @@ class MainWindow(QMainWindow):
     def getSugSpeed(self, line, block_num, sug_speed):
         limit = 0
         if(line == "Green"):
-            if((block_num > 0 && block_num < 13) /
-            || (block_num > 85 && block_num < 101)):
+            if((block_num > 0 and block_num < 13) \
+            or (block_num > 85 and block_num < 101)):
                 limit = 55
-            elif((block_num > 16 && block_num < 21) /
-            || (block_num > 57 && block_num < 63) /
-            || (block_num > 68 && block_num < 77) /
-            || (block_num > 101 && block_num < 110) /
-            || (block_num > 116 && block_num < 122)):
+            elif((block_num > 16 and block_num < 21) \
+            or (block_num > 57 and block_num < 63) \
+            or (block_num > 68 and block_num < 77) \
+            or (block_num > 101 and block_num < 110) \
+            or (block_num > 116 and block_num < 122)):
                 limit = 60
             else:
                 limit = 70
 
         elif(line == "Red"):
-            if((block_num > 0 && block_num < 17):
+            if(block_num > 0 and block_num < 17):
                 limit = 40
-            elif((block_num > 20 && block_num < 24) /
-            || (block_num > 50 && block_num < 77) /
-            || (block_num == 17)):
+            elif((block_num > 20 and block_num < 24) \
+            or (block_num > 50 and block_num < 77) \
+            or (block_num == 17)):
                 limit = 55
-            elif((block_num > 48 && block_num < 51):
+            elif(block_num > 48 and block_num < 51):
                 limit = 60
             else:
                 limit = 70

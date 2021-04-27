@@ -1,7 +1,4 @@
 import sys
-""" from PySide6.QtWidgets import QApplication, QMainWindow
-from PySide6.QtCore import QFile
-from .UI import Ui_TrackControllerUI """
 from signals import signals
 
 class TrackController:
