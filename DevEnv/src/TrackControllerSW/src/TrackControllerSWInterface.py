@@ -208,7 +208,7 @@ class MainWindow(QMainWindow):
             elif(str(self.ui.StatusControllerBox.currentText()) == "3"):
 
                 #list of Blocks
-                controller3_blocks = ["" for i in range(28)]
+                controller3_blocks = ["" for i in range(29)]
                 controller3_blocks[0] = "Choose"
                 for i in range(33,61):
                     controller3_blocks[i-32] = str(i)
