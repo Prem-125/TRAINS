@@ -174,7 +174,7 @@ class MainWindow(QMainWindow):
             if(str(self.ui.StatusControllerBox.currentText()) == "1"):
 
                 #list of Blocks
-                controller1_blocks = ["" for i in range(21)]
+                controller1_blocks = ["" for i in range(20)]
                 controller1_blocks[0] = "Choose"
                 for i in range(19):
                     controller1_blocks[i+1] = str(i+1)
@@ -190,7 +190,7 @@ class MainWindow(QMainWindow):
             elif(str(self.ui.StatusControllerBox.currentText()) == "2"):
 
                 #list of Blocks
-                controller2_blocks = ["" for i in range(17)]
+                controller2_blocks = ["" for i in range(16)]
                 controller2_blocks[0] = "Choose"
                 for i in range(21,33):
                     controller2_blocks[i-20] = str(i)
@@ -208,7 +208,7 @@ class MainWindow(QMainWindow):
             elif(str(self.ui.StatusControllerBox.currentText()) == "3"):
 
                 #list of Blocks
-                controller3_blocks = ["" for i in range(29)]
+                controller3_blocks = ["" for i in range(28)]
                 controller3_blocks[0] = "Choose"
                 for i in range(33,61):
                     controller3_blocks[i-32] = str(i)
@@ -222,7 +222,7 @@ class MainWindow(QMainWindow):
             elif(str(self.ui.StatusControllerBox.currentText()) == "4"):
 
                 #list of Blocks
-                controller4_blocks = ["" for i in range(15)]
+                controller4_blocks = ["" for i in range(14)]
                 controller4_blocks[0] = "Choose"
                 for i in range(61,74):
                     controller4_blocks[i-60] = str(i)
@@ -254,7 +254,7 @@ class MainWindow(QMainWindow):
             elif(str(self.ui.StatusControllerBox.currentText()) == "6"):
 
                 #list of Blocks
-                controller6_blocks = ["" for i in range(21)]
+                controller6_blocks = ["" for i in range(20)]
                 controller6_blocks[0] = "Choose"
                 for i in range(82,101):
                     controller6_blocks[i-81] = str(i)
@@ -268,7 +268,7 @@ class MainWindow(QMainWindow):
             elif(str(self.ui.StatusControllerBox.currentText()) == "7"):
 
                 #list of Blocks
-                controller7_blocks = ["" for i in range(44)]
+                controller7_blocks = ["" for i in range(43)]
                 controller7_blocks[0] = "Choose"
                 for i in range(105,147):
                     controller7_blocks[i-104] = str(i)
