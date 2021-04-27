@@ -163,14 +163,11 @@ class MainWindow(QMainWindow):
         green_controllers = ["Choose","1","2","3","4","5","6","7"]
         red_controllers = ["Choose","1","2","3","4","5","6","7"]
         if(str(self.ui.StatusLineBox.currentText()) == "Green"):
-
             #Clear Combo Box
             #self.ui.StatusControllerBox.clear()
-
             #Enter Controller Inputs
             for controller_name in green_controllers:
                 self.ui.StatusControllerBox.addItem(controller_name)
-
             if(str(self.ui.StatusControllerBox.currentText()) == "1"):
 
                 #list of Blocks
@@ -279,6 +276,130 @@ class MainWindow(QMainWindow):
 
                 #Call controller display function
                 self.displayUIOutput(self.GreenController7)
+        elif(str(self.ui.StatusLineBox.currentText()) == "Red"):
+            #Clear Combo Box
+            #self.ui.StatusControllerBox.clear()
+            #Enter Controller Inputs
+            for controller_name in red_controllers:
+                self.ui.StatusControllerBox.addItem(controller_name)
+            if(str(self.ui.StatusControllerBox.currentText()) == "1"):
+
+                #list of Blocks
+                controller1_blocks = ["" for i in range(6)]
+                controller1_blocks[0] = "Choose"
+                for i in range(7,13):
+                    controller1_blocks[i-6] = str(i)
+
+                #Enter Block Inputs
+                for block_name in controller1_blocks:
+                    self.ui.BlockInput.addItem(block_name)
+
+                #Call controller display function
+                self.displayUIOutput(self.RedController1)
+
+            elif(str(self.ui.StatusControllerBox.currentText()) == "2"):
+
+                #list of Blocks
+                controller2_blocks = ["" for i in range(14)]
+                controller2_blocks[0] = "Choose"
+                for i in range(1,7):
+                    controller2_blocks[i] = str(i)
+                controller2_blocks[7] = "13"
+                controller2_blocks[8] = "14"
+                controller2_blocks[9] = "15"
+                controller2_blocks[10] = "16"
+                controller2_blocks[11] = "17"
+                controller2_blocks[12] = "18"
+                controller2_blocks[13] = "19"
+                controller2_blocks[14] = "20"
+
+                #Enter Block Inputs
+                for block_name in controller2_blocks:
+                    self.ui.BlockInput.addItem(block_name)
+
+                #Call controller display function
+                self.displayUIOutput(self.RedController2)
+            elif(str(self.ui.StatusControllerBox.currentText()) == "3"):
+
+                #list of Blocks
+                controller3_blocks = ["" for i in range(11)]
+                controller3_blocks[0] = "Choose"
+                for i in range(21,30):
+                    controller3_blocks[i-20] = str(i)
+                controller3_blocks[9] = "75"
+                controller3_blocks[10] = "76"
+
+                #Enter Block Inputs
+                for block_name in controller3_blocks:
+                    self.ui.BlockInput.addItem(block_name)
+
+                #Call controller display function
+                self.displayUIOutput(self.RedController3)
+            elif(str(self.ui.StatusControllerBox.currentText()) == "4"):
+
+                #list of Blocks
+                controller4_blocks = ["" for i in range(9)]
+                controller4_blocks[0] = "Choose"
+                for i in range(30,35):
+                    controller4_blocks[i-29] = str(i)
+                controller4_blocks[6] = "72"
+                controller4_blocks[7] = "73"
+                controller4_blocks[8] = "74"
+
+                #Enter Block Inputs
+                for block_name in controller4_blocks:
+                    self.ui.BlockInput.addItem(block_name)
+
+                #Call controller display function
+                self.displayUIOutput(self.RedController4)
+            elif(str(self.ui.StatusControllerBox.currentText()) == "5"):
+
+                #list of Blocks
+                controller5_blocks = ["" for i in range(10)]
+                controller5_blocks[0] = "Choose"
+                for i in range(35,41):
+                    controller5_blocks[i-34] = str(i)
+                controller5_blocks[7] = "68"
+                controller5_blocks[8] = "69"
+                controller5_blocks[9] = "70"
+                controller5_blocks[10] = "71"
+
+                #Enter Block Inputs
+                for block_name in controller5_blocks:
+                    self.ui.BlockInput.addItem(block_name)
+
+                #Call controller display function
+                self.displayUIOutput(self.RedController5)
+            elif(str(self.ui.StatusControllerBox.currentText()) == "6"):
+
+                #list of Blocks
+                controller6_blocks = ["" for i in range(10)]
+                controller6_blocks[0] = "Choose"
+                for i in range(41,48):
+                    controller6_blocks[i-40] = str(i)
+                controller6_blocks[9] = "67"
+                controller6_blocks[10] = "68"
+
+                #Enter Block Inputs
+                for block_name in controller6_blocks:
+                    self.ui.BlockInput.addItem(block_name)
+
+                #Call controller display function
+                self.displayUIOutput(self.RedController6)
+            elif(str(self.ui.StatusControllerBox.currentText()) == "7"):
+
+                #list of Blocks
+                controller7_blocks = ["" for i in range(28)]
+                controller7_blocks[0] = "Choose"
+                for i in range(49,67):
+                    controller7_blocks[i-48] = str(i)
+
+                #Enter Block Inputs
+                for block_name in controller7_blocks:
+                    self.ui.BlockInput.addItem(block_name)
+
+                #Call controller display function
+                self.displayUIOutput(self.RedController7)
 
     #Display the UI functions
     def displayUIOutput(self, controller):
