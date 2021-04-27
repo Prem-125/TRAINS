@@ -538,7 +538,6 @@ class MainWindow(QMainWindow):
     def ImportPLC(self):
         self.plc_name = self.ui.ImportLine.text()
         self.ui.SuccessFailLine.setText("Valid File")
-        print("Import Button Clicked")
 
 
 
