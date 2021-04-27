@@ -146,3 +146,6 @@ class SwitchObj:
         self.branch_a = branch_a
         self.branch_b = branch_b
         self.cur_branch = branch_a
+
+class Crossing:
+    def __init__(self, block_num):

@@ -139,7 +139,7 @@ class MainWindow(QMainWindow):
     # Occupancy Call
     def getOccupancy(self, block_num, occupied):
 
-        self.getController(line, block_num).getOccupancy(block_num, occupied)
+        self.getController("Green", block_num).getOccupancy(block_num, occupied)
 
         # if(block_num < 33 or block_num > 146):
         #     self.GreenController1.getOccupancy(block_num, occupied)
@@ -168,7 +168,7 @@ class MainWindow(QMainWindow):
 
     # Block Closure
     def setBlockClosure(self, line, block_num, break_type):
-        
+
         self.getController(line, block_num).setBlockClosure(line, block_num, break_type)
         # if(block_num < 33 or block_num > 146):
         #     self.GreenController1.setBlockClosure(line, block_num, break_type)
