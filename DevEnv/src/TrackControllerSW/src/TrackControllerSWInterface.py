@@ -139,7 +139,7 @@ class MainWindow(QMainWindow):
     # Occupancy Call
     def getOccupancy(self, block_num, occupied):
 
-        self.getController("Green", block_num).getOccupancy(block_num, occupied)
+        self.getController(line, block_num).getOccupancy(block_num, occupied)
 
         # if(block_num < 33 or block_num > 146):
         #     self.GreenController1.getOccupancy(block_num, occupied)
@@ -154,7 +154,7 @@ class MainWindow(QMainWindow):
     # Authority Call
     def getAuthority(self, line, block_num):
 
-        self.getController("Green", block_num).getAuthority(block_num)
+        self.getController(line, block_num).getAuthority(block_num)
 
         # if(block_num < 33 or block_num > 146):
         #     self.GreenController1.getAuthority(block_num)
@@ -168,8 +168,8 @@ class MainWindow(QMainWindow):
 
     # Block Closure
     def setBlockClosure(self, line, block_num, break_type):
-
-        self.getController("Green", block_num).setBlockClosure(line, block_num, break_type)
+        
+        self.getController(line, block_num).setBlockClosure(line, block_num, break_type)
         # if(block_num < 33 or block_num > 146):
         #     self.GreenController1.setBlockClosure(line, block_num, break_type)
         # elif(block_num > 32 and block_num < 74):
@@ -183,7 +183,7 @@ class MainWindow(QMainWindow):
     # Block Status Updates
     def UpdateBlockStatus(self, line, block_num, status):
 
-        self.getController("Green", block_num).UpdateBlockStatus(line, block__num, status)
+        self.getController(line, block_num).UpdateBlockStatus(line, block__num, status)
 
         # if(block_num < 33 or block_num > 146):
         #     self.GreenController1.UpdateBlockStatus(line, block_num, status)
