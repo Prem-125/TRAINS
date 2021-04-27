@@ -494,7 +494,7 @@ class MainWindow(QMainWindow):
             self.ui.BranchBBox.setText("N/A")
             self.ui.MainBranchCon.setText("N/A")
         else:
-            controller = self.getSwitchController(self.ui.MainLineBox.currentText(), self.ui.MainControllerBox.currentText())
+            controller = self.getSwitchController(self.ui.MainLineBox.currentText(), int(self.ui.MainControllerBox.currentText()))
             if(controller.switch.block == -1):
                 self.ui.StemBox.setText("N/A")
                 self.ui.BranchABox.setText("N/A")
