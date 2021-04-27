@@ -536,9 +536,10 @@ class MainWindow(QMainWindow):
 
     #Import PLC
     def ImportPLC(self):
-        inputFileName=self.ui.ImportLine.text()
+        inputFileName = self.ui.ImportLine.text()
+
         try:
-			plc_name=open(inputFileName,'r')
+			plc_name = open(inputFileName,'r')
 
 		except OSError:
 			print("Invalid File name")
