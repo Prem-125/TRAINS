@@ -15,72 +15,72 @@ import random
 
 '''
 #Train always begins at yard
-self.route_queue.append(0)
+self.route_queue_green.append(0)
 
 #Specify blocks for track sections K through Q
 for block_num in range(63, 101):
-	self.route_queue.append(block_num)
+	self.route_queue_green.append(block_num)
 
 #Specify blocks for track section N in reverse
 for block_num in range(85, 76, -1):
-	self.route_queue.append(block_num)
+	self.route_queue_green.append(block_num)
 
 #Specify blocks for track secionts R through Z
 for block_num in range(101, 151):
-	self.route_queue.append(block_num)
+	self.route_queue_green.append(block_num)
 
 #Specify blocks for track sections A through F in reverse
 for block_num in range(28, 0, -1):
-	self.route_queue.append(block_num)
+	self.route_queue_green.append(block_num)
 
 #Specify blocks for track sections D through I
 for block_num in range(13, 58):
-	self.route_queue.append(block_num)
+	self.route_queue_green.append(block_num)
 
 #Train ends at yard by default
-self.route_queue.append(0)
+self.route_queue_green.append(0)
 '''
 
 #Code to generate Red route
 
 '''
 #Train always begins at yard
-self.route_queue.append(0)
+self.route_queue_green.append(0)
 
 #Specify blocks for track sections A, B, C in reverse
 for block_num in range(9, 0, -1):
-	self.route_queue.append(block_num)
+	self.route_queue_green.append(block_num)
 
 #Specify blocks for track sections F through N
 for block_num in range(16, 67):
-	self.route_queue.append(block_num)
+	self.route_queue_green.append(block_num)
 
 #Specify blocks for part of H, I, and part of J in reverse
 for block_num in range(52, 42, -1):
-	self.route_queue.append(block_num)
+	self.route_queue_green.append(block_num)
 
 #Specify blocks for track sections O through Q
 for block_num in range(67, 72):
-	self.route_queue.append(block_num)
+	self.route_queue_green.append(block_num)
 
 #Specify blocks for part of H in reverse
 for block_num in range(38, 31, -1):
-	self.route_queue.append(block_num)
+	self.route_queue_green.append(block_num)
 
 #Specify blocks for track sections R through T
 for block_num in range(72, 77):
-	self.route_queue.append(block_num)
+	self.route_queue_green.append(block_num)
 
 #Specify blocks for F, G, and part of H in reverse
 for block_num in range(27, 15, -1):
-	self.route_queue.append(block_num)
+	self.route_queue_green.append(block_num)
 
 #Specify blocks for track sections D and E in reverse
 for block_num in range(15, 9, -1):
-	self.route_queue.append(block_num)
+	self.route_queue_green.append(block_num)
 
 #Train ends always ends at yard
-self.route_queue.append(0)
+self.route_queue_green.append(0)
 '''
 
 #i currently need to change the function to that of which will match the coding standards
@@ -170,6 +170,7 @@ class Track:
 		#swithc variable
 		self.is_switch = 0 #is_switch
 		self.is_switch_leg = 0 #is_switch_leg
+		self.switch_index = 0 #which switch in the list it corresponds to
 
 
 		#variables for send train model signal
@@ -262,7 +263,7 @@ class Track:
 		signals.track_model_occupancy.emit(self.block, self.occupied)
 	
 		#if the block is becomming occupied, send signal to train model
-		if(in_occupied == True):
+		if(in_occupied == True and self.rail_condition == True):
 			self.encode_track_circuit_signal()
 			signals.TC_signal.emit(self.encoded_TC, id)
 			#send beacon
@@ -344,7 +345,7 @@ class Track:
 		self.ticket_count=in_condition
 		if(self.get_is_station()==True):
 			signals.station_ticket_sales.emit(self.line, self.ticket_count)
-			print("emitting ticket sales for " + self.station_name)
+			#print("emitting ticket sales for " + self.station_name)
 
 	def get_is_underground(self):
 		return self.is_underground
@@ -381,6 +382,11 @@ class Track:
 	def set_is_switch_leg(self, in_condition):
 		self.is_switch_leg=in_condition	
 
+	def get_switch_index(self):
+		return self.switch_index
+	def set_switch_index(self, in_condition):
+		self.switch_index = in_condition
+
 	def get_boarding_count(self):
 		return self.boarding_count
 	def set_boarding_count(self, in_condition):
@@ -389,7 +395,7 @@ class Track:
 	
 	#function parse the infrastructure input
 	def infra_parse(self):
-		#print(self.infrastructure)
+		print(self.infrastructure)
 		#if there is no infrastructure, exit the function
 		if self.infrastructure == '':
 			self.set_is_station(False)
@@ -411,6 +417,7 @@ class Track:
 			#split up atribute by the spacing
 			atrib=list_atrib[i].split(' ')	
 			#print(str(len(atrib)) + " atrib length")
+			#print(atrib)
 			for j in range(0,len(atrib)):	
 				#check to see if atribute is a station:
 				if(atrib[j] == 'STATION'):
@@ -450,21 +457,25 @@ class Track:
 					#check to see if it is the stem of the swtich
 					if (len(atrib) > 5):
 						self.set_is_switch(True)
-						Track.switch_num+=1
 						#print("stem is ", self.get_block())
 						Track.switch_list.append(Switch())
+						self.set_switch_index(Track.switch_num)
+						
 						Track.switch_list[Track.switch_num].set_y_stem(self.get_block())
 						y_zero_in = int(atrib[3])
 						if(atrib[8] == 'YARD'):
 							y_one_in = 0
 						else:
 							y_one_in = int(atrib[8])
+						#print("Block "+ str(self.block) + ": y_zero_in) is " + str(y_zero_in) + " and y_one_in is " + str(y_one_in))
+						
 						Track.switch_list[Track.switch_num].set_switch_position(False)
 						Track.switch_list[Track.switch_num].set_y_zero(y_zero_in)
 						Track.switch_list[Track.switch_num].set_y_one(y_one_in)
 						#print("zero is ", Track.switch_list[Track.switch_num].set_y_zero(), " and one is ", Track.switch_list[Track.switch_num].set_y_one(), "and switch position is", Track.switch_list[Track.switch_num].get_switch_position())
 						self.set_is_switch_leg(False)
-						
+						Track.switch_num+=1
+						print(Track.switch_num)
 					else: 
 						self.set_is_switch(False)
 						self.set_is_switch_leg(True)
@@ -513,10 +524,13 @@ class MainWindow(QMainWindow):
 		self.ui = Ui_Dialog()
 		self.ui.setupUi(self)
 		
-		#global instance variables
+		#instance variables
 		self.track_list = [Track()]
 		self.num_lines = 0
 		self.current_block = 0
+		self.route_queue_green = []
+		
+		
 		
 		#if load track button is pressed
 		self.ui.getTrackFileBTN.clicked.connect(self.load_track)
@@ -622,10 +636,52 @@ class MainWindow(QMainWindow):
 
 		#close the opened file
 		csv_file.close()
+		
+		#make sure that all the switch legs have a corresponding switch_index
+		for i in range(len(Track.switch_list)):
+			print(Track.switch_list[i].get_y_zero())
+			if self.track_list[Track.switch_list[i].get_y_zero()].get_switch_index() == 0:
+				#print("setting index " + str(i))
+				self.track_list[Track.switch_list[i].get_y_zero()].set_switch_index(i)
+			if self.track_list[Track.switch_list[i].get_y_one()].get_switch_index() == 0:
+				#print("setting index " + str(i))
+				self.track_list[Track.switch_list[i].get_y_one()].set_switch_index(i)
+		
+		print("parsing completed")
 		signals.need_new_block.connect(self.send_block_to_model)
 		signals.wayside_to_track.connect(self.get_wayside_info)
 		signals.train_creation.connect(self.set_occupied_initial)
 		signals.wayside_block_open.connect(self.get_open_block)
+		
+		
+		#if green line 
+		#Code to generate Green route		
+		#Train always begins at yard
+		self.route_queue_green.append(0)
+
+		#Specify blocks for track sections K through Q
+		for block_num in range(63, 101):
+			self.route_queue_green.append(block_num)
+
+		#Specify blocks for track section N in reverse
+		for block_num in range(85, 76, -1):
+			self.route_queue_green.append(block_num)
+
+		#Specify blocks for track secionts R through Z
+		for block_num in range(101, 151):
+			self.route_queue_green.append(block_num)
+
+		#Specify blocks for track sections A through F in reverse
+		for block_num in range(28, 0, -1):
+			self.route_queue_green.append(block_num)
+
+		#Specify blocks for track sections D through I
+		for block_num in range(13, 58):
+			self.route_queue_green.append(block_num)
+
+		#Train ends at yard by default
+		self.route_queue_green.append(0)
+				
 		
 		#initialize the table
 		self.ui.green_line_table.setColumnCount(2)
@@ -633,21 +689,29 @@ class MainWindow(QMainWindow):
 		#for i in range(0, len(self.track_list)+1):
 			#self.ui.green_line_table.insertRow(i)
 		
+		#default load block 63
+		self.update_track_info(63)
+		
+		
 	#function to tell me where the train is
 	def send_block_to_model(self,block,id):
-		print("sent block123")
+		#print("sent block123")
 		print("block length: " + str(self.track_list[block+1].get_length()))
 		self.track_list[block].set_occupied(False)
-		self.track_list[block+1].set_occupied(True, id)
-		if(self.track_list[block+2].is_station):
-			self.track_list[block+2].encode_beacon()
-			signals.Beacon_signal.emit(self.track_list[block+2].encodedBeacon, id) # ACTUALLY CALCULATE THE BEACON VAL AND BLOCK NUM
+		self.route_queue_green.pop(0)
+		
+		print("just left block " + str(block) + " next is " + str(self.route_queue_green[0]))
+		self.track_list[self.route_queue_green[0]].set_occupied(True, id)
+		if(self.track_list[self.route_queue_green[1]].is_station):
+			self.track_list[self.route_queue_green[1]].encode_beacon()
+			signals.Beacon_signal.emit(self.track_list[self.route_queue_green[1]].encodedBeacon, id) # ACTUALLY CALCULATE THE BEACON VAL AND BLOCK NUM
 		self.update_track_info(self.current_block)
 		
 	
 	#function for inital train spawn
 	def set_occupied_initial(self, track_line, id):
 		if (track_line == "Green"):
+			self.route_queue_green.pop(0)
 			self.track_list[63].set_occupied(True, id)
 		else:
 			self.track_list[9].set_occupied(True, id)
@@ -659,7 +723,7 @@ class MainWindow(QMainWindow):
 		self.track_list[block_in].set_commanded_speed(commanded_speed_in*(5.0/18.0))
 		print("Sending occupancy to wayside")
 
-	def get_open_block(self, line_in, in_block): ##ad line field for when red line is added 
+	def get_open_block(self, line_in, in_block): #add line field for when red line is added 
 		self.track_list[in_block].set_rail_condition(True)
 		self.track_list[in_block].set_circuit_condition(True)
 		self.track_list[in_block].set_power_condition(True)
@@ -746,7 +810,8 @@ class MainWindow(QMainWindow):
 	
 	def toggle_heater(self):
 		temp = not self.track_list[self.current_block].get_heater_status()
-		self.track_list[self.current_block].set_heater_status(temp)		
+		for i in range(1, len(self.track_list)):	
+			self.track_list[i].set_heater_status(temp)		
 		self.update_track_info(self.current_block)
 	
 	def set_track_temperature(self):
@@ -765,11 +830,15 @@ class MainWindow(QMainWindow):
 			self.ui.tempSelectorValid.setText("Invalid Input\nTemp Too Low")
 	
 		if inputTemp<32:
-			self.track_list[self.current_block].set_heater_status(True)
+			for i in range(1, len(self.track_list)):	
+				self.track_list[i].set_heater_status(True)
 		else:
-			self.track_list[self.current_block].set_heater_status(False)
+			for i in range(1, len(self.track_list)):	
+				self.track_list[i].set_heater_status(False)
 		
-		self.track_list[self.current_block].set_ambient_temp(inputTemp)
+		for i in range(1, len(self.track_list)):	
+			self.track_list[i].set_ambient_temp(inputTemp)
+		
 		self.update_track_info(self.current_block)
 	
 	def swap_switch(self): #change this to be inside the swtich class
@@ -793,8 +862,9 @@ class MainWindow(QMainWindow):
 		self.ui.green_line_table.setItem(0,1, QTableWidgetItem("Status"))	
 		
 		for i in range(1, len(self.track_list)):
-			if(self.track_list[i].get_occupied == True):
-				print("occupied block is" + self.track_list[i])
+			#print("in for loop for table " + str(i) + "and is currently " + str(self. 
+			if(self.track_list[i].get_occupied() == True):
+				print("occupied block is" + str(self.track_list[i]))
 				self.ui.green_line_table.setItem(i,0, QTableWidgetItem(str(self.track_list[i].get_block())))
 				self.ui.green_line_table.setItem(i,1, QTableWidgetItem("Occupied"))	
 			else:
@@ -809,47 +879,85 @@ class MainWindow(QMainWindow):
 		while (i <= self.num_lines-1):
 			#print(self.track_list[i].get_block())
 			if self.track_list[i].get_is_switch()==False and  self.track_list[i].get_is_switch_leg()==False :						
-				if i == 1:
+				#print("block " + str(i) + " is not a switch")
+				'''if i == 1:
+					print("first block not a switch")
 					self.track_list[i].set_connection_track_a(None)
 					self.track_list[i].set_connection_track_b(self.track_list[i+1])
 				
 				if i == self.num_lines or self.track_list[i].get_is_station()==True:
 					self.track_list[i].set_connection_track_a(self.track_list[i-1])
 					self.track_list[i].set_connection_track_b(None)
-				else:
-					self.track_list[i].set_connection_track_a(self.track_list[i-1])
-					self.track_list[i].set_connection_track_b(self.track_list[i+1])
-								
+				else:'''
+				self.track_list[i].set_connection_track_a(self.track_list[i-1])
+				self.track_list[i].set_connection_track_b(self.track_list[i+1])
+							
+			elif(self.track_list[i].get_is_switch()==True):
+				#print("block " + str(i) + " is a switch or switch leg")
+				if self.track_list[i].switch_list[self.track_list[i].get_switch_index()].get_switch_position() == False:
+					print("switch index for block " + str(i)+" is " + str(self.track_list[i].get_switch_index()))
+					
+					if (self.track_list[i].switch_list[self.track_list[i].get_switch_index()].get_y_zero() < self.track_list[i].get_block()) or (self.track_list[i].switch_list[self.track_list[i].get_switch_index()].get_y_one() < self.track_list[i].get_block()):
+						self.track_list[i].set_connection_track_b(self.track_list[i+1])
+						self.track_list[i].set_connection_track_a(self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_zero()])
+					else:	
+						self.track_list[i].set_connection_track_a(self.track_list[i-1])
+						self.track_list[i].set_connection_track_b(self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_zero()])
+					
+					#self.track_list[i].set_connection_track_a(self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_stem()])
+					#self.track_list[i].set_connection_track_b(self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_zero()])
+					#self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_one()].set_connection_track_a(None)
+				
+				if self.track_list[i].switch_list[self.track_list[i].get_switch_index()].get_switch_position() == True:
+
+					'''self.track_list[i].set_connection_track_a(self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_stem()])
+					self.track_list[i].set_connection_track_b(self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_one()])
+					self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_zero()].set_connection_track_a(None)	'''
+				
+					if (self.track_list[i].switch_list[self.track_list[i].get_switch_index()].get_y_zero() < self.track_list[i].get_block()) or (self.track_list[i].switch_list[self.track_list[i].get_switch_index()].get_y_one() < self.track_list[i].get_block()):
+						self.track_list[i].set_connection_track_b(self.track_list[i+1])
+						self.track_list[i].set_connection_track_a(self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_one()])
+					else:	
+						self.track_list[i].set_connection_track_a(self.track_list[i-1])
+						self.track_list[i].set_connection_track_b(self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_one()])					
+				
 			else:
-				#print('d')
-				if self.track_list[i].switch_list[Track.switch_num].get_switch_position() == False:
-					#print('h')
-					self.track_list[i].set_connection_track_a(self.track_list[Track.switch_list[1].get_y_stem()])
-					self.track_list[i].set_connection_track_b(self.track_list[Track.switch_list[1].get_y_zero()])
-					self.track_list[Track.switch_list[1].get_y_one()].set_connection_track_a(None)
-				
-				if self.track_list[i].switch_list[Track.switch_num].get_switch_position() == True:
-					#
-					self.track_list[i].set_connection_track_a(self.track_list[Track.switch_list[1].get_y_stem()])
-					self.track_list[i].set_connection_track_b(self.track_list[Track.switch_list[1].get_y_one()])
-					self.track_list[Track.switch_list[1].get_y_zero()].set_connection_track_a(None)				
-				
-				
+				if self.track_list[i].switch_list[self.track_list[i].get_switch_index()].get_switch_position() == False:
+					#ex switch 85 in default
+					if self.track_list[i].switch_list[self.track_list[i].get_switch_index()].get_y_stem() < self.track_list[i].get_block():
+						self.track_list[i].set_connection_track_a(self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_stem()])
+						self.track_list[i].set_connection_track_b(self.track_list[i+1])
+					#ex switch 77 in deafult
+					else:
+						self.track_list[i].set_connection_track_b(self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_stem()])
+						self.track_list[i].set_connection_track_a(self.track_list[i-1])
+						
+				if self.track_list[i].switch_list[self.track_list[i].get_switch_index()].get_switch_position() == True:
+					#ex switch 85 in swapped
+					if self.track_list[i].switch_list[self.track_list[i].get_switch_index()].get_y_stem() < self.track_list[i].get_block() and  self.track_list[i].switch_list[self.track_list[i].get_switch_index()].get_y_zero() < self.track_list[i].switch_list[self.track_list[i].get_switch_index()].get_y_stem():
+						self.track_list[i].set_connection_track_a(self.track_list[i-1])
+						self.track_list[i].set_connection_track_b(self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_stem()])
+					
+					#ex switch 77 in swapped
+					else:
+						self.track_list[i].set_connection_track_b(self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_stem()])
+						self.track_list[i].set_connection_track_a(self.track_list[i-1])
+				#CURRENTLY DO NOT SET NULL FOR LEGS
 			
 			i+=1
 		
-		for j in range (1,len(self.track_list)):
+		'''for j in range (1,len(self.track_list)):
 			#this prints all the connections for debug
 			try:
 				print(self.track_list[j].get_block()," Con A = ", self.track_list[j].get_connection_track_a().get_block(), " Con B = ",self.track_list[j].get_connection_track_b().get_block())
 			except:
-				print(self.track_list[j].get_block())
+				print(self.track_list[j].get_block())'''
 
 		#update every label with relevant information
 		self.ui.selTrackSection.setText(str(self.track_list[blckNum].get_line()))
 		
 		
-		self.ui.selTrackSpeed.display(self.track_list[blckNum].get_speed_limit())
+		self.ui.selTrackSpeed.display(self.track_list[blckNum].get_speed_limit()*0.6213711922)
 		
 		self.ui.selTrackGrade.setText(str(self.track_list[blckNum].get_grade()))
 		self.ui.selTrackHeater.setText(str(self.track_list[blckNum].get_heater_status()))
@@ -928,7 +1036,7 @@ class MainWindow(QMainWindow):
 		self.ui.waySignal.setText(str(self.track_list[blckNum].get_signal_light()))
 		
 		#train outputs
-		self.ui.trainSpeedLimitO.display(self.track_list[blckNum].get_speed_limit())
+		self.ui.trainSpeedLimitO.display(self.track_list[blckNum].get_speed_limit()*0.6213711922)
 		self.ui.trainAuthorityO.display(self.track_list[blckNum].get_authority())
 		self.ui.trainBeaconO.setText(str(self.track_list[blckNum].get_beacon()))
 	
