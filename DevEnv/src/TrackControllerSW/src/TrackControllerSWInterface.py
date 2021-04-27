@@ -542,7 +542,7 @@ class MainWindow(QMainWindow):
             plc_name = open(inputFileName,'r')
 
         except OSError:
-			self.ui.trackFileValid.setText("Invalid File")
+            self.ui.SuccessFailLine.setText("Invalid File")
 
         with plc_name:
             self.ui.SuccessFailLine.setText("Valid File")
