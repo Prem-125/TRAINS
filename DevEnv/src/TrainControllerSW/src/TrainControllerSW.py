@@ -125,6 +125,10 @@ class TrainController:
                         self.toggle_right_doors()
         else:
             self.SendAdvertisement()
+    
+    def set_commanded_speed(self, commanded_speed):
+        self.SR.commanded_speed = commanded_speed
+    
     #TRAIN MODEL : CALLABLE
     def get_power(self):
         return self.SR.get_power()
@@ -203,7 +207,7 @@ class TrainController:
         else:
             self.UI.Announce(self.advertisements[0])
             self.ad_length=0
-        print("In send advertisement")
+        #print("In send advertisement")
 
     #Door/Lights Toggles
     def toggle_left_doors(self):
@@ -250,6 +254,7 @@ class TrainController:
             self.DisplayUpdate()
 
 
+
     ###################### SPEED REGULATOR INTERFACES ######################
 
     def set_authority(self, authority):
@@ -274,7 +279,7 @@ class TrainController:
             print("one true in authority handler")
 
         else:
-            self.sendAdvertisement()
+            self.SendAdvertisement()
             print("sending in authority handler")
                 
                 
@@ -447,7 +452,7 @@ class SpeedRegulator():
     def DetectBrakeFailure(self):
         if(self.service_brake and (self.current_speed >= self.previous_speed) and not(self.current_speed == 0)):
             self.brake_failure = True
-            self.UI.ui.textBrowser_14.setStyleSheet(u"background-color: rgb(255, 0, 0);")
+            self.TrainController.UI.ui.textBrowser_14.setStyleSheet(u"background-color: rgb(255, 0, 0);")
             self.VitalFault()
             self.TrainController.TrainModel.brake_failure_on()
     
