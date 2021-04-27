@@ -49,6 +49,7 @@ class MainWindow(QMainWindow):
 
         #UI used variables
         self.ui_block = 0
+        self.ui_switch = 0
         self.plc_name = ""
 
         #UI Functions
@@ -163,34 +164,47 @@ class MainWindow(QMainWindow):
         if(self.ui.MainLineBox.currentText() == "Green"):
             if(self.ui.MainControllerBox.currentText() == "1"):
                 self.GreenController1.ToggleBranch()
+                self.UISwitchOutput(self.GreenController1)
             elif(self.ui.MainControllerBox.currentText() == "2"):
                 self.GreenController2.ToggleBranch()
+                self.UISwitchOutput(self.GreenController2)
             elif(self.ui.MainControllerBox.currentText() == "3"):
                 self.GreenController3.ToggleBranch()
+                self.UISwitchOutput(self.GreenController3)
             elif(self.ui.MainControllerBox.currentText() == "4"):
                 self.GreenController4.ToggleBranch()
+                self.UISwitchOutput(self.GreenController4)
             elif(self.ui.MainControllerBox.currentText() == "5"):
                 self.GreenController5.ToggleBranch()
+                self.UISwitchOutput(self.GreenController5)
             elif(self.ui.MainControllerBox.currentText() == "6"):
                 self.GreenController6.ToggleBranch()
+                self.UISwitchOutput(self.GreenController6)
             elif(self.ui.MainControllerBox.currentText() == "7"):
                 self.GreenController7.ToggleBranch()
+                self.UISwitchOutput(self.GreenController7)
         elif(self.ui.MainLineBox.currentText() == "Red"):
             if(self.ui.MainControllerBox.currentText() == "1"):
                 self.RedController1.ToggleBranch()
+                self.UISwitchOutput(self.RedController1)
             elif(self.ui.MainControllerBox.currentText() == "2"):
                 self.RedController2.ToggleBranch()
+                self.UISwitchOutput(self.RedController2)
             elif(self.ui.MainControllerBox.currentText() == "3"):
                 self.RedController3.ToggleBranch()
+                self.UISwitchOutput(self.RedController3)
             elif(self.ui.MainControllerBox.currentText() == "4"):
                 self.RedController4.ToggleBranch()
+                self.UISwitchOutput(self.RedController4)
             elif(self.ui.MainControllerBox.currentText() == "5"):
                 self.RedController5.ToggleBranch()
+                self.UISwitchOutput(self.RedController5)
             elif(self.ui.MainControllerBox.currentText() == "6"):
                 self.RedController6.ToggleBranch()
+                self.UISwitchOutput(self.RedController6)
             elif(self.ui.MainControllerBox.currentText() == "7"):
                 self.RedController7.ToggleBranch()
-        self.UISwitchOutput()
+                self.UISwitchOutput(self.RedController7)
 
     #Output for the UI
     def UIBlockOutput(self):
@@ -438,13 +452,17 @@ class MainWindow(QMainWindow):
                 self.displayUIOutput(self.RedController7)
 
     # Output for Switch UI
-    def UISwitchOutput(self):
-        if (self.ui.MainControllerBox.currentText() == "Choose"):
+    def UISwitchOutput(self, controller):
+        if(self.ui.MainControllerBox.currentText() == "Choose"):
             self.ui.StemBox.setText("N/A")
             self.ui.BranchABox.setText("N/A")
             self.ui.BranchBBox.setText("N/A")
             self.ui.MainBranchCon.setText("N/A")
-        
+        else
+            self.ui.StemBox.setText(str(controller.switch.block))
+            self.ui.BranchABox.setText(str(controller.switch.branch_a))
+            self.ui.BranchBBox.setText(str(controller.switch.branch_b))
+            self.ui.MainBranchCon.setText(str(controller.switch.cur_branch))
 
     #Display the UI functions
     def displayUIOutput(self, controller):
