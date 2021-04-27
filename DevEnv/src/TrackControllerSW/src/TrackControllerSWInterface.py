@@ -428,6 +428,12 @@ class MainWindow(QMainWindow):
                 self.ui.CommandedSpeed.setText("N/A")
                 self.ui.CrossingStatus.setText("N/A")
                 self.ui.SwitchStatus.setText("N/A")
+        if (self.ui.MainControllerBox.currentText() == "Choose"):
+            self.ui.StemBox.setText("N/A")
+            self.ui.BranchABox.setText("N/A")
+            self.ui.BranchBBox.setText("N/A")
+            self.ui.MainBranchCon.setText("N/A")
+
 
     #Import PLC
     def ImportPLC(self):
