@@ -183,7 +183,7 @@ class MainWindow(QMainWindow):
     # Block Status Updates
     def UpdateBlockStatus(self, line, block_num, status):
 
-        self.getController(line, block_num).UpdateBlockStatus(line, block__num, status)
+        self.getController(line, block_num).UpdateBlockStatus(line, block_num, status)
 
         # if(block_num < 33 or block_num > 146):
         #     self.GreenController1.UpdateBlockStatus(line, block_num, status)
