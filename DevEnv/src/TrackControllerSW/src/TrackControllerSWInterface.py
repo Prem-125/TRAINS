@@ -236,14 +236,14 @@ class MainWindow(QMainWindow):
             elif(str(self.ui.StatusControllerBox.currentText()) == "5"):
 
                 #list of Blocks
-                controller5_blocks = ["" for i in range(14)]
+                controller5_blocks = ["" for i in range(13)]
                 controller5_blocks[0] = "Choose"
                 for i in range(74,82):
                     controller5_blocks[i-73] = str(i)
-                controller5_blocks[10] = "147"
-                controller5_blocks[11] = "148"
-                controller5_blocks[12] = "149"
-                controller5_blocks[13] = "150"
+                controller5_blocks[9] = "101"
+                controller5_blocks[10] = "102"
+                controller5_blocks[11] = "103"
+                controller5_blocks[12] = "104"
 
                 #Enter Block Inputs
                 for block_name in controller5_blocks:
