@@ -12,20 +12,54 @@ class MainWindow(QMainWindow):
         self.ui = Ui_TrackControllerUI()
         self.ui.setupUi(self)
 
+        # Green Track Controllers
         self.GreenController1 = TrackController(0)
-        self.GreenController2 = TrackController(33)
-        self.GreenController3 = TrackController(74)
-        self.GreenController4 = TrackController(105)
+        self.GreenController2 = TrackController(21)
+        self.GreenController3 = TrackController(33)
+        self.GreenController4 = TrackController(61)
+        self.GreenController5 = TrackController(74)
+        self.GreenController6 = TrackController(82)
+        self.GreenController7 = TrackController(105)
+
+        # Green switches
+        self.GreenController1.setSwitch(12, 13, 1)
+        self.GreenController2.setSwitch(29, 30, 150)
+        self.GreenController3.setSwitch(57, 151, 58)
+        self.GreenController4.setSwitch(63, 62, 151)
+        self.GreenController5.setSwitch(77, 76, 101)
+        self.GreenController6.setSwitch(85, 86, 100)
+
+        # Red Track Controllers
+        self.RedController1 = TrackController(7)
+        self.RedController2 = TrackController(0)
+        self.RedController3 = TrackController(21)
+        self.RedController4 = TrackController(30)
+        self.RedController5 = TrackController(35)
+        self.RedController6 = TrackController(41)
+        self.RedController7 = TrackController(49)
+
+        # Red switches
+        self.RedController1.setSwitch(9, 10, 151)
+        self.RedController2.setSwitch(16, 1, 15)
+        self.RedController3.setSwitch(27, 28, 76)
+        self.RedController4.setSwitch(33, 32, 72)
+        self.RedController5.setSwitch(38, 39, 71)
+        self.RedController6.setSwitch(44, 43, 67)
+        self.RedController7.setSwitch(52, 53, 66)
 
         #UI used variables
         self.ui_block = 0
+        self.ui_switch = 0
         self.plc_name = ""
-        
+
         #UI Functions
         self.ui.StatusLineBox.currentTextChanged.connect(self.UIBlockOutput)
         self.ui.StatusControllerBox.currentTextChanged.connect(self.UIBlockOutput)
         self.ui.BlockInput.currentTextChanged.connect(self.UIBlockOutput)
         self.ui.ImportButton.clicked.connect(self.ImportPLC)
+        self.ui.ToggleBranchButton.clicked.connect(self.ToggleSwitchBranch)
+        self.ui.MainLineBox.currentTextChanged.connect(self.UISwitchOutput)
+        self.ui.MainControllerBox.currentTextChanged.connect(self.UISwitchOutput)
 
         #Signal Functions
         signals.track_model_occupancy.connect(self.getOccupancy)
@@ -36,140 +70,473 @@ class MainWindow(QMainWindow):
         #need wayside to track switch signals
         #need crossing signals
 
-    def setFirstSwitchBlocks(self, track_controller, in_a, in_b, end):
-        track_controller.switch_1_in_a = in_a
-        track_controller.switch_1_in_b = in_b
-        track_controller.switch_1_end = end
+    # Returns the proper controller
+    def getController(self, line, block_num):
+        if(line == "Green"):
+            if(block_num <21):
+                return self.GreenController1
+            elif(block_num <33 or block_num >146):
+                return self.GreenController2
+            elif(block_num <61):
+                return self.GreenController3
+            elif(block_num <74):
+                return self.GreenController4
+            elif(block_num <82 or (block_num > 100 and block_num <105)):
+                return self.GreenController5
+            elif(block_num <101):
+                return self.GreenController6
+            elif(block_num < 147):
+                return self.GreenController7
+        if(line == "Red"):
+            if(block_num <7 or (block_num >12 and block_num <21)):
+                return self.RedController1
+            elif(block_num <13):
+                return self.RedController2
+            elif(block_num <30 or block_num > 74):
+                return self.RedController3
+            elif(block_num <35 or (block_num > 71 and block_num <75)):
+                return self.RedController4
+            elif(block_num <40 or (block_num > 68 and block_num <72)):
+                return self.RedController5
+            elif(block_num <49 or (block_num > 66 and block_num <69)):
+                return self.RedController6
+            elif(block_num > 48):
+                return self.RedController7
 
-    def setSecondSwitchBlocks(self, track_controller, in_a, in_b, end):
-        track_controller.switch_2_in_a = in_a
-        track_controller.switch_2_in_b = in_b
-        track_controller.switch_2_end = end
+    # Returns switch controller
+    def getSwitchController(self, line, switch):
+        if(line == "Green"):
+            if(switch == 1):
+                return self.GreenController1
+            elif(switch == 2):
+                return self.GreenController2
+            elif(switch == 3):
+                return self.GreenController3
+            elif(switch == 4):
+                return self.GreenController4
+            elif(switch == 5):
+                return self.GreenController5
+            elif(switch == 6):
+                return self.GreenController6
+            elif(switch == 7):
+                return self.GreenController7
+        elif(line == "Red"):
+            if(switch == 1):
+                return self.RedController1
+            elif(switch == 2):
+                return self.RedController2
+            elif(switch == 3):
+                return self.RedController3
+            elif(switch == 4):
+                return self.RedController4
+            elif(switch == 5):
+                return self.RedController5
+            elif(switch == 6):
+                return self.RedController6
+            elif(switch == 7):
+                return self.RedController7
 
     # Occupancy Call
     def getOccupancy(self, block_num, occupied):
-        if(block_num < 33 or block_num > 146):
-            self.GreenController1.getOccupancy(block_num, occupied)
-        elif(block_num > 32 and block_num < 74):
-            self.GreenController2.getOccupancy(block_num, occupied)
-        elif(block_num > 73 and block_num < 105):
-            self.GreenController3.getOccupancy(block_num, occupied)
-        elif(block_num > 104 and block_num < 147):
-            self.GreenController4.getOccupancy(block_num, occupied)
+
+        self.getController("Green", block_num).getOccupancy(block_num, occupied)
+
+        # if(block_num < 33 or block_num > 146):
+        #     self.GreenController1.getOccupancy(block_num, occupied)
+        # elif(block_num > 32 and block_num < 74):
+        #     self.GreenController2.getOccupancy(block_num, occupied)
+        # elif(block_num > 73 and block_num < 105):
+        #     self.GreenController3.getOccupancy(block_num, occupied)
+        # elif(block_num > 104 and block_num < 147):
+        #     self.GreenController4.getOccupancy(block_num, occupied)
         self.UIBlockOutput()
 
     # Authority Call
     def getAuthority(self, line, block_num):
-        if(block_num < 33 or block_num > 146):
-            self.GreenController1.getAuthority(block_num)
-        elif(block_num > 32 and block_num < 74):
-            self.GreenController2.getAuthority(block_num)
-        elif(block_num > 73 and block_num < 105):
-            self.GreenController3.getAuthority(block_num)
-        elif(block_num > 104 and block_num < 147):
-            self.GreenController4.getAuthority(block_num)
+
+        self.getController(line, block_num).getAuthority(block_num)
+
+        # if(block_num < 33 or block_num > 146):
+        #     self.GreenController1.getAuthority(block_num)
+        # elif(block_num > 32 and block_num < 74):
+        #     self.GreenController2.getAuthority(block_num)
+        # elif(block_num > 73 and block_num < 105):
+        #     self.GreenController3.getAuthority(block_num)
+        # elif(block_num > 104 and block_num < 147):
+        #     self.GreenController4.getAuthority(block_num)
+        self.UIBlockOutput()
+
+    # Suggested Speed Call
+    def getSugSpeed(self, line, block_num, sug_speed):
+        limit = 0
+        if(line == "Green"):
+            if((block_num > 0 and block_num < 13) \
+            or (block_num > 85 and block_num < 101)):
+                limit = 55
+            elif((block_num > 16 and block_num < 21) \
+            or (block_num > 57 and block_num < 63) \
+            or (block_num > 68 and block_num < 77) \
+            or (block_num > 101 and block_num < 110) \
+            or (block_num > 116 and block_num < 122)):
+                limit = 60
+            else:
+                limit = 70
+
+        elif(line == "Red"):
+            if(block_num > 0 and block_num < 17):
+                limit = 40
+            elif((block_num > 20 and block_num < 24) \
+            or (block_num > 50 and block_num < 77) \
+            or (block_num == 17)):
+                limit = 55
+            elif(block_num > 48 and block_num < 51):
+                limit = 60
+            else:
+                limit = 70
+        self.getController(line, block_num).getSugSpeed(block_num, sug_speed, limit)
 
     # Block Closure
     def setBlockClosure(self, line, block_num, break_type):
-        if(block_num < 33 or block_num > 146):
-            self.GreenController1.setBlockClosure(line, block_num, break_type)
-        elif(block_num > 32 and block_num < 74):
-            self.GreenController2.setBlockClosure(line, block_num, break_type)
-        elif(block_num > 73 and block_num < 105):
-            self.GreenController3.setBlockClosure(line, block_num, break_type)
-        elif(block_num > 104 and block_num < 147):
-            self.GreenController4.setBlockClosure(line, block_num, break_type)
+
+        self.getController(line, block_num).setBlockClosure(line, block_num, break_type)
+        # if(block_num < 33 or block_num > 146):
+        #     self.GreenController1.setBlockClosure(line, block_num, break_type)
+        # elif(block_num > 32 and block_num < 74):
+        #     self.GreenController2.setBlockClosure(line, block_num, break_type)
+        # elif(block_num > 73 and block_num < 105):
+        #     self.GreenController3.setBlockClosure(line, block_num, break_type)
+        # elif(block_num > 104 and block_num < 147):
+        #     self.GreenController4.setBlockClosure(line, block_num, break_type)
+
         self.UIBlockOutput()
-    
+
     # Block Status Updates
     def UpdateBlockStatus(self, line, block_num, status):
-        if(block_num < 33 or block_num > 146):
-            self.GreenController1.UpdateBlockStatus(line, block_num, status)
-        elif(block_num > 32 and block_num < 74):
-            self.GreenController2.UpdateBlockStatus(line, block_num, status)
-        elif(block_num > 73 and block_num < 105):
-            self.GreenController3.UpdateBlockStatus(line, block_num, status)
-        elif(block_num > 104 and block_num < 147):
-            self.GreenController4.UpdateBlockStatus(line, block_num, status)
+
+        self.getController(line, block_num).UpdateBlockStatus(line, block_num, status)
+
+        # if(block_num < 33 or block_num > 146):
+        #     self.GreenController1.UpdateBlockStatus(line, block_num, status)
+        # elif(block_num > 32 and block_num < 74):
+        #     self.GreenController2.UpdateBlockStatus(line, block_num, status)
+        # elif(block_num > 73 and block_num < 105):
+        #     self.GreenController3.UpdateBlockStatus(line, block_num, status)
+        # elif(block_num > 104 and block_num < 147):
+        #     self.GreenController4.UpdateBlockStatus(line, block_num, status)
+
         self.UIBlockOutput()
+
+    # Call Controller Toggle Switch
+    def ToggleSwitchBranch(self):
+        if(self.ui.MainLineBox.currentText() == "Green"):
+            if(self.ui.MainControllerBox.currentText() == "1"):
+                self.GreenController1.switch.ToggleBranch()
+                self.UISwitchOutput(self.GreenController1)
+            elif(self.ui.MainControllerBox.currentText() == "2"):
+                self.GreenController2.switch.ToggleBranch()
+                self.UISwitchOutput(self.GreenController2)
+            elif(self.ui.MainControllerBox.currentText() == "3"):
+                self.GreenController3.switch.ToggleBranch()
+                self.UISwitchOutput(self.GreenController3)
+            elif(self.ui.MainControllerBox.currentText() == "4"):
+                self.GreenController4.switch.ToggleBranch()
+                self.UISwitchOutput(self.GreenController4)
+            elif(self.ui.MainControllerBox.currentText() == "5"):
+                self.GreenController5.switch.ToggleBranch()
+                self.UISwitchOutput(self.GreenController5)
+            elif(self.ui.MainControllerBox.currentText() == "6"):
+                self.GreenController6.switch.ToggleBranch()
+                self.UISwitchOutput(self.GreenController6)
+            elif(self.ui.MainControllerBox.currentText() == "7"):
+                self.GreenController7.switch.ToggleBranch()
+                self.UISwitchOutput(self.GreenController7)
+        elif(self.ui.MainLineBox.currentText() == "Red"):
+            if(self.ui.MainControllerBox.currentText() == "1"):
+                self.RedController1.switch.ToggleBranch()
+                self.UISwitchOutput(self.RedController1)
+            elif(self.ui.MainControllerBox.currentText() == "2"):
+                self.RedController2.switch.ToggleBranch()
+                self.UISwitchOutput(self.RedController2)
+            elif(self.ui.MainControllerBox.currentText() == "3"):
+                self.RedController3.switch.ToggleBranch()
+                self.UISwitchOutput(self.RedController3)
+            elif(self.ui.MainControllerBox.currentText() == "4"):
+                self.RedController4.switch.ToggleBranch()
+                self.UISwitchOutput(self.RedController4)
+            elif(self.ui.MainControllerBox.currentText() == "5"):
+                self.RedController5.switch.ToggleBranch()
+                self.UISwitchOutput(self.RedController5)
+            elif(self.ui.MainControllerBox.currentText() == "6"):
+                self.RedController6.switch.ToggleBranch()
+                self.UISwitchOutput(self.RedController6)
+            elif(self.ui.MainControllerBox.currentText() == "7"):
+                self.RedController7.switch.ToggleBranch()
+                self.UISwitchOutput(self.RedController7)
 
     #Output for the UI
     def UIBlockOutput(self):
         #List of Green Line Controllers
-        green_controllers = ["Choose","1","2","3","4"]
-        print("UIBlockOutput Called\n")
+        green_controllers = ["Choose","1","2","3","4","5","6","7"]
+        red_controllers = ["Choose","1","2","3","4","5","6","7"]
         if(str(self.ui.StatusLineBox.currentText()) == "Green"):
-
             #Clear Combo Box
             #self.ui.StatusControllerBox.clear()
-
             #Enter Controller Inputs
             for controller_name in green_controllers:
                 self.ui.StatusControllerBox.addItem(controller_name)
-
             if(str(self.ui.StatusControllerBox.currentText()) == "1"):
 
                 #list of Blocks
-                controller1_blocks = ["" for i in range(37)]
+                controller1_blocks = ["" for i in range(20)]
                 controller1_blocks[0] = "Choose"
-                for i in range(32):
+                for i in range(19):
                     controller1_blocks[i+1] = str(i+1)
-                controller1_blocks[33] = "147"
-                controller1_blocks[34] = "148"
-                controller1_blocks[35] = "149"
-                controller1_blocks[36] = "150"
+
 
                 #Enter Block Inputs
                 for block_name in controller1_blocks:
                     self.ui.BlockInput.addItem(block_name)
- 
+
                 #Call controller display function
                 self.displayUIOutput(self.GreenController1)
 
             elif(str(self.ui.StatusControllerBox.currentText()) == "2"):
 
                 #list of Blocks
-                controller2_blocks = ["" for i in range(42)]
+                controller2_blocks = ["" for i in range(17)]
                 controller2_blocks[0] = "Choose"
-                for i in range(33,74):
-                    controller2_blocks[i-32] = str(i)
-                
+                for i in range(21,33):
+                    controller2_blocks[i-20] = str(i)
+                controller2_blocks[13] = "147"
+                controller2_blocks[14] = "148"
+                controller2_blocks[15] = "149"
+                controller2_blocks[16] = "150"
+
                 #Enter Block Inputs
                 for block_name in controller2_blocks:
                     self.ui.BlockInput.addItem(block_name)
- 
+
                 #Call controller display function
                 self.displayUIOutput(self.GreenController2)
-            
             elif(str(self.ui.StatusControllerBox.currentText()) == "3"):
 
                 #list of Blocks
-                controller3_blocks = ["" for i in range(32)]
+                controller3_blocks = ["" for i in range(29)]
                 controller3_blocks[0] = "Choose"
-                for i in range(74,105):
-                    controller3_blocks[i-73] = str(i)
-                
+                for i in range(33,61):
+                    controller3_blocks[i-32] = str(i)
+
                 #Enter Block Inputs
                 for block_name in controller3_blocks:
                     self.ui.BlockInput.addItem(block_name)
- 
+
                 #Call controller display function
                 self.displayUIOutput(self.GreenController3)
-
             elif(str(self.ui.StatusControllerBox.currentText()) == "4"):
 
                 #list of Blocks
-                controller4_blocks = ["" for i in range(43)]
+                controller4_blocks = ["" for i in range(14)]
                 controller4_blocks[0] = "Choose"
-                for i in range(105,147):
-                    controller4_blocks[i-104] = str(i)
-            
+                for i in range(61,74):
+                    controller4_blocks[i-60] = str(i)
+
                 #Enter Block Inputs
                 for block_name in controller4_blocks:
                     self.ui.BlockInput.addItem(block_name)
- 
+
                 #Call controller display function
                 self.displayUIOutput(self.GreenController4)
+            elif(str(self.ui.StatusControllerBox.currentText()) == "5"):
+
+                #list of Blocks
+                controller5_blocks = ["" for i in range(13)]
+                controller5_blocks[0] = "Choose"
+                for i in range(74,82):
+                    controller5_blocks[i-73] = str(i)
+                controller5_blocks[9] = "101"
+                controller5_blocks[10] = "102"
+                controller5_blocks[11] = "103"
+                controller5_blocks[12] = "104"
+
+                #Enter Block Inputs
+                for block_name in controller5_blocks:
+                    self.ui.BlockInput.addItem(block_name)
+
+                #Call controller display function
+                self.displayUIOutput(self.GreenController5)
+            elif(str(self.ui.StatusControllerBox.currentText()) == "6"):
+
+                #list of Blocks
+                controller6_blocks = ["" for i in range(20)]
+                controller6_blocks[0] = "Choose"
+                for i in range(82,101):
+                    controller6_blocks[i-81] = str(i)
+
+                #Enter Block Inputs
+                for block_name in controller6_blocks:
+                    self.ui.BlockInput.addItem(block_name)
+
+                #Call controller display function
+                self.displayUIOutput(self.GreenController6)
+            elif(str(self.ui.StatusControllerBox.currentText()) == "7"):
+
+                #list of Blocks
+                controller7_blocks = ["" for i in range(43)]
+                controller7_blocks[0] = "Choose"
+                for i in range(105,147):
+                    controller7_blocks[i-104] = str(i)
+
+                #Enter Block Inputs
+                for block_name in controller7_blocks:
+                    self.ui.BlockInput.addItem(block_name)
+
+                #Call controller display function
+                self.displayUIOutput(self.GreenController7)
+
+        elif(str(self.ui.StatusLineBox.currentText()) == "Red"):
+            #Clear Combo Box
+            #self.ui.StatusControllerBox.clear()
+            #Enter Controller Inputs
+            for controller_name in red_controllers:
+                self.ui.StatusControllerBox.addItem(controller_name)
+            if(str(self.ui.StatusControllerBox.currentText()) == "1"):
+
+                #list of Blocks
+                controller1_blocks = ["" for i in range(7)]
+                controller1_blocks[0] = "Choose"
+                for i in range(7,13):
+                    controller1_blocks[i-6] = str(i)
+
+                #Enter Block Inputs
+                for block_name in controller1_blocks:
+                    self.ui.BlockInput.addItem(block_name)
+
+                #Call controller display function
+                self.displayUIOutput(self.RedController1)
+
+            elif(str(self.ui.StatusControllerBox.currentText()) == "2"):
+
+                #list of Blocks
+                controller2_blocks = ["" for i in range(15)]
+                controller2_blocks[0] = "Choose"
+                for i in range(1,7):
+                    controller2_blocks[i] = str(i)
+                controller2_blocks[7] = "13"
+                controller2_blocks[8] = "14"
+                controller2_blocks[9] = "15"
+                controller2_blocks[10] = "16"
+                controller2_blocks[11] = "17"
+                controller2_blocks[12] = "18"
+                controller2_blocks[13] = "19"
+                controller2_blocks[14] = "20"
+
+                #Enter Block Inputs
+                for block_name in controller2_blocks:
+                    self.ui.BlockInput.addItem(block_name)
+
+                #Call controller display function
+                self.displayUIOutput(self.RedController2)
+            elif(str(self.ui.StatusControllerBox.currentText()) == "3"):
+
+                #list of Blocks
+                controller3_blocks = ["" for i in range(12)]
+                controller3_blocks[0] = "Choose"
+                for i in range(21,30):
+                    controller3_blocks[i-20] = str(i)
+                controller3_blocks[10] = "75"
+                controller3_blocks[11] = "76"
+
+                #Enter Block Inputs
+                for block_name in controller3_blocks:
+                    self.ui.BlockInput.addItem(block_name)
+
+                #Call controller display function
+                self.displayUIOutput(self.RedController3)
+            elif(str(self.ui.StatusControllerBox.currentText()) == "4"):
+
+                #list of Blocks
+                controller4_blocks = ["" for i in range(9)]
+                controller4_blocks[0] = "Choose"
+                for i in range(30,35):
+                    controller4_blocks[i-29] = str(i)
+                controller4_blocks[6] = "72"
+                controller4_blocks[7] = "73"
+                controller4_blocks[8] = "74"
+
+                #Enter Block Inputs
+                for block_name in controller4_blocks:
+                    self.ui.BlockInput.addItem(block_name)
+
+                #Call controller display function
+                self.displayUIOutput(self.RedController4)
+            elif(str(self.ui.StatusControllerBox.currentText()) == "5"):
+
+                #list of Blocks
+                controller5_blocks = ["" for i in range(11)]
+                controller5_blocks[0] = "Choose"
+                for i in range(35,41):
+                    controller5_blocks[i-34] = str(i)
+                controller5_blocks[7] = "68"
+                controller5_blocks[8] = "69"
+                controller5_blocks[9] = "70"
+                controller5_blocks[10] = "71"
+
+                #Enter Block Inputs
+                for block_name in controller5_blocks:
+                    self.ui.BlockInput.addItem(block_name)
+
+                #Call controller display function
+                self.displayUIOutput(self.RedController5)
+            elif(str(self.ui.StatusControllerBox.currentText()) == "6"):
+
+                #list of Blocks
+                controller6_blocks = ["" for i in range(11)]
+                controller6_blocks[0] = "Choose"
+                for i in range(41,49):
+                    controller6_blocks[i-40] = str(i)
+                controller6_blocks[9] = "67"
+                controller6_blocks[10] = "68"
+
+                #Enter Block Inputs
+                for block_name in controller6_blocks:
+                    self.ui.BlockInput.addItem(block_name)
+
+                #Call controller display function
+                self.displayUIOutput(self.RedController6)
+            elif(str(self.ui.StatusControllerBox.currentText()) == "7"):
+
+                #list of Blocks
+                controller7_blocks = ["" for i in range(19)]
+                controller7_blocks[0] = "Choose"
+                for i in range(49,67):
+                    controller7_blocks[i-48] = str(i)
+
+                #Enter Block Inputs
+                for block_name in controller7_blocks:
+                    self.ui.BlockInput.addItem(block_name)
+
+                #Call controller display function
+                self.displayUIOutput(self.RedController7)
+
+    # Output for Switch UI
+    def UISwitchOutput(self, controller):
+        if(self.ui.MainControllerBox.currentText() == "Choose"):
+            self.ui.StemBox.setText("N/A")
+            self.ui.BranchABox.setText("N/A")
+            self.ui.BranchBBox.setText("N/A")
+            self.ui.MainBranchCon.setText("N/A")
+        else:
+            controller = self.getSwitchController(self.ui.MainLineBox.currentText(), int(self.ui.MainControllerBox.currentText()))
+            if(controller.switch.block == -1):
+                self.ui.StemBox.setText("N/A")
+                self.ui.BranchABox.setText("N/A")
+                self.ui.BranchBBox.setText("N/A")
+                self.ui.MainBranchCon.setText("N/A")
+            else:
+                self.ui.StemBox.setText(str(controller.switch.block))
+                self.ui.BranchABox.setText(str(controller.switch.branch_a))
+                self.ui.BranchBBox.setText(str(controller.switch.branch_b))
+                self.ui.MainBranchCon.setText(str(controller.switch.cur_branch))
 
     #Display the UI functions
     def displayUIOutput(self, controller):
@@ -182,7 +549,7 @@ class MainWindow(QMainWindow):
             self.ui.SwitchStatus.setText("N/A")
         else:
             controller.ui_block = int(self.ui.BlockInput.currentText()) #Convert block input to string
-            
+
             if(controller.block_open[controller.ui_block-controller.block_offset] == True):
                 self.ui.BlockStatus.setText("Open")
                 self.ui.Occupancy.setText(str(controller.occupancy[controller.ui_block-controller.block_offset]))
@@ -197,11 +564,21 @@ class MainWindow(QMainWindow):
                 self.ui.CommandedSpeed.setText("N/A")
                 self.ui.CrossingStatus.setText("N/A")
                 self.ui.SwitchStatus.setText("N/A")
-    
+
     #Import PLC
     def ImportPLC(self):
-        self.plc_name = self.ui.ImportLine.currentText()
-        self.ui.SuccessFailLine.setText("Valid File")
+        inputFileName = self.ui.ImportLine.text()
+
+        try:
+            plc_name = open(inputFileName,'r')
+
+        except OSError:
+            self.ui.SuccessFailLine.setText("Invalid File")
+
+        with plc_name:
+            self.ui.SuccessFailLine.setText("Valid File")
+
+        plc_name.close()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
@@ -209,4 +586,4 @@ if __name__ == "__main__":
     window = MainWindow()
     window.show()
 
-    sys.exit(app.exec_())    
+    sys.exit(app.exec_())

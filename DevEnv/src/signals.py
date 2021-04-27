@@ -26,6 +26,7 @@ class SignalsClass(QObject):
     CTC_occupancy = Signal(str, int, bool) #Paramter is block number
     CTC_authority = Signal(str, int) #Paramter is block number
     CTC_failure = Signal(str, int, int) #Paramters are track line, track block, and failure mode
+    CTC_suggested_speed = Signal(str, int, int)  #Parameters are track line, track block, and suggested speed
     wayside_block_status = Signal(str, int, bool) #Parameters are track line, block number, block status
 
 
