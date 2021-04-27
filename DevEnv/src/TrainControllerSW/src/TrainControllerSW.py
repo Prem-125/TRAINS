@@ -38,6 +38,8 @@ class TrainController:
         self.interior_lights = False
         self.exterior_lights = False
         self.announcement = ""
+        self.ad_length = 0
+        self.current_ad=0
 
         #sending vital info to SpeedRegulator
         self.SR = SpeedRegulator(self, commanded_speed, current_speed, authority, self.train_ID)
@@ -57,6 +59,7 @@ class TrainController:
                             "Pioneer","Edgebrook","Whited","South Bank","Central","Inglewood","Overbrook","Glenburry","Dormont","Mt Lebanon", "Poplar","Castle Shannon")
 
 
+        self.advertisements = ("Advertisement: Tired of the arts? Consider Pitt COE!", "Advertisement: Another rainy day in Pittsburgh? Vitamin D supplements 30 percent off at Market.")
         self.DisplayUpdate()
 
 
@@ -85,7 +88,6 @@ class TrainController:
         self.VitalFault()
 
     def set_current_speed(self, current_speed):
-        #main loop stuff
         self.SR.pidLoop()
         self.SR.backupPIDLoop()
         
@@ -93,7 +95,7 @@ class TrainController:
         self.SR.previous_speed = self.SR.current_speed
         self.SR.current_speed = current_speed
 
-        self.DetectBrakeFailure()
+        self.SR.DetectBrakeFailure()
         self.SR.DetectEngineFailure()
         
         #If we reach a station and our current speed is 0, open doors and all that jazz
@@ -121,7 +123,8 @@ class TrainController:
                          pass
                     else:
                         self.toggle_right_doors()
-
+        else:
+            self.SendAdvertisement()
     #TRAIN MODEL : CALLABLE
     def get_power(self):
         return self.SR.get_power()
@@ -139,6 +142,7 @@ class TrainController:
 
     #DecodeTC: used to decode track circuit received from train model
     def DecodeTC(self, TrackInt):
+        print("Decoding TC")
         tempCmdInt = TrackInt & 255
         tempCmdFloat = (TrackInt >> 8) & 15
         tempAuthInt = (TrackInt >> 12) & 255
@@ -187,7 +191,19 @@ class TrainController:
 
     #SendAnnouncement: used to send announcement to train model and UI  
     def SendAnnouncement(self):
-        ...
+        self.UI.Announce(self.announcement)
+
+    def SendAdvertisement(self):
+        if(self.ad_length<100):
+            self.ad_length += 1
+            self.UI.Announce(self.advertisements[0])    
+        elif(self.ad_length<200):
+            self.ad_length += 1
+            self.UI.Announce(self.advertisements[1])
+        else:
+            self.UI.Announce(self.advertisements[0])
+            self.ad_length=0
+        print("In send advertisement")
 
     #Door/Lights Toggles
     def toggle_left_doors(self):
@@ -240,21 +256,28 @@ class TrainController:
         if(authority == 0):
             self.AuthorityHandler()
         else:
+            self.AuthorityHandler()
             self.set_service_brake(False)
         self.SR.authority = authority
 
     def AuthorityHandler(self):
+        
 
         if(self.SR.authority==0 and self.upcoming_station):
             self.set_service_brake(True)
-            self.UI.Announce(self.announcement)
-            self.sendAnnouncement
+            self.sendAnnouncement()
+            print("both true in authoity handler")
 
         elif(self.SR.authority == 0 or self.upcoming_station):
             #this is the equivalent of my station handler.
             self.set_service_brake(True)
+            print("one true in authority handler")
 
         else:
+            self.sendAdvertisement()
+            print("sending in authority handler")
+                
+                
             #when authority is false 
             #self.set_service_brake(False)
             ...
@@ -275,7 +298,6 @@ class TrainController:
         self.SR.kp = kp
         self.SR.ki = ki
 
-    #SPEED REGULATOR GETTERS
 
     
 
@@ -309,6 +331,8 @@ class SpeedRegulator():
         self.backupPID = PID(self.kp, self.ki, 0)
         self.backupPID.output_limits = (0, 120000)
 
+
+    ###################### POWER STUFF ######################
 
     #pidLoop: used to calculate power
     def pidLoop(self):
@@ -371,6 +395,7 @@ class SpeedRegulator():
             self.pid.setpoint=0
             self.power_backup = 0
     
+    #get_power: makes sure PID loops are in tune, returns power
     def get_power(self):
         if(self.power == 0):
             return self.power
@@ -385,6 +410,7 @@ class SpeedRegulator():
             return self.power
             ...
     
+    ###################### ON CLICK/CALL ACTIONS ACTIONS ######################
     def OnSBrakeOn(self):
         self.service_brake = True
         self.TrainController.SendServiceBrakeOn()
@@ -410,13 +436,13 @@ class SpeedRegulator():
             self.setpoint_speed = self.setpoint_speed - 1
         self.TrainController.DisplayUpdate()
 
+    ###################### FAILURE DETECTION ######################
     def DetectEngineFailure(self):
         if(self.current_speed == 666):
             self.engine_failure = True
             self.UI.textBrowser_13.setStyleSheet(u"background-color: rgb(255, 0, 0);")
             self.VitalFault()
             self.TrainController.TrainModel.engine_failure_on()
-
 
     def DetectBrakeFailure(self):
         if(self.service_brake and (self.current_speed >= self.previous_speed) and not(self.current_speed == 0)):
@@ -431,7 +457,6 @@ class SpeedRegulator():
         self.OnEBrakeOn()
 
         
-
 #MainWindow class - interfaces with TrainController UI
 class MainWindow(QMainWindow):
     def __init__(self, TrainController):
@@ -496,7 +521,7 @@ class MainWindow(QMainWindow):
             self.ui.rightDoors.setEnabled(True)
 
     def Announce(self, announceString):
-        self.announcementDisplay.setPlainText(announceString)
+        self.ui.announcementDisplay.setPlainText(announceString)
     
     def send_kp_ki(self):
         self.TrainController.SR.pid.Ki = float(self.ui.kiInput.toPlainText())
