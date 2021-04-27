@@ -459,10 +459,16 @@ class MainWindow(QMainWindow):
             self.ui.BranchBBox.setText("N/A")
             self.ui.MainBranchCon.setText("N/A")
         else:
-            self.ui.StemBox.setText(str(controller.switch.block))
-            self.ui.BranchABox.setText(str(controller.switch.branch_a))
-            self.ui.BranchBBox.setText(str(controller.switch.branch_b))
-            self.ui.MainBranchCon.setText(str(controller.switch.cur_branch))
+            if(self.ui.StemBox.currentText() == str(-1)):
+                self.ui.StemBox.setText("N/A")
+                self.ui.BranchABox.setText("N/A")
+                self.ui.BranchBBox.setText("N/A")
+                self.ui.MainBranchCon.setText("N/A")
+            else:
+                self.ui.StemBox.setText(str(controller.switch.block))
+                self.ui.BranchABox.setText(str(controller.switch.branch_a))
+                self.ui.BranchBBox.setText(str(controller.switch.branch_b))
+                self.ui.MainBranchCon.setText(str(controller.switch.cur_branch))
 
     #Display the UI functions
     def displayUIOutput(self, controller):
