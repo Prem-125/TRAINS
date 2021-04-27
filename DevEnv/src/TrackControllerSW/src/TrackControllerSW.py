@@ -149,3 +149,4 @@ class SwitchObj:
 
 class Crossing:
     def __init__(self, block_num):
+        self.block = block_num
