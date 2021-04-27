@@ -1,7 +1,7 @@
 ﻿# -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'TrackControllerSW.ui'
+## Form generated from reading UI file 'TrackControllerSw.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.0.1
 ##
@@ -69,6 +69,13 @@ class Ui_TrackControllerUI(object):
         self.label_4.setFrameShape(QFrame.Box)
         self.label_4.setAlignment(Qt.AlignCenter)
         self.ProgramControllerBox = QComboBox(self.Program)
+        self.ProgramControllerBox.addItem("")
+        self.ProgramControllerBox.addItem("")
+        self.ProgramControllerBox.addItem("")
+        self.ProgramControllerBox.addItem("")
+        self.ProgramControllerBox.addItem("")
+        self.ProgramControllerBox.addItem("")
+        self.ProgramControllerBox.addItem("")
         self.ProgramControllerBox.addItem("")
         self.ProgramControllerBox.setObjectName(u"ProgramControllerBox")
         self.ProgramControllerBox.setGeometry(QRect(130, 80, 111, 22))
@@ -224,7 +231,7 @@ class Ui_TrackControllerUI(object):
         self.BranchBBox.setObjectName(u"BranchBBox")
         self.BranchBBox.setGeometry(QRect(170, 190, 81, 21))
         self.BranchBBox.setFrameShape(QFrame.Box)
-        self.BranchBBox.setAlignment(Qt.AlignCenter)
+        self.BranchBBox.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
         self.label_19 = QLabel(self.tab)
         self.label_19.setObjectName(u"label_19")
         self.label_19.setGeometry(QRect(270, 130, 111, 21))
@@ -250,7 +257,7 @@ class Ui_TrackControllerUI(object):
 
         self.retranslateUi(TrackControllerUI)
 
-        self.Program_2.setCurrentIndex(2)
+        self.Program_2.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(TrackControllerUI)
@@ -261,14 +268,21 @@ class Ui_TrackControllerUI(object):
         self.label_2.setText(QCoreApplication.translate("TrackControllerUI", u"PLC File", None))
         self.ImportLine.setText("")
         self.ImportButton.setText(QCoreApplication.translate("TrackControllerUI", u"Import", None))
-        self.SuccessFailLine.setText(QCoreApplication.translate("TrackControllerUI", u"Invalid File", None))
+        self.SuccessFailLine.setText("")
         self.label_3.setText(QCoreApplication.translate("TrackControllerUI", u"Line", None))
         self.ProgramLineBox.setItemText(0, QCoreApplication.translate("TrackControllerUI", u"Choose", None))
         self.ProgramLineBox.setItemText(1, QCoreApplication.translate("TrackControllerUI", u"Green", None))
         self.ProgramLineBox.setItemText(2, QCoreApplication.translate("TrackControllerUI", u"Red", None))
 
         self.label_4.setText(QCoreApplication.translate("TrackControllerUI", u"Controller", None))
-        self.ProgramControllerBox.setItemText(0, QCoreApplication.translate("TrackControllerUI", u"1", None))
+        self.ProgramControllerBox.setItemText(0, QCoreApplication.translate("TrackControllerUI", u"Choose", None))
+        self.ProgramControllerBox.setItemText(1, QCoreApplication.translate("TrackControllerUI", u"1", None))
+        self.ProgramControllerBox.setItemText(2, QCoreApplication.translate("TrackControllerUI", u"2", None))
+        self.ProgramControllerBox.setItemText(3, QCoreApplication.translate("TrackControllerUI", u"3", None))
+        self.ProgramControllerBox.setItemText(4, QCoreApplication.translate("TrackControllerUI", u"4", None))
+        self.ProgramControllerBox.setItemText(5, QCoreApplication.translate("TrackControllerUI", u"5", None))
+        self.ProgramControllerBox.setItemText(6, QCoreApplication.translate("TrackControllerUI", u"6", None))
+        self.ProgramControllerBox.setItemText(7, QCoreApplication.translate("TrackControllerUI", u"7", None))
 
         self.Program_2.setTabText(self.Program_2.indexOf(self.Program), QCoreApplication.translate("TrackControllerUI", u"Program", None))
         self.BlockInput.setItemText(0, QCoreApplication.translate("TrackControllerUI", u"Choose", None))
