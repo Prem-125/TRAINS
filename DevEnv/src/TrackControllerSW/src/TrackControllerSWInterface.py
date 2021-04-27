@@ -194,10 +194,10 @@ class MainWindow(QMainWindow):
                 controller2_blocks[0] = "Choose"
                 for i in range(21,33):
                     controller2_blocks[i-20] = str(i)
-                controller2_blocks[13] = "147"
-                controller2_blocks[14] = "148"
-                controller2_blocks[15] = "149"
-                controller2_blocks[16] = "150"
+                controller2_blocks[12] = "147"
+                controller2_blocks[13] = "148"
+                controller2_blocks[14] = "149"
+                controller2_blocks[15] = "150"
 
                 #Enter Block Inputs
                 for block_name in controller2_blocks:
