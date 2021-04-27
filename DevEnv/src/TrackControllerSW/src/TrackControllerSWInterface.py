@@ -166,6 +166,35 @@ class MainWindow(QMainWindow):
         #     self.GreenController4.getAuthority(block_num)
         self.UIBlockOutput()
 
+    # Suggested Speed Call
+    def getSugSpeed(self, line, block_num, sug_speed):
+        limit = 0
+        if(line == "Green"):
+            if((block_num > 0 && block_num < 13) /
+            || (block_num > 85 && block_num < 101)):
+                limit = 55
+            elif((block_num > 16 && block_num < 21) /
+            || (block_num > 57 && block_num < 63) /
+            || (block_num > 68 && block_num < 77) /
+            || (block_num > 101 && block_num < 110) /
+            || (block_num > 116 && block_num < 122)):
+                limit = 60
+            else:
+                limit = 70
+
+        elif(line == "Red"):
+            if((block_num > 0 && block_num < 17):
+                limit = 40
+            elif((block_num > 20 && block_num < 24) /
+            || (block_num > 50 && block_num < 77) /
+            || (block_num == 17)):
+                limit = 55
+            elif((block_num > 48 && block_num < 51):
+                limit = 60
+            else:
+                limit = 70
+        self.getController(line, block_num).getSugSpeed(block_num, sug_speed, limit)
+
     # Block Closure
     def setBlockClosure(self, line, block_num, break_type):
 

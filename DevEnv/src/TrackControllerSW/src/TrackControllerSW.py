@@ -21,6 +21,8 @@ class TrackController:
 
         #Switch
         self.switch = SwitchObj(-1,-1,-1)
+        self.crossing = Crossing(-1)
+
         #UI used variables
         self.ui_block = 0
 
@@ -39,8 +41,6 @@ class TrackController:
 
     #Update the CTC Office Occupancy
     def setOfficeOccupancy(self, block_num, occupied):
-        print("\nSet the office occupancy function called\n")
-        print("Occupied Block Number: " + str(block_num)+ "\n\n")
         signals.CTC_occupancy.emit("Green",block_num, occupied)    #Sends the Occupancy Signal
 
     #Gets the authority
@@ -49,19 +49,16 @@ class TrackController:
         self.block_authority = block_num
 
     #Gets the suggested speed
-    def getSugSpeed(self, block_num):
-        self.setComSpeed(block_num)
+    def getSugSpeed(self, block_num, sug_speed, limit):
+        suggested_speed[block_num-self.block_offset] = sug_speed
+        self.setComSpeed(block_num, limit)
 
     #Gets the commanded speed
-    def setComSpeed(self, block_num):
-        for i in range(0, 25):
-            self.commanded_speed[i] = 70
-        for i in range(25, 30):
-            self.commanded_speed[i] = 60
-        for i in range(30, 36):
-            self.commanded_speed[i] = 70
-        for i in range(36, 41):
-            self.commanded_speed[i] = 60
+    def setComSpeed(self, block_num, limit):
+        if(suggested_speed[block_num-self.block_offset] > limit):
+            commanded_speed[block_num-self.block_offset] = limit
+        else:
+            commanded_speed[block_num - self.block_offset] = suggested_speed[block_num-self.block_offset]
 
     #Update Track Model of the authority and commanded speed
     def setTrackStats(self, block_num):
