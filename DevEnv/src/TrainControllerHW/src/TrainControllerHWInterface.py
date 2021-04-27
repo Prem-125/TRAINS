@@ -136,6 +136,9 @@ class TrainControllerHWInterface(QMainWindow):
 		self.arduino.write(str(4).encode('utf-8')+ self.eol)
 		self.arduino.write(str(transmit).encode('utf-8')+ self.eol)
 
+	def set_passenger_brake(self):
+		self.arduino.write(str(5).encode('utf-8')+ self.eol)
+
 
 
 	def get_power(self):
