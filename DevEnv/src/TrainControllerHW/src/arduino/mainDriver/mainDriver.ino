@@ -1,5 +1,4 @@
 #include <PID_v1.h>
-
 #include "pinMaps.h"
 #include <Wire.h> 
 #include <string.h>
@@ -26,40 +25,28 @@ void (*funcSel[10])() = { SpeedDown , SpeedUp, SendAnnounce,  TempUp, LCDBeacon,
 
 
 char readbuff[70]; 
-float cmdVel = 19.0;
-double curVel = 0.0;
-double oldVel = 0.0;
-float setpointVel = 17.935;
-int auth = 1;
-double power = 0.0;
-double setpoint = 0.0;
+
+
+
 bool refresh = true;
 long long TCEnc;
 int beaconEnc;
 long long kpkienc;
-float kp = 1000.0;
-float ki = 1000.0;
+
 int temperature = 72;
 int flags; 
 bool BLDoorsOpen;
 bool BRDoorsOpen;
 bool ExtLightsOn;
-bool AutoMode;
-bool SBrake;
-bool EBrake;
-bool PEBrake;
+
 bool LDoorsOpen;
 bool RDoorsOpen;
-bool TCFault = false;
-bool EngineFault = false;
-bool BrakeFault = false;
 bool UpcomingStation = false;
 bool OnPowLCD = false;
 const String  Stations[] = {"Shadyside","Herron Ave","Swissville","Penn Station","Steel Plaza","First Ave","Station Square","South Hills Junction", 
                             "Pioneer","Edgebrook","Whited","South Bank","Central","Inglewood","Overbrook","Glenburry","Dormont","Mt Lebanon", "Poplar","Castle Shannon"};
 String announcement = "No Announcement at this Time";
 
-PID powLoop(&curVel,&power,&setpoint,kp,ki,0,DIRECT);
 void setup() {
   Serial.begin(115200);
   Serial.setTimeout(1);
@@ -68,9 +55,8 @@ void setup() {
   digitalWrite(LEDs[i],LOW);
   lcd.init();  //initialize the lcd
   lcd.backlight();  //open the backlight
-  powLoop.SetOutputLimits(0,120000);
-  powLoop.SetSampleTime(200);
-  powLoop.SetMode(AUTOMATIC);
+  initPID();
+
 
 }
 
@@ -78,22 +64,21 @@ void loop() {
   // put your main code here, to run repeatedly:
   readToggleBtns();
   updateToggleStates();
- 
   readCntrlBtns();
   processCntrlBtns();
+
   serialRead();
+  
   if(refresh || OnPowLCD){
   (*funcSel[LCDViewIndex])(); // Refreshes LCD incase data changed from serial comms 
   refresh = false;
-  }
-  calcPower();
-  if (AutoMode){
+  };
+  
+  if (get_AutoMode()){
   autoOps();
   }
-  brakeCheck();
-  detectFailures();
+  
   updateToggleLEDs();
-  SendPower();
   SendToggleStates();
   SendTemperature();
 
@@ -137,12 +122,12 @@ void readCntrlBtns(){
 
 void updateToggleStates(){
     ToggleStates ^= (ToggleBtnStates & int(pow(2,NUMTOGGLE)- 1));
-    AutoMode = (ToggleStates >> 5) & 1;
-    SBrake =  (ToggleStates >> 2) & 1;
+    set_AutoMode((ToggleStates >> 5) & 1);
+    set_SBrake((ToggleStates >> 2) & 1);
     LDoorsOpen = (ToggleStates >> 4) & 1;
     RDoorsOpen = (ToggleStates >> 3) & 1;
-    EBrake = (ToggleStates >> 7) & 1;
-    PEBrake = (ToggleStates >> 6) & 1;
+    set_EBrake((ToggleStates >> 7) & 1);
+    set_PEBrake((ToggleStates >> 6) & 1);
     
 }
 void autoOps(){
@@ -150,68 +135,21 @@ ToggleStates &=~(1 << 3); // Override Right Door
 ToggleStates &=~( 1 << 4); // Override Left Door
 if(ExtLightsOn)  
 ToggleStates |=(3); // Force lights on if needed
-if(UpcomingStation)
-stationSequence(); // Initates Station Sequence 
- 
-
-  
-}
-void brakeCheck(){
-if(PEBrake || EBrake || SBrake || auth == 0){
-  power = 0;
-}
-}
-
-void detectFailures(){
-  if((curVel >= oldVel &&  (PEBrake || EBrake || SBrake) && oldVel != 666.0 && oldVel!=0)||BrakeFault){
-    digitalWrite(LEDs[10],HIGH);
-    ToggleStates |= 1 << 7; // Apply EBrake
-    power = 0;
-    BrakeFault = true;
-
-  }else{
-    digitalWrite(LEDs[10],LOW); // Reset Brake Fail Light
-  }
-  if(BrakeFault && curVel > oldVel){
-    BrakeFault = false;
-  }
-  if(curVel == 666.0){
-    digitalWrite(LEDs[8],HIGH); // Apply Engine Fail Light
-    ToggleStates |= 1 << 7; // Apply EBrake
-    power = 0;
-
-  }else{
-    digitalWrite(LEDs[8],LOW); // Reset Fail Light
-    
-  }
-  if(TCFault){
-    digitalWrite(LEDs[9],HIGH); // Apply Signal Fail Light
-    ToggleStates |= 1 << 7; // Apply EBrake
-    power = 0;
-
-  }else{
-    digitalWrite(LEDs[9],LOW); // Reset  Signal Fail Light
-  }
-}
-
-void calcPower(){
-  if(AutoMode){
-  setpoint = cmdVel;
-  }else{
-  setpoint = setpointVel;
-  }
-  powLoop.Compute();
 }
 
 
-void stationSequence(){
-power = 0;
-ToggleStates |= 1 << 2; // Apply S Brake
+
+
+
+
+
+void stationSequence(){// rework
+set_SBrake(true);
 updateToggleLEDs ();
 SendToggleStates();
-SendPower();
+SendPower(calcPower());
 SendAnnouncement();
-while (curVel!=0){
+while (get_curVel()!=0){
    readCntrlBtns();
   processCntrlBtns();
   serialRead();
@@ -219,7 +157,6 @@ while (curVel!=0){
   (*funcSel[LCDViewIndex])(); // Refreshes LCD incase data changed from serial comms 
   refresh = false;
   }
-  brakeCheck();
   updateToggleLEDs(); 
 }
 if(BRDoorsOpen)
@@ -231,7 +168,7 @@ SendToggleStates();
 delay(5000);
 ToggleStates &=~(1 << 3); // Close Right Door 
 ToggleStates &=~( 1 << 4); // Close Left Door 
-ToggleStates &=~ (1 << 2); // Reset S Brake
+set_SBrake(false);
 
 updateToggleLEDs ();
 SendToggleStates();
@@ -243,7 +180,7 @@ void updateToggleLEDs() {
   for (int i = 0; i < NUMTOGGLE; i++){
     digitalWrite(LEDs[i],(ToggleStates >> i) & 1);
   }
-  if((LDoorsOpen || RDoorsOpen) & curVel != 0){
+  if((LDoorsOpen || RDoorsOpen) & get_curVel() != 0){
     digitalWrite(LEDs[3],LOW);
     digitalWrite(LEDs[4],LOW);
     lcd.clear();
@@ -274,19 +211,19 @@ void LCDSpeed(){
    lcd.setCursor ( 0, 0 );          
   lcd.print("Cmd Vel: "); 
   lcd.setCursor ( 9, 0 );            
-  lcd.print(cmdVel * 2.23);
+  lcd.print(get_cmdVel() * 2.23);
   lcd.setCursor ( 15, 0 );            
   lcd.print("MPH");
   lcd.setCursor(0,1);
   lcd.print("Set Vel: ");
   lcd.setCursor(9,1);
-  lcd.print(setpointVel * 2.23 ); 
+  lcd.print(get_setpointVel() * 2.23 ); 
   lcd.setCursor ( 15, 1 );            
   lcd.print("MPH");
   lcd.setCursor(0,2);
   lcd.print("Cur Vel: ");
   lcd.setCursor(9,2);
-  lcd.print(curVel* 2.23);
+  lcd.print(get_curVel()* 2.23);
   lcd.setCursor ( 15, 2 );            
   lcd.print("MPH");  
       OnPowLCD = false;
@@ -337,17 +274,17 @@ void LCDPower(){
   lcd.setCursor(0,0);
   lcd.print("Power Output: ");
     lcd.setCursor(0,1);
-  lcd.print(power/1000.0);
+  lcd.print(get_power()/1000.0);
    lcd.setCursor(10,1);
   lcd.print("kW");
   lcd.setCursor(0,2);
   lcd.print("Kp:");
   lcd.setCursor(4,2);
-  lcd.print(kp);
+  lcd.print(get_kp());
   lcd.setCursor(0,3);
   lcd.print("Ki:");
   lcd.setCursor(4,3);
-  lcd.print(ki);
+  lcd.print(get_ki());
   LCDViewIndex = 8;
   refresh = true;
   OnPowLCD = true;
@@ -357,9 +294,9 @@ void LCDAuth(){
   lcd.setCursor(0,1);
   lcd.print("Authourity: ");
   lcd.setCursor(0,2);
-  lcd.print(auth *  3.28);
+  lcd.print(get_auth() );
     lcd.setCursor(8,2);
-  lcd.print("ft");
+  lcd.print("block");
     OnPowLCD = false;
 
 }
@@ -385,10 +322,10 @@ void TempDown(){
   refresh = true;
 }
 void SpeedUp(){
-  if (setpointVel < cmdVel - .45){
-    setpointVel+=.45;
+  if (get_setpointVel() < get_cmdVel() - .45){
+    set_setpointVel(get_setpointVel()+.45);
   }else {
-    setpointVel = cmdVel;
+    set_setpointVel(get_cmdVel());
   }
   LCDViewIndex = 6;
   refresh = true;
@@ -396,10 +333,10 @@ void SpeedUp(){
  
 }
 void SpeedDown(){
-    if (setpointVel >.45){
-    setpointVel-=.45;
+    if (get_setpointVel() >.45){
+    set_setpointVel(get_setpointVel()-.45);
   }else {
-    setpointVel = 0;
+    set_setpointVel(0);
   }
   LCDViewIndex = 6;
   refresh = true;
@@ -414,25 +351,7 @@ long long atoll(const char* ptr) {
   return result;
 }
 
-void decodeTC(){
-  unsigned int cmdInt = TCEnc & 255;
-  unsigned int cmdFlt = (TCEnc >> 8) & 15;
-  unsigned int authInt = (TCEnc >> 12) & 255;
-  unsigned int authFlt = (TCEnc >> 20) & 15;
-  unsigned int check = (TCEnc >> 24) & 1023;
-  digitalWrite(LEDs[9],LOW);
-  if((cmdInt + cmdFlt + authInt + authFlt) != check){
-    TCFault = true;
-    cmdVel = 0;
-    auth = 0;
-    return;
-  }
-  TCFault = false;
-  cmdVel = float(cmdInt) + float(cmdFlt) / 10.0;
-  auth = authInt;
-  if(auth == 0)
-  ToggleStates |= 1 << 7; // Apply EBrake
-}
+
 
 void decodeBeacon(){
   UpcomingStation = beaconEnc & 1;
@@ -455,9 +374,10 @@ void decodeBeacon(){
 }
 
 void decodeKpKi(){
-  kp = float(kpkienc & 0xFFFF) + float((kpkienc >> 16) & 0xFFFF)/1000.0 ;
-  ki = float((kpkienc >> 32) & 0xFFFF) + float((kpkienc >> 48) & 0xFFFF)/1000.0 ;
-  powLoop.SetTunings(kp,ki,0);
+float  kp = float(kpkienc & 0xFFFF) + float((kpkienc >> 16) & 0xFFFF)/1000.0 ;
+  float ki = float((kpkienc >> 32) & 0xFFFF) + float((kpkienc >> 48) & 0xFFFF)/1000.0 ;
+  set_kp(kp);
+  set_ki(ki);
 }
 
 void serialRead(){
@@ -465,25 +385,28 @@ void serialRead(){
     int numRead = Serial.readBytesUntil('\n',readbuff,20);
     int sel = atoi(readbuff);
     memset(readbuff,0,sizeof readbuff); // clear buffer
-    if (numRead == 0 || sel < 1 || sel > 4)
+    if (numRead == 0 || sel < 1 || sel > 5)
       continue; 
     delay(10);
     numRead = Serial.readBytesUntil('\n',readbuff,70);
     switch(sel){
       case 1: // Got CurVel
-              oldVel = curVel;
-              curVel = atof(readbuff);
+              set_curVel(atof(readbuff));
+              SendPower(calcPower());
+              
               break;
       case 2: // Got TC
               TCEnc = atoll(readbuff);
-              decodeTC();
+              decodeTC(TCEnc);
               break;
       case 3:// Got Beacon
               beaconEnc = atoi(readbuff);
               decodeBeacon();
-      default: // got Kp and Ki
+      case 4: // got Kp and Ki
               kpkienc = atoll(readbuff);
               decodeKpKi();
+      case 5:
+              set_PEBrake(true);
   }
       memset(readbuff,0,sizeof readbuff); // clear buffer
       refresh = true; 
@@ -495,7 +418,7 @@ void SendToggleStates(){
   Serial.println(ToggleStates);
 }
 
-void SendPower(){
+void SendPower(double power){
   Serial.println("2");
   Serial.println(power);
 }
@@ -508,4 +431,13 @@ void SendAnnouncement(){
 void SendTemperature(){
   Serial.println("4");
   Serial.println(temperature);
+}
+
+void SendFaults(){
+  Serial.println("5");
+  int faults = 0;
+  faults += int(get_BrakeFault());
+  faults += int(get_EngineFault()) << 1;
+  faults += int(get_TCFault()) << 2;
+  
 }
