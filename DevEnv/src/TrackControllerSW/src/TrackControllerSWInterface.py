@@ -539,14 +539,15 @@ class MainWindow(QMainWindow):
         inputFileName = self.ui.ImportLine.text()
 
         try:
-			plc_name = open(inputFileName,'r')
+            plc_name = open(inputFileName,'r')
 
-		except OSError:
-			print("Invalid File name")
+        except OSError:
 			self.ui.trackFileValid.setText("Invalid File")
 
         with plc_name:
             self.ui.SuccessFailLine.setText("Valid File")
+
+        plc_name.close()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
