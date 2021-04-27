@@ -103,6 +103,39 @@ class MainWindow(QMainWindow):
             elif(block_num > 48):
                 return self.RedController7
 
+    # Returns switch controller
+    def getSwitchController(self, line, switch):
+        if(line == "Green"):
+            if(switch == 1):
+                return self.GreenController1
+            elif(switch == 2):
+                return self.GreenController2
+            elif(switch == 3):
+                return self.GreenController3
+            elif(switch == 4):
+                return self.GreenController4
+            elif(switch == 5):
+                return self.GreenController5
+            elif(switch == 6):
+                return self.GreenController6
+            elif(switch == 7):
+                return self.GreenController7
+        elif(line == "Red"):
+            if(switch == 1):
+                return self.RedController1
+            elif(switch == 2):
+                return self.RedController2
+            elif(switch == 3):
+                return self.RedController3
+            elif(switch == 4):
+                return self.RedController4
+            elif(switch == 5):
+                return self.RedController5
+            elif(switch == 6):
+                return self.RedController6
+            elif(switch == 7):
+                return self.RedController7
+
     # Occupancy Call
     def getOccupancy(self, block_num, occupied):
 
@@ -461,6 +494,7 @@ class MainWindow(QMainWindow):
             self.ui.BranchBBox.setText("N/A")
             self.ui.MainBranchCon.setText("N/A")
         else:
+            controller = self.getSwitchController(self.ui.MainLineBox.currentText(), self.ui.MainControllerBox.currentText())
             if(controller.switch.block == -1):
                 self.ui.StemBox.setText("N/A")
                 self.ui.BranchABox.setText("N/A")
