@@ -536,12 +536,16 @@ class MainWindow(QMainWindow):
 
     #Import PLC
     def ImportPLC(self):
-        self.plc_name = self.ui.ImportLine.text()
-        self.ui.SuccessFailLine.setText("Valid File")
+        inputFileName=self.ui.ImportLine.text()
+        try:
+			plc_name=open(inputFileName,'r')
 
+		except OSError:
+			print("Invalid File name")
+			self.ui.trackFileValid.setText("Invalid File")
 
-
-
+        with plc_name:
+            self.ui.SuccessFailLine.setText("Valid File")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
