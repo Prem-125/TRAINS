@@ -276,6 +276,7 @@ class MainWindow(QMainWindow):
 
                 #Call controller display function
                 self.displayUIOutput(self.GreenController7)
+
         elif(str(self.ui.StatusLineBox.currentText()) == "Red"):
             #Clear Combo Box
             #self.ui.StatusControllerBox.clear()
@@ -355,7 +356,7 @@ class MainWindow(QMainWindow):
             elif(str(self.ui.StatusControllerBox.currentText()) == "5"):
 
                 #list of Blocks
-                controller5_blocks = ["" for i in range(10)]
+                controller5_blocks = ["" for i in range(11)]
                 controller5_blocks[0] = "Choose"
                 for i in range(35,41):
                     controller5_blocks[i-34] = str(i)
@@ -373,7 +374,7 @@ class MainWindow(QMainWindow):
             elif(str(self.ui.StatusControllerBox.currentText()) == "6"):
 
                 #list of Blocks
-                controller6_blocks = ["" for i in range(10)]
+                controller6_blocks = ["" for i in range(11)]
                 controller6_blocks[0] = "Choose"
                 for i in range(41,48):
                     controller6_blocks[i-40] = str(i)
@@ -389,7 +390,7 @@ class MainWindow(QMainWindow):
             elif(str(self.ui.StatusControllerBox.currentText()) == "7"):
 
                 #list of Blocks
-                controller7_blocks = ["" for i in range(28)]
+                controller7_blocks = ["" for i in range(18)]
                 controller7_blocks[0] = "Choose"
                 for i in range(49,67):
                     controller7_blocks[i-48] = str(i)
