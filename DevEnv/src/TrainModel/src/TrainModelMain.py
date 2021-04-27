@@ -177,6 +177,8 @@ class MainWindow(QMainWindow):
 			self.train.engineFailure= self.train.engineFailure + 1
 			self.ui.engineFailureOutput.setText("Yes")
 			self.ui.engineFailureOutput_4.setText("Yes")
+			self.train_controller.set_current_speed(666)
+			
 		else:
 			self.train.engineFailure = self.train.engineFailure - 1
 			if(self.train.engineFailure == 0):
@@ -188,6 +190,7 @@ class MainWindow(QMainWindow):
 			self.train.engineFailure= self.train.engineFailure + 1
 			self.ui.engineFailureOutput.setText("Yes")
 			self.ui.engineFailureOutput_4.setText("Yes")
+			self.train_controller.set_current_speed(666)
 		else:
 			self.train.engineFailure = self.train.engineFailure - 1
 			if(self.train.engineFailure == 0):
@@ -199,6 +202,7 @@ class MainWindow(QMainWindow):
 			self.train.engineFailure= self.train.engineFailure + 1
 			self.ui.engineFailureOutput.setText("Yes")
 			self.ui.engineFailureOutput_4.setText("Yes")
+			self.train_controller.set_current_speed(666)
 		else:
 			self.train.engineFailure = self.train.engineFailure - 1
 			if(self.train.engineFailure == 0):
@@ -210,6 +214,7 @@ class MainWindow(QMainWindow):
 			self.train.engineFailure= self.train.engineFailure + 1
 			self.ui.engineFailureOutput.setText("Yes")
 			self.ui.engineFailureOutput_4.setText("Yes")
+			self.train_controller.set_current_speed(666)
 		else:
 			self.train.engineFailure = self.train.engineFailure - 1
 			if(self.train.engineFailure == 0):
@@ -221,6 +226,7 @@ class MainWindow(QMainWindow):
 			self.train.engineFailure= self.train.engineFailure + 1
 			self.ui.engineFailureOutput.setText("Yes")
 			self.ui.engineFailureOutput_4.setText("Yes")
+			self.train_controller.set_current_speed(666)
 		else:
 			self.train.engineFailure = self.train.engineFailure - 1
 			if(self.train.engineFailure == 0):

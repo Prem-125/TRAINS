@@ -8,7 +8,7 @@ from TrainControllerSW.src.PIDBackup import PID as backupPID
 
 
 
-############################################# START NEW CODE
+
 class TrainController:
     def __init__(self, TrainModel, commanded_speed = 0.0, current_speed = 0.0, authority = 0.0, TrainID = 0.0):
         
@@ -60,7 +60,9 @@ class TrainController:
         self.DisplayUpdate()
 
 
-    #COMMUNICATING WITH CORRESPONDING TRAIN MODEL
+    ###################### TRAIN MODEL INTERFACES ######################
+
+    #TRAIN MODEL: SENDING TO
     def SendServiceBrakeOn(self):
         self.TrainModel.s_brake_on()
     
@@ -70,133 +72,18 @@ class TrainController:
     def SendEmergencyBrakeOn(self):
         self.TrainModel.emergency_brake()
 
-    def toggle_is_auto(self):
-        self.is_auto = not(self.is_auto)
-
-    #DisplayUpdate: used to update the UI
-    def DisplayUpdate(self):
-        self.UI.DisplayUpdate()
-
+    #TRAIN MODEL : RECEIVING FROM
     def set_track_circuit(self, TrackInt):
-        self.decodeTC(TrackInt)
-
-    def decodeTC(self, TrackInt):
-        tempCmdInt = TrackInt & 255
-        tempCmdFloat = (TrackInt >> 8) & 15
-        tempAuthInt = (TrackInt >> 12) & 255
-        tempAuthFloat= (TrackInt >> 20) & 15
-        tempCheckSum = (TrackInt >> 24) & 1023
-        print("Temp commanded Int" + str(tempCmdInt))
-        print("Temp commanded Float" + str(tempCmdFloat))
-        if(tempCheckSum != tempCmdInt+ tempCmdFloat + tempAuthInt + tempAuthFloat):
-            #print("Signal Pickup Failure")
-            self.UI.textBrowser_15.setStyleSheet(u"background-color: rgb(255, 0, 0);")
-            self.signal_pickup_failure = True
-            self.VitalFault()
-        else:
-            self.set_commanded_speed(tempCmdFloat/100 + tempCmdInt)
-            self.set_authority(tempAuthFloat/100 + tempAuthInt)
-        #print("Track Circuit Decoded!")
+        self.DecodeTC(TrackInt)
 
     def set_beacon(self, BeaconInt):
         self.DecodeBeacon(BeaconInt)
-        
-    def DecodeBeacon(self, BeaconInt):
-        self.upcoming_station = (BeaconInt & 1)
-        print(self.upcoming_station)
-        self.right_doors_at_dest = (BeaconInt >> 1)&1
-        self.right_doors_at_dest = (BeaconInt >> 2)&1
-        self.exterior_lights = (BeaconInt >> 3)&1
-        self.station = self.stationArray[((BeaconInt >> 4) & 31)]
-        self.BuildAnnouncement()
-        self.HandleExteriorLights()
-
-        if(self.is_auto):
-            self.AuthorityHandler()
-        self.DisplayUpdate()
-        #print("Beacon Decoded!")
-
-    def BuildAnnouncement(self):
-        if(self.upcoming_station):
-            self.announcement = str("Arriving at " + self.station + " Station.")
-        if(self.left_doors_at_dest and self.right_doors_at_dest):
-                self.announcement += " The doors will open on the left and right.\n"
-        elif(self.left_doors_at_dest):
-            self.announcement += " The doors will open on the left.\n"
-        elif(self.right_doors_at_dest):
-                self.announcement += " The doors will open on the right.\n"
-        else:
-            self.announcement += ""
-        
-    def SendAnnouncement(self):
-        ...
-
-    def DetectBrakeFailure(self):
-        if(self.SR.service_brake and (self.SR.current_speed >= self.SR.previous_speed) and not(self.SR.current_speed == 0)):
-            self.brake_failure = True
-            self.UI.ui.textBrowser_14.setStyleSheet(u"background-color: rgb(255, 0, 0);")
-            self.VitalFault()
-            self.TrainModel.brake_failure_on()
 
     def set_passenger_brake(self):
         self.passenger_brake_detected = True
         self.UI.ui.textBrowser_16.setStyleSheet(u"background-color: rgb(255, 0, 0);")
         self.VitalFault()
 
-    def VitalFault(self):
-        self.any_failure = True
-        print("********************************************************* VITAL FAULT DETECTED *********************************************************")
-        self.set_emergency_brake(True)
-
-    def toggleLeftDoors(self):
-        self.left_doors = not(self.left_doors)
-        if(self.left_doors):
-            self.TrainModel.open_left_doors()
-        else:
-            self.TrainModel.close_left_doors()
-           
-    def toggleRightDoors(self):
-        self.right_doors = not(self.right_doors)
-        if(self.right_doors):
-            self.TrainModel.open_right_doors()
-        else:
-            self.TrainModel.close_right_doors()
-    
-    def toggleInteriorLights(self):
-        self.interior_lights = not(self.interior_lights)
-        print("Interior Lights: " + str(self.interior_lights))
-        if(self.interior_lights):
-            self.TrainModel.c_lights_on()
-        else:
-            self.TrainModel.c_lights_off()
-
-    def HandleExteriorLights(self):
-        if(self.exterior_lights):
-            if(self.UI.ui.exteriorLights.isChecked() == False):
-                self.UI.ui.exteriorLights.setChecked(True)
-            print("Should turn exterior lights on")
-            #self.TrainModel.t_lights_on()
-            self.DisplayUpdate()
-        else:
-            if(self.UI.ui.exteriorLights.isChecked() == True):
-                self.UI.ui.exteriorLights.setChecked(False)
-            print("Should turn exterior Lights off")
-            #self.TrainModel.t_lights_off()
-            self.DisplayUpdate()
-
-    def toggleExteriorLights(self):
-        self.exterior_lights = not(self.exterior_lights)
-        print("Exterior Lights: " + str(self.exterior_lights))
-        if(self.exterior_lights):
-            self.TrainModel.t_lights_on()
-        else:
-            self.TrainModel.t_lights_off()
-
-    def set_commanded_speed(self, commanded_speed):
-        self.SR.commanded_speed = commanded_speed
-        if(self.SR.setpoint_speed > self.SR.commanded_speed):
-            self.SR.setpoint_speed = self.SR.commanded_speed
-    
     def set_current_speed(self, current_speed):
         #main loop stuff
         self.SR.pidLoop()
@@ -207,6 +94,7 @@ class TrainController:
         self.SR.current_speed = current_speed
 
         self.DetectBrakeFailure()
+        self.SR.DetectEngineFailure()
         
         #If we reach a station and our current speed is 0, open doors and all that jazz
         if(self.upcoming_station and self.SR.current_speed == 0):
@@ -225,14 +113,128 @@ class TrainController:
                     if(self.left_doors):
                          pass
                     else:
-                        self.toggleLeftDoors()
+                        self.toggle_left_doors()
 
                 #Opening Right Doors in auto mode
                 if(self.right_doors_at_dest and self.is_auto):
                     if(self.right_doors):
                          pass
                     else:
-                        self.toggleRightDoors()
+                        self.toggle_right_doors()
+
+    #TRAIN MODEL : CALLABLE
+    def get_power(self):
+        return self.SR.get_power()
+    
+
+    ###################### CLASS FUNCTIONS ###################### 
+
+    #toggle_is_auto: toggles between manual and auto mode
+    def toggle_is_auto(self):
+        self.is_auto = not(self.is_auto)
+
+    #DisplayUpdate: used to update the UI
+    def DisplayUpdate(self):
+        self.UI.DisplayUpdate()
+
+    #DecodeTC: used to decode track circuit received from train model
+    def DecodeTC(self, TrackInt):
+        tempCmdInt = TrackInt & 255
+        tempCmdFloat = (TrackInt >> 8) & 15
+        tempAuthInt = (TrackInt >> 12) & 255
+        tempAuthFloat= (TrackInt >> 20) & 15
+        tempCheckSum = (TrackInt >> 24) & 1023
+        print("Temp commanded Int" + str(tempCmdInt))
+        print("Temp commanded Float" + str(tempCmdFloat))
+        if(tempCheckSum != tempCmdInt+ tempCmdFloat + tempAuthInt + tempAuthFloat):
+            #print("Signal Pickup Failure")
+            self.UI.textBrowser_15.setStyleSheet(u"background-color: rgb(255, 0, 0);")
+            self.signal_pickup_failure = True
+            self.SR.VitalFault()
+        else:
+            self.set_commanded_speed(tempCmdFloat/100 + tempCmdInt)
+            self.set_authority(tempAuthFloat/100 + tempAuthInt)
+        #print("Track Circuit Decoded!")
+       
+    #DecodeBeacon: used to decode beacon from train model
+    def DecodeBeacon(self, BeaconInt):
+        self.upcoming_station = (BeaconInt & 1)
+        print(self.upcoming_station)
+        self.right_doors_at_dest = (BeaconInt >> 1)&1
+        self.right_doors_at_dest = (BeaconInt >> 2)&1
+        self.exterior_lights = (BeaconInt >> 3)&1
+        self.station = self.stationArray[((BeaconInt >> 4) & 31)]
+        self.BuildAnnouncement()
+        self.HandleExteriorLights()
+
+        if(self.is_auto):
+            self.AuthorityHandler()
+        self.DisplayUpdate()
+        #print("Beacon Decoded!")
+
+    #BuildAnnouncement: used to build announcement upon receiving a beacon
+    def BuildAnnouncement(self):
+        if(self.upcoming_station):
+            self.announcement = str("Arriving at " + self.station + " Station.")
+        if(self.left_doors_at_dest and self.right_doors_at_dest):
+                self.announcement += " The doors will open on the left and right.\n"
+        elif(self.left_doors_at_dest):
+            self.announcement += " The doors will open on the left.\n"
+        elif(self.right_doors_at_dest):
+                self.announcement += " The doors will open on the right.\n"
+        else:
+            self.announcement += ""
+
+    #SendAnnouncement: used to send announcement to train model and UI  
+    def SendAnnouncement(self):
+        ...
+
+    #Door/Lights Toggles
+    def toggle_left_doors(self):
+        self.left_doors = not(self.left_doors)
+        if(self.left_doors):
+            self.TrainModel.open_left_doors()
+        else:
+            self.TrainModel.close_left_doors()
+           
+    def toggle_right_doors(self):
+        self.right_doors = not(self.right_doors)
+        if(self.right_doors):
+            self.TrainModel.open_right_doors()
+        else:
+            self.TrainModel.close_right_doors()
+    
+    #toggle_interior_lights: function for toggling interior lights based of checkmarks
+    def toggle_interior_lights(self):
+        self.interior_lights = not(self.interior_lights)
+        print("Interior Lights: " + str(self.interior_lights))
+        if(self.interior_lights):
+            self.TrainModel.c_lights_on()
+        else:
+            self.TrainModel.c_lights_off()
+
+    #toggle_exterior_lights: function for toggling exterior lights based of checkmarks
+    def toggle_exterior_lights(self):
+        self.exterior_lights = not(self.exterior_lights)
+        print("Exterior Lights: " + str(self.exterior_lights))
+        if(self.exterior_lights):
+            self.TrainModel.t_lights_on()
+        else:
+            self.TrainModel.t_lights_off()
+
+    #toggle_exterior_lights: function for keeping checks in UI in sync with beacon
+    def HandleExteriorLights(self):
+        if(self.exterior_lights):
+            if(self.UI.ui.exteriorLights.isChecked() == False):
+                self.UI.ui.exteriorLights.setChecked(True)
+            self.DisplayUpdate()
+        else:
+            if(self.UI.ui.exteriorLights.isChecked() == True):
+                self.UI.ui.exteriorLights.setChecked(False)
+            self.DisplayUpdate()
+
+
+    ###################### SPEED REGULATOR INTERFACES ######################
 
     def set_authority(self, authority):
         if(authority == 0):
@@ -244,7 +246,7 @@ class TrainController:
     def AuthorityHandler(self):
 
         if(self.SR.authority==0 and self.upcoming_station):
-            self.set_Service_brake(True)
+            self.set_service_brake(True)
             self.UI.Announce(self.announcement)
             self.sendAnnouncement
 
@@ -274,10 +276,7 @@ class TrainController:
         self.SR.ki = ki
 
     #SPEED REGULATOR GETTERS
-    def get_power(self):
-        return self.SR.get_power()
 
-    #SPEED REGULATOR BUTTONS
     
 
 
@@ -309,13 +308,6 @@ class SpeedRegulator():
         self.previous_power_backup = 0.0
         self.backupPID = PID(self.kp, self.ki, 0)
         self.backupPID.output_limits = (0, 120000)
-        ##self.backupPID = backupPID.PID(self.kp, self.ki, 1)
-
-        
-
-
-
-
 
 
     #pidLoop: used to calculate power
@@ -329,9 +321,9 @@ class SpeedRegulator():
             #Closing the doors if we are leaving a destination
             if(self.TrainController.atDestination):
                 if(self.TrainController.right_doors):
-                    self.TrainController.toggleRightDoors
+                    self.TrainController.toggle_right_doors
                 if(self.TrainController.left_doors):
-                    self.TrainController.toggleLeftDoors
+                    self.TrainController.toggle_left_doors
                 self.atDestination = False
 
             #updating setpoint
@@ -351,15 +343,8 @@ class SpeedRegulator():
 
         #Updating the display
         self.TrainController.DisplayUpdate()
-
-        # send power here
-        ##print(self.power)
-        ##print("Got to end of pidLoop:")
-        ##print("Power:" + str(self.power))
-
-        #pidLoop: used to calculate power
     
-    #backupPID: used to backup our process
+    #backupPID: used to make PID Loop safety-critical
     def backupPIDLoop(self):
 
         #print("Backup called. Backup power is: " + str(self.power_backup))
@@ -385,14 +370,6 @@ class SpeedRegulator():
         else:
             self.pid.setpoint=0
             self.power_backup = 0
-
-        #Updating the display
-        self.TrainController.DisplayUpdate()
-
-        # send power here
-        ##print(self.power)
-        ##print("Got to end of pidLoop:")
-        ##print("Power:" + str(self.power))
     
     def get_power(self):
         if(self.power == 0):
@@ -401,6 +378,7 @@ class SpeedRegulator():
             if(self.power / self.power_backup > 2):
                 print("TOO MUCH POWER DIFFERENCE")
                 return 0
+                self.Vital
             else:
                 return self.power
         else:
@@ -421,8 +399,6 @@ class SpeedRegulator():
         self.emergency_brake = True
         self.TrainController.SendEmergencyBrakeOn()
         self.TrainController.DisplayUpdate()
-        #DONE: emit service brake
-        #print("Emergency Brake: " + str(self.emergency_brake))
 
     def IncreaseSetpoint(self):
         if(self.setpoint_speed+1 <= self.commanded_speed):
@@ -438,6 +414,22 @@ class SpeedRegulator():
         if(self.current_speed == 666):
             self.engine_failure = True
             self.UI.textBrowser_13.setStyleSheet(u"background-color: rgb(255, 0, 0);")
+            self.VitalFault()
+            self.TrainController.TrainModel.engine_failure_on()
+
+
+    def DetectBrakeFailure(self):
+        if(self.service_brake and (self.current_speed >= self.previous_speed) and not(self.current_speed == 0)):
+            self.brake_failure = True
+            self.UI.ui.textBrowser_14.setStyleSheet(u"background-color: rgb(255, 0, 0);")
+            self.VitalFault()
+            self.TrainController.TrainModel.brake_failure_on()
+    
+    def VitalFault(self):
+        self.TrainController.any_failure = True
+        print("********************************************************* VITAL FAULT DETECTED *********************************************************")
+        self.OnEBrakeOn()
+
         
 
 #MainWindow class - interfaces with TrainController UI
@@ -460,10 +452,10 @@ class MainWindow(QMainWindow):
         self.ui.speedUpButton.clicked.connect(self.TrainController.SR.IncreaseSetpoint)
         self.ui.automaticMode.toggled.connect(self.TrainController.toggle_is_auto)
         self.ui.updatePID.clicked.connect(self.send_kp_ki)
-        self.ui.leftDoors.stateChanged.connect(self.TrainController.toggleLeftDoors)
-        self.ui.rightDoors.stateChanged.connect(self.TrainController.toggleRightDoors)
-        self.ui.interiorLights.stateChanged.connect(self.TrainController.toggleInteriorLights)
-        self.ui.exteriorLights.stateChanged.connect(self.TrainController.toggleExteriorLights)
+        self.ui.leftDoors.stateChanged.connect(self.TrainController.toggle_left_doors)
+        self.ui.rightDoors.stateChanged.connect(self.TrainController.toggle_right_doors)
+        self.ui.interiorLights.stateChanged.connect(self.TrainController.toggle_interior_lights)
+        self.ui.exteriorLights.stateChanged.connect(self.TrainController.toggle_exterior_lights)
         
 
         #self.pidTimer = QTimer()
