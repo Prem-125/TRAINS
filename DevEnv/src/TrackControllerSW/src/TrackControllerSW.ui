@@ -118,6 +118,9 @@
         <height>21</height>
        </rect>
       </property>
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
       <property name="text">
        <string/>
       </property>
