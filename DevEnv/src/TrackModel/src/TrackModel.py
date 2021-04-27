@@ -1,7 +1,8 @@
 import sys
-from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6.QtWidgets import *
 from PySide6.QtCore import QFile
 from TrackModel.src.UI import Ui_Dialog
+#from UI import Ui_Dialog
 from signals import signals
 
 
@@ -9,6 +10,78 @@ from signals import signals
 import csv
 import ast
 import random
+
+#Code to generate Green route
+
+'''
+#Train always begins at yard
+self.route_queue.append(0)
+
+#Specify blocks for track sections K through Q
+for block_num in range(63, 101):
+	self.route_queue.append(block_num)
+
+#Specify blocks for track section N in reverse
+for block_num in range(85, 76, -1):
+	self.route_queue.append(block_num)
+
+#Specify blocks for track secionts R through Z
+for block_num in range(101, 151):
+	self.route_queue.append(block_num)
+
+#Specify blocks for track sections A through F in reverse
+for block_num in range(28, 0, -1):
+	self.route_queue.append(block_num)
+
+#Specify blocks for track sections D through I
+for block_num in range(13, 58):
+	self.route_queue.append(block_num)
+
+#Train ends at yard by default
+self.route_queue.append(0)
+'''
+
+#Code to generate Red route
+
+'''
+#Train always begins at yard
+self.route_queue.append(0)
+
+#Specify blocks for track sections A, B, C in reverse
+for block_num in range(9, 0, -1):
+	self.route_queue.append(block_num)
+
+#Specify blocks for track sections F through N
+for block_num in range(16, 67):
+	self.route_queue.append(block_num)
+
+#Specify blocks for part of H, I, and part of J in reverse
+for block_num in range(52, 42, -1):
+	self.route_queue.append(block_num)
+
+#Specify blocks for track sections O through Q
+for block_num in range(67, 72):
+	self.route_queue.append(block_num)
+
+#Specify blocks for part of H in reverse
+for block_num in range(38, 31, -1):
+	self.route_queue.append(block_num)
+
+#Specify blocks for track sections R through T
+for block_num in range(72, 77):
+	self.route_queue.append(block_num)
+
+#Specify blocks for F, G, and part of H in reverse
+for block_num in range(27, 15, -1):
+	self.route_queue.append(block_num)
+
+#Specify blocks for track sections D and E in reverse
+for block_num in range(15, 9, -1):
+	self.route_queue.append(block_num)
+
+#Train ends always ends at yard
+self.route_queue.append(0)
+'''
 
 #i currently need to change the function to that of which will match the coding standards
 
@@ -469,6 +542,11 @@ class MainWindow(QMainWindow):
 	#function to load track from a file
 	def load_track(self):
 
+		#reset the table
+		self.ui.green_line_table.setRowCount(0)
+		self.ui.green_line_table.setColumnCount(0)
+
+
 		#if self.upTrackBlue.getChecked()==true
 		inputFileName=self.ui.lineEdit.text()
 		#open csv reader for inputFile
@@ -492,6 +570,7 @@ class MainWindow(QMainWindow):
 			for row in csv_reader:
 				#because python indexs by zero, i want a dummie object at track_list[0] since the file indexs the tracks by 1
 				#skip adding any values to track object at track_list[0]
+				#first block is track_lisst[1]
 				if self.num_lines ==0:
 					self.track_list.append(Track())	
 					self.num_lines+=1
@@ -548,6 +627,11 @@ class MainWindow(QMainWindow):
 		signals.train_creation.connect(self.set_occupied_initial)
 		signals.wayside_block_open.connect(self.get_open_block)
 		
+		#initialize the table
+		self.ui.green_line_table.setColumnCount(2)
+		self.ui.green_line_table.setRowCount(len(self.track_list))
+		#for i in range(0, len(self.track_list)+1):
+			#self.ui.green_line_table.insertRow(i)
 		
 	#function to tell me where the train is
 	def send_block_to_model(self,block,id):
@@ -559,7 +643,8 @@ class MainWindow(QMainWindow):
 			self.track_list[block+2].encode_beacon()
 			signals.Beacon_signal.emit(self.track_list[block+2].encodedBeacon, id) # ACTUALLY CALCULATE THE BEACON VAL AND BLOCK NUM
 		self.update_track_info(self.current_block)
-
+		
+	
 	#function for inital train spawn
 	def set_occupied_initial(self, track_line, id):
 		if (track_line == "Green"):
@@ -695,9 +780,31 @@ class MainWindow(QMainWindow):
 	
 	def update_track_info(self,blckNum):
 		
+		#update the table with current occupied blocks
+	
+		
+		#creat a variable that hold the number of occupied blocks
+		#num_occupied_blocks = 0
+		#loop through the whole track list to find if any occupied blocks
+		#for(i=0, i<=len(self.track_list), i++)
+		#	if(if(self.track_list[i-1].get_occupied == True)
+		print("track model updating")
+		self.ui.green_line_table.setItem(0,0, QTableWidgetItem("Block Number"))
+		self.ui.green_line_table.setItem(0,1, QTableWidgetItem("Status"))	
+		
+		for i in range(1, len(self.track_list)):
+			if(self.track_list[i].get_occupied == True):
+				print("occupied block is" + self.track_list[i])
+				self.ui.green_line_table.setItem(i,0, QTableWidgetItem(str(self.track_list[i].get_block())))
+				self.ui.green_line_table.setItem(i,1, QTableWidgetItem("Occupied"))	
+			else:
+				self.ui.green_line_table.setItem(i,0, QTableWidgetItem(str(self.track_list[i].get_block())))
+				self.ui.green_line_table.setItem(i,1, QTableWidgetItem("Unoccupied"))	
+
 		#print("-----------------------------------------------------------------------------------")
 		#update any connections
 		#make track connections
+		
 		i=1
 		while (i <= self.num_lines-1):
 			#print(self.track_list[i].get_block())
@@ -722,16 +829,22 @@ class MainWindow(QMainWindow):
 					self.track_list[Track.switch_list[1].get_y_one()].set_connection_track_a(None)
 				
 				if self.track_list[i].switch_list[Track.switch_num].get_switch_position() == True:
+					#
 					self.track_list[i].set_connection_track_a(self.track_list[Track.switch_list[1].get_y_stem()])
 					self.track_list[i].set_connection_track_b(self.track_list[Track.switch_list[1].get_y_one()])
 					self.track_list[Track.switch_list[1].get_y_zero()].set_connection_track_a(None)				
 				
 				
-			#this prints all the connections for debug
-			#print(self.track_list[i].get_block()," Con A = ", self.track_list[i].get_connection_track_a(), "Con B = ",self.track_list[i].get_connection_track_b())
 			
 			i+=1
 		
+		for j in range (1,len(self.track_list)):
+			#this prints all the connections for debug
+			try:
+				print(self.track_list[j].get_block()," Con A = ", self.track_list[j].get_connection_track_a().get_block(), " Con B = ",self.track_list[j].get_connection_track_b().get_block())
+			except:
+				print(self.track_list[j].get_block())
+
 		#update every label with relevant information
 		self.ui.selTrackSection.setText(str(self.track_list[blckNum].get_line()))
 		
@@ -817,7 +930,7 @@ class MainWindow(QMainWindow):
 		#train outputs
 		self.ui.trainSpeedLimitO.display(self.track_list[blckNum].get_speed_limit())
 		self.ui.trainAuthorityO.display(self.track_list[blckNum].get_authority())
-		self.ui.trainBeaconO.setText(self.track_list[blckNum].get_beacon())
+		self.ui.trainBeaconO.setText(str(self.track_list[blckNum].get_beacon()))
 	
 		
 		#Wayside outputs

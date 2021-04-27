@@ -207,6 +207,7 @@ class MainWindow(QMainWindow):
         #     self.GreenController3.setBlockClosure(line, block_num, break_type)
         # elif(block_num > 104 and block_num < 147):
         #     self.GreenController4.setBlockClosure(line, block_num, break_type)
+
         self.UIBlockOutput()
 
     # Block Status Updates
@@ -222,6 +223,7 @@ class MainWindow(QMainWindow):
         #     self.GreenController3.UpdateBlockStatus(line, block_num, status)
         # elif(block_num > 104 and block_num < 147):
         #     self.GreenController4.UpdateBlockStatus(line, block_num, status)
+
         self.UIBlockOutput()
 
     # Call Controller Toggle Switch

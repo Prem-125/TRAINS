@@ -163,7 +163,7 @@ if(PEBrake || EBrake || SBrake || auth == 0){
 }
 
 void detectFailures(){
-  if((oldVel < curVel && power == 0 && (PEBrake || EBrake || SBrake) && oldVel != 666.0 && oldVel!=0)||BrakeFault){
+  if((curVel >= oldVel &&  (PEBrake || EBrake || SBrake) && oldVel != 666.0 && oldVel!=0)||BrakeFault){
     digitalWrite(LEDs[10],HIGH);
     ToggleStates |= 1 << 7; // Apply EBrake
     power = 0;
