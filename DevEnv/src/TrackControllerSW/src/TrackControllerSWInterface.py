@@ -58,6 +58,8 @@ class MainWindow(QMainWindow):
         self.ui.BlockInput.currentTextChanged.connect(self.UIBlockOutput)
         self.ui.ImportButton.clicked.connect(self.ImportPLC)
         self.ui.ToggleBranchButton.clicked.connect(self.ToggleSwitchBranch)
+        self.ui.MainLineBox.currentTextChanged.connect(self.UISwitchOutput)
+        self.ui.MainControllerBox.currentTextChanged.connect(self.UISwitchOutput)
 
         #Signal Functions
         signals.track_model_occupancy.connect(self.getOccupancy)
@@ -496,8 +498,6 @@ class MainWindow(QMainWindow):
                 self.ui.CommandedSpeed.setText("N/A")
                 self.ui.CrossingStatus.setText("N/A")
                 self.ui.SwitchStatus.setText("N/A")
-
-
 
     #Import PLC
     def ImportPLC(self):
