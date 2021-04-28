@@ -56,10 +56,10 @@ class TrackController:
         signals.CTC_occupancy.emit("Green",block_num, occupied)
 
     # Sets the authority of the block
-    # Parameter is block number
-    def get_Authority(self, block_num):
+    # Parameter is block number and authority
+    def get_Authority(self, block_num, authority):
         # Uses block offset to set the correct block
-        self.authority[block_num-self.block_offset] = False
+        self.authority[block_num-self.block_offset] = authority
 
     # Gets the suggested speed from the CTC office
     # Calls the commanded speed function

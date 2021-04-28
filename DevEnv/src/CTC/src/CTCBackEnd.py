@@ -208,8 +208,8 @@ class Train:
                 suggested_speed = int(0*self.HostTrackLine.block_list[self.route_queue[0]-1].speed_limit)
                 signals.CTC_suggested_speed.emit(self.HostTrackLine.color, self.route_queue[0], suggested_speed*3.60) 
 
-                #Send destination (authority) to track controller TEMPORARY SETUP
-                signals.CTC_authority.emit(self.track_line, self.destination)  
+                #Send authority to track controller
+                signals.CTC_authority.emit(self.HostTrackLine.color, self.destination, False)  
 
                 #Start dwell timer
                 QTimer.singleShot(6000, self.LeaveStation)
@@ -221,6 +221,8 @@ class Train:
 
     #Method to alert train to leave station after dwell period has expired
     def LeaveStation(self):
+        #Send authority to track controller
+        signals.CTC_authority.emit(self.HostTrackLine.color, self.destination, True)
         print("\nHIT1\n")
         suggested_speed = self.HostTrackLine.block_list[self.route_queue[0]-1].speed_limit
         print("\nHIT2\n")

@@ -169,10 +169,10 @@ class MainWindow(QMainWindow):
 
     # get_Authority is called to return the Authority of the block
     # Calls get_Authority function in the proper TrackController object
-    # Parameters are track line name and block number
-    def get_Authority(self, line, block_num):
+    # Parameters are track line name, block number, and authority
+    def get_Authority(self, line, block_num, authority):
         # Asks for controller object, calls controller function
-        self.get_Controller(line, block_num).get_Authority(block_num)
+        self.get_Controller(line, block_num).get_Authority(block_num, authority)
         self.UIBlockOutput()
 
     # get_SugSpeed is called to get the Suggested Speed from CTC Office

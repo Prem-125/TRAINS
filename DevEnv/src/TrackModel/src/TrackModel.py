@@ -265,7 +265,9 @@ class Track:
 			if(self.get_is_station() == True):	#maybe add in if "&& in_occupied == False"
 				self.generate_random_ticket()
 		self.occupied=in_occupied
-		signals.track_model_occupancy.emit(self.block, self.occupied)
+		
+		if(self.get_authority() == 1):
+			signals.track_model_occupancy.emit(self.block, self.occupied)
 	
 		#if the block is becomming occupied, send signal to train model
 		if(in_occupied == True and self.rail_condition == True):
@@ -779,6 +781,13 @@ class MainWindow(QMainWindow):
 	def get_wayside_info(self, block_in, authority_in, commanded_speed_in):
 		self.track_list[block_in].set_authority(authority_in)
 		self.track_list[block_in].set_commanded_speed(commanded_speed_in*(5.0/18.0))
+		#self.track_list[block_in].set_occupied(1)
+		
+		for i in range(0, len(self.id_list)):
+			if(self.id_list[i] == block_in):
+				self.track_list[block_in].encode_track_circuit_signal()
+				signals.TC_signal.emit(self.track_list[block_in].encoded_TC, i)
+		
 		print("Sending occupancy to wayside")
 
 	def get_open_block(self, line_in, in_block): #add line field for when red line is added 
@@ -1107,6 +1116,211 @@ class MainWindow(QMainWindow):
 		#Wayside outputs
 		self.ui.wayOccupiedO.setText(str(self.track_list[blckNum].get_occupied()))
 			
+#----------------RED LINE-------------------------------------------------------------------------------------
+
+
+
+	def update_track_info_red(self,blckNum):
+		
+		#update the table with current occupied blocks
+		print("track model updating green line")
+		self.ui.red_line_table.setItem(0,0, QTableWidgetItem("Block Number"))
+		self.ui.red_line_table.setItem(0,1, QTableWidgetItem("Status"))	
+		
+		for i in range(1, len(self.track_list)-1):
+			#print("in for loop for table " + str(i) + "and is currently " + str(self. 
+			if(self.track_list[i].get_occupied() == True):
+				print("occupied block is" + str(self.track_list[i]))
+				self.ui.red_line_table.setItem(i,0, QTableWidgetItem(str(self.track_list[i].get_block())))
+				self.ui.red_line_table.setItem(i,1, QTableWidgetItem("Occupied"))	
+			else:
+				self.ui.green_line_table.setItem(i,0, QTableWidgetItem(str(self.track_list[i].get_block())))
+				self.ui.green_line_table.setItem(i,1, QTableWidgetItem("Unoccupied"))	
+		#update any connections
+		#make track connections
+		
+		i=1
+		while (i <= self.num_lines-1):
+			#print(self.track_list[i].get_block())
+			if self.track_list[i].get_is_switch()==False and  self.track_list[i].get_is_switch_leg()==False :						
+				#print("block " + str(i) + " is not a switch")
+				'''if i == 1:
+					print("first block not a switch")
+					self.track_list[i].set_connection_track_a(None)
+					self.track_list[i].set_connection_track_b(self.track_list[i+1])
+				
+				if i == self.num_lines or self.track_list[i].get_is_station()==True:
+					self.track_list[i].set_connection_track_a(self.track_list[i-1])
+					self.track_list[i].set_connection_track_b(None)
+				else:'''
+				self.track_list[i].set_connection_track_a(self.track_list[i-1])
+				self.track_list[i].set_connection_track_b(self.track_list[i+1])
+							
+			elif(self.track_list[i].get_is_switch()==True):
+				#print("block " + str(i) + " is a switch or switch leg")
+				if self.track_list[i].switch_list[self.track_list[i].get_switch_index()].get_switch_position() == False:
+					#print("switch index for block " + str(i)+" is " + str(self.track_list[i].get_switch_index()))
+					
+					if (self.track_list[i].switch_list[self.track_list[i].get_switch_index()].get_y_zero() < self.track_list[i].get_block()) or (self.track_list[i].switch_list[self.track_list[i].get_switch_index()].get_y_one() < self.track_list[i].get_block()):
+						self.track_list[i].set_connection_track_b(self.track_list[i+1])
+						self.track_list[i].set_connection_track_a(self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_zero()])
+					else:	
+						self.track_list[i].set_connection_track_a(self.track_list[i-1])
+						self.track_list[i].set_connection_track_b(self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_zero()])
+					
+					#self.track_list[i].set_connection_track_a(self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_stem()])
+					#self.track_list[i].set_connection_track_b(self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_zero()])
+					#self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_one()].set_connection_track_a(None)
+				
+				if self.track_list[i].switch_list[self.track_list[i].get_switch_index()].get_switch_position() == True:
+
+					'''self.track_list[i].set_connection_track_a(self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_stem()])
+					self.track_list[i].set_connection_track_b(self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_one()])
+					self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_zero()].set_connection_track_a(None)	'''
+				
+					if (self.track_list[i].switch_list[self.track_list[i].get_switch_index()].get_y_zero() < self.track_list[i].get_block()) or (self.track_list[i].switch_list[self.track_list[i].get_switch_index()].get_y_one() < self.track_list[i].get_block()):
+						self.track_list[i].set_connection_track_b(self.track_list[i+1])
+						self.track_list[i].set_connection_track_a(self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_one()])
+					else:	
+						self.track_list[i].set_connection_track_a(self.track_list[i-1])
+						self.track_list[i].set_connection_track_b(self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_one()])					
+				
+			else:
+				if self.track_list[i].switch_list[self.track_list[i].get_switch_index()].get_switch_position() == False:
+					#ex switch 85 in default
+					if self.track_list[i].switch_list[self.track_list[i].get_switch_index()].get_y_stem() < self.track_list[i].get_block():
+						self.track_list[i].set_connection_track_a(self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_stem()])
+						self.track_list[i].set_connection_track_b(self.track_list[i+1])
+					#ex switch 77 in deafult
+					else:
+						self.track_list[i].set_connection_track_b(self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_stem()])
+						self.track_list[i].set_connection_track_a(self.track_list[i-1])
+						
+				if self.track_list[i].switch_list[self.track_list[i].get_switch_index()].get_switch_position() == True:
+					#ex switch 85 in swapped
+					if self.track_list[i].switch_list[self.track_list[i].get_switch_index()].get_y_stem() < self.track_list[i].get_block() and  self.track_list[i].switch_list[self.track_list[i].get_switch_index()].get_y_zero() < self.track_list[i].switch_list[self.track_list[i].get_switch_index()].get_y_stem():
+						self.track_list[i].set_connection_track_a(self.track_list[i-1])
+						self.track_list[i].set_connection_track_b(self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_stem()])
+					
+					#ex switch 77 in swapped
+					else:
+						self.track_list[i].set_connection_track_b(self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_stem()])
+						self.track_list[i].set_connection_track_a(self.track_list[i-1])
+				#CURRENTLY DO NOT SET NULL FOR LEGS
+			
+			i+=1
+		
+		'''for j in range (1,len(self.track_list)):
+			#this prints all the connections for debug
+			try:
+				print(self.track_list[j].get_block()," Con A = ", self.track_list[j].get_connection_track_a().get_block(), " Con B = ",self.track_list[j].get_connection_track_b().get_block())
+			except:
+				print(self.track_list[j].get_block())'''
+
+		#update every label with relevant information
+		self.ui.selTrackSection.setText(str(self.track_list[blckNum].get_line()))
+		
+		
+		self.ui.selTrackSpeed.display(self.track_list[blckNum].get_speed_limit()*0.6213711922)
+		
+		self.ui.selTrackGrade.setText(str(self.track_list[blckNum].get_grade()))
+		self.ui.selTrackHeater.setText(str(self.track_list[blckNum].get_heater_status()))
+		
+		if(self.track_list[blckNum].get_is_station() == True):
+			self.ui.selTrackStation.setText(self.track_list[blckNum].get_station_name())	
+			#CTC outputs
+			self.ui.ctcTicketO.display(self.track_list[blckNum].get_ticket_count())
+			self.ui.ctcTrackUpO.setText("Tickets Updated")
+			if(self.track_list[blckNum].get_occupied() == True):
+				self.ui.train_people_boarding.display(self.track_list[blckNum].get_boarding_count())
+			else:
+				self.ui.train_people_boarding.display(0)
+				
+			#print(str(self.track_list[blckNum].get_station_side()))
+			if(self.track_list[blckNum].get_station_side() == 1):
+				self.ui.selTrackStationSide.setText("Left")
+			if(self.track_list[blckNum].get_station_side() == 2):
+				self.ui.selTrackStationSide.setText("Right")
+			if(self.track_list[blckNum].get_station_side() == 3):
+				self.ui.selTrackStationSide.setText("Left/Right")
+			
+		else:
+			self.ui.selTrackStation.setText('Not a Station')
+			self.ui.ctcTicketO.display(0)
+			self.ui.train_people_boarding.display(0)
+			self.ui.ctcTrackUpO.setText("Not a Station")
+			self.ui.selTrackStationSide.setText("Not a Station")
+			self.ui.train_people_boarding.display(0)
+			
+		if(self.track_list[blckNum].get_is_crossing() == True):
+			self.ui.selTrackCross.setText('Yes')
+		else:
+			self.ui.selTrackCross.setText('No')
+		
+		if(self.track_list[blckNum].get_is_crossing() == True):
+			self.ui.selTrackBranch.setText('Yes')
+		else:
+			self.ui.selTrackBranch.setText('No')	
+
+		if(self.track_list[blckNum].get_is_switch() == True):
+			self.ui.selTrackSW.setText('Yes')
+			self.ui.waySwitch.setText(str(self.track_list[blckNum].get_connection_track_b().get_block()))
+		else:
+			self.ui.selTrackSW.setText('No')	
+			self.ui.waySwitch.setText('Not a switch')
+		
+		if(self.track_list[blckNum].get_is_underground() == True):
+			self.ui.selTrackUnderground.setText('Yes')
+		else:
+			self.ui.selTrackUnderground.setText('No')	
+		
+		
+		self.ui.selTrackDirection.setText(str(self.track_list[blckNum].get_direction()))
+		self.ui.selTrackElevation.setText(str(self.track_list[blckNum].get_elevation()))
+		self.ui.selTrackElevationCumulative.setText(str(self.track_list[blckNum].get_elevation_c()))
+
+		
+		#railStatus
+		self.ui.selTrackRailStat.setText(str(self.track_list[blckNum].get_rail_condition()))
+		self.ui.selTrackCircStat.setText(str(self.track_list[blckNum].get_circuit_condition()))
+		self.ui.selTrackPowerStat.setText(str(self.track_list[blckNum].get_power_condition()))
+		
+		if(self.track_list[blckNum].get_is_crossing()):
+			self.track_list[blckNum].set_signal_light == 'Slow'
+		
+		#railSignal
+		if(self.track_list[blckNum].get_signal_light() == 'Go'):
+			self.ui.sigGo.setChecked(True)
+			self.ui.sigSlow.setChecked(False)
+			self.ui.sigStop.setChecked(False)
+		elif(self.track_list[blckNum].get_signal_light() == 'Slow'):
+			self.ui.sigGo.setChecked(False)
+			self.ui.sigSlow.setChecked(True)
+			self.ui.sigStop.setChecked(False)
+		elif(self.track_list[blckNum].get_signal_light() == 'Stop'):
+			self.ui.sigGo.setChecked(False)
+			self.ui.sigSlow.setChecked(False)
+			self.ui.sigStop.setChecked(True)
+		
+		#temperature
+		self.ui.ambTemp.display(self.track_list[blckNum].get_ambient_temp())
+		
+		#wayside input
+		self.ui.wayCommandedSpeed.display(self.track_list[blckNum].get_commanded_speed())
+		self.ui.wayAuthority.display(str(self.track_list[blckNum].get_authority()))
+		self.ui.waySignal.setText(str(self.track_list[blckNum].get_signal_light()))
+		
+		#train outputs
+			
+		self.ui.trainSpeedLimitO.display(self.track_list[blckNum].get_speed_limit()*0.6213711922)
+		self.ui.trainAuthorityO.display(self.track_list[blckNum].get_authority())
+		self.ui.trainBeaconO.setText(str(self.track_list[blckNum].get_beacon()))
+		self.ui.trainCommandedSpeedO.display(self.track_list[blckNum].get_commanded_speed()*0.6213711922)
+		
+		#Wayside outputs
+		self.ui.wayOccupiedO.setText(str(self.track_list[blckNum].get_occupied()))
+
+
 
 		
 if __name__ == "__main__":
