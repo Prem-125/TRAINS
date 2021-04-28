@@ -143,7 +143,7 @@ class Track:
 		self.heater_status= 0
 		self.connection_track_a = 0
 		self.connection_track_b = 0
-		
+		self.direction = ''
 		self.rail_condition = 0
 		self.circuit_condition = 0
 		self.power_condition = 0 #power_condition
@@ -207,6 +207,11 @@ class Track:
 		return self.grade
 	def set_grade(self, in_grade):
 		self.grade=in_grade
+	
+	def get_direction(self):
+		return self.direction
+	def set_direction(self, in_direction):
+		self.direction = in_direction
 
 	def get_infrastructure(self):
 		return self.connection_track_b
@@ -347,6 +352,7 @@ class Track:
 	def set_ticket_count(self, in_condition):
 		self.ticket_count=in_condition
 		if(self.get_is_station()==True):
+			print("in ticket if")
 			signals.station_ticket_sales.emit(self.line, self.ticket_count)
 			#print("emitting ticket sales for " + self.station_name)
 
@@ -420,8 +426,15 @@ class Track:
 			#split up atribute by the spacing
 			atrib=list_atrib[i].split(' ')	
 			#print(str(len(atrib)) + " atrib length")
-			#print(atrib)
+			print(atrib)
 			for j in range(0,len(atrib)):	
+				
+				if(atrib[j] == 'RAILWAY'):
+					self.set_is_crossing(True)
+					self.set_signal_light('Slow')
+				
+				
+				
 				#check to see if atribute is a station:
 				if(atrib[j] == 'STATION'):
 					self.set_is_station(True)
@@ -429,7 +442,7 @@ class Track:
 					self.set_station_name(atrib[j+1])
 
 					sample_string = self.get_station_name()
-					#print(sample_string)
+					print(sample_string)
 					self.set_beacon('Welcome to ' + sample_string)
 					self.generate_random_ticket() 
 					if(self.station_side == 'Left'):
@@ -529,8 +542,10 @@ class MainWindow(QMainWindow):
 		
 		#instance variables
 		self.track_list = [Track()]
+		self.track_list_green = [Track()]
+		self.track_list_red = [Track()]
 		self.num_lines = 0
-		self.current_block = 0
+		self.current_block_green = 0
 		self.route_queue_green = []
 		
 		
@@ -554,16 +569,29 @@ class MainWindow(QMainWindow):
 	
 		#if button pressed swap switch
 
-		self.ui.waySwitchBTN.clicked.connect(self.swap_switch)
+		#self.ui.waySwitchBTN.clicked.connect(self.swap_switch)
 
 	#function to load track from a file
 	def load_track(self):
 
 		#reset the table
-		self.ui.green_line_table.setRowCount(0)
-		self.ui.green_line_table.setColumnCount(0)
+		
+		while (self.ui.green_line_table.rowCount() > 0):
+			print("removing rows")
+			self.ui.green_line_table.removeRow(0)
+		self.ui.green_line_table.reset()
+		
+		#self.ui.green_line_table.setRowCount(0)
+		#self.ui.green_line_table.setColumnCount(0)
 
-
+		#reset the lists
+		#set corresponding track
+		if self.ui.upTrackGreen.isChecked() == True:
+			self.track_list_green.clear()
+		else:	
+			self.track_list_red.clear()
+		self.track_list.clear()
+		
 		#if self.upTrackBlue.getChecked()==true
 		inputFileName=self.ui.lineEdit.text()
 		#open csv reader for inputFile
@@ -589,6 +617,7 @@ class MainWindow(QMainWindow):
 				#skip adding any values to track object at track_list[0]
 				#first block is track_lisst[1]
 				if self.num_lines ==0:
+					print("adding first track obj")
 					self.track_list.append(Track())	
 					self.num_lines+=1
 				else:
@@ -601,6 +630,7 @@ class MainWindow(QMainWindow):
 					self.track_list[self.num_lines].set_line(row[0])
 					self.track_list[self.num_lines].set_section(row[1])
 					self.track_list[self.num_lines].set_block(int(row[2]))
+					print("making block num " + str(self.track_list[self.num_lines].get_block()))
 					self.track_list[self.num_lines].set_length(int(row[3]))
 					self.track_list[self.num_lines].set_grade(float(row[4]))
 					self.track_list[self.num_lines].set_speed_limit(int(row[5]))
@@ -608,6 +638,9 @@ class MainWindow(QMainWindow):
 					self.track_list[self.num_lines].set_station_side(row[7])
 					self.track_list[self.num_lines].set_elevation(float(row[8]))
 					self.track_list[self.num_lines].set_elevation_c(float(row[9]))
+					#print( str(self.track_list[self.num_lines].get_block()) + " track  is "+ str(row[8]))
+					self.track_list[self.num_lines].set_direction(row[11])
+					
 					
 					#add base default values for each object 
 					self.track_list[self.num_lines].set_heater_status(False)
@@ -617,8 +650,8 @@ class MainWindow(QMainWindow):
 					self.track_list[self.num_lines].set_ambient_temp(70)
 					
 					#temporary simulated signals from wayside
-					self.track_list[self.num_lines].set_commanded_speed(35)
-					self.track_list[self.num_lines].set_authority(10)
+					self.track_list[self.num_lines].set_commanded_speed(0)
+					self.track_list[self.num_lines].set_authority(1)
 					self.track_list[self.num_lines].set_signal_light('Go')
 					self.track_list[self.num_lines].set_beacon(' ')
 					self.track_list[self.num_lines].set_is_crossing(False)
@@ -639,7 +672,7 @@ class MainWindow(QMainWindow):
 
 		#close the opened file
 		csv_file.close()
-		
+		self.track_list.append(Track())
 		#make sure that all the switch legs have a corresponding switch_index
 		for i in range(len(Track.switch_list)):
 			print(Track.switch_list[i].get_y_zero())
@@ -649,6 +682,12 @@ class MainWindow(QMainWindow):
 			if self.track_list[Track.switch_list[i].get_y_one()].get_switch_index() == 0:
 				#print("setting index " + str(i))
 				self.track_list[Track.switch_list[i].get_y_one()].set_switch_index(i)
+		
+		#set corresponding track
+		if self.ui.upTrackGreen.isChecked() == True:
+			self.track_list_green = self.track_list
+		else:	
+			self.track_list_red = self.track_list
 		
 		print("parsing completed")
 		signals.need_new_block.connect(self.send_block_to_model)
@@ -709,7 +748,7 @@ class MainWindow(QMainWindow):
 			
 			self.track_list[self.route_queue_green[1]].encode_beacon()
 			signals.Beacon_signal.emit(self.track_list[self.route_queue_green[1]].encodedBeacon, id) # ACTUALLY CALCULATE THE BEACON VAL AND BLOCK NUM
-		self.update_track_info(self.current_block)
+		self.update_track_info(self.current_block_green)
 		
 	
 	#function for inital train spawn
@@ -719,6 +758,7 @@ class MainWindow(QMainWindow):
 			self.track_list[63].set_occupied(True, id)
 		else:
 			self.track_list[9].set_occupied(True, id)
+		self.update_track_info(self.current_block_green)
 
 		
 	#function to update from wayside
@@ -751,7 +791,7 @@ class MainWindow(QMainWindow):
 		
 		#otherwise it is a valid input and update everything
 		self.ui.trackSelectorValid.setText("Valid Input")
-		self.current_block=inputTrackBlock
+		self.current_block_green=inputTrackBlock
 		self.update_track_info(inputTrackBlock)
 	
 		# deafult update every output for block1
@@ -760,63 +800,63 @@ class MainWindow(QMainWindow):
 	
 	def cause_rail_fail(self):
 		#toggle status
-		temp = not self.track_list[self.current_block].get_rail_condition()
+		temp = not self.track_list[self.current_block_green].get_rail_condition()
 		
 		if(temp == False):
-			self.track_list[self.current_block].set_rail_condition(False)
-			self.track_list[self.current_block].set_signal_light('Stop')
-			self.track_list[self.current_block].set_occupied(True)
-			self.update_track_info(self.current_block)
-			print("CAUTION! RAIL FAILURE ON BLOCK ", self.current_block) 
+			self.track_list[self.current_block_green].set_rail_condition(False)
+			self.track_list[self.current_block_green].set_signal_light('Stop')
+			self.track_list[self.current_block_green].set_occupied(True)
+			self.update_track_info(self.current_block_green)
+			print("CAUTION! RAIL FAILURE ON BLOCK ", self.current_block_green) 
 		else:
-			self.track_list[self.current_block].set_rail_condition(True)
+			self.track_list[self.current_block_green].set_rail_condition(True)
 			#make sure to send go if all track conditions are good
-			if(self.track_list[self.current_block].get_circuit_condition() == True) and (self.track_list[self.current_block].get_power_condition() == True):
-				self.track_list[self.current_block].set_signal_light('Go')
-			self.track_list[self.current_block].set_occupied(False)
-			self.update_track_info(self.current_block)
-			print("RAIL Fixed on BLOCK ", self.current_block) 
+			if(self.track_list[self.current_block_green].get_circuit_condition() == True) and (self.track_list[self.current_block_green].get_power_condition() == True):
+				self.track_list[self.current_block_green].set_signal_light('Go')
+			self.track_list[self.current_block_green].set_occupied(False)
+			self.update_track_info(self.current_block_green)
+			print("RAIL Fixed on BLOCK ", self.current_block_green) 
 
 	def cause_circuit_fail(self):
 		#toggle status
-		temp = not self.track_list[self.current_block].get_circuit_condition()
+		temp = not self.track_list[self.current_block_green].get_circuit_condition()
 		
 		if(temp == False):
-			self.track_list[self.current_block].set_circuit_condition(False)
-			self.track_list[self.current_block].set_signal_light('Stop')
-			print("CAUTION! CIRCUIT FAILURE ON BLOCK ", self.current_block) 
-			self.update_track_info(self.current_block)
+			self.track_list[self.current_block_green].set_circuit_condition(False)
+			self.track_list[self.current_block_green].set_signal_light('Stop')
+			print("CAUTION! CIRCUIT FAILURE ON BLOCK ", self.current_block_green) 
+			self.update_track_info(self.current_block_green)
 		else:
-			self.track_list[self.current_block].set_circuit_condition(True)
+			self.track_list[self.current_block_green].set_circuit_condition(True)
 			#make sure to send go if all track conditions are good
-			if(self.track_list[self.current_block].get_rail_condition() == True) and (self.track_list[self.current_block].get_power_condition() == True):
-				self.track_list[self.current_block].set_signal_light('Go')
-			print("CIRCUIT Fixed on BLOCK ", self.current_block) 
-			self.update_track_info(self.current_block)
+			if(self.track_list[self.current_block_green].get_rail_condition() == True) and (self.track_list[self.current_block_green].get_power_condition() == True):
+				self.track_list[self.current_block_green].set_signal_light('Go')
+			print("CIRCUIT Fixed on BLOCK ", self.current_block_green) 
+			self.update_track_info(self.current_block_green)
 
 	def cause_power_fail(self):
 		#toggle status
-		temp = not self.track_list[self.current_block].get_power_condition()
+		temp = not self.track_list[self.current_block_green].get_power_condition()
 		
 		if(temp == False):
-			self.track_list[self.current_block].set_power_condition(False)
-			self.track_list[self.current_block].set_signal_light('Stop')
-			self.update_track_info(self.current_block)
-			print("CAUTION! POWER FAILURE ON BLOCK ", self.current_block) 
+			self.track_list[self.current_block_green].set_power_condition(False)
+			self.track_list[self.current_block_green].set_signal_light('Stop')
+			self.update_track_info(self.current_block_green)
+			print("CAUTION! POWER FAILURE ON BLOCK ", self.current_block_green) 
 		else:
-			self.track_list[self.current_block].set_power_condition(True)
+			self.track_list[self.current_block_green].set_power_condition(True)
 			#make sure to send go if all track conditions are good
-			if(self.track_list[self.current_block].get_rail_condition() == True) and (self.track_list[self.current_block].get_circuit_condition() == True):
-				self.track_list[self.current_block].set_signal_light('Go')
-			self.update_track_info(self.current_block)
-			print("POWER Fixed on BLOCK ", self.current_block) 
+			if(self.track_list[self.current_block_green].get_rail_condition() == True) and (self.track_list[self.current_block_green].get_circuit_condition() == True):
+				self.track_list[self.current_block_green].set_signal_light('Go')
+			self.update_track_info(self.current_block_green)
+			print("POWER Fixed on BLOCK ", self.current_block_green) 
 			
 	
 	def toggle_heater(self):
-		temp = not self.track_list[self.current_block].get_heater_status()
+		temp = not self.track_list[self.current_block_green].get_heater_status()
 		for i in range(1, len(self.track_list)):	
 			self.track_list[i].set_heater_status(temp)		
-		self.update_track_info(self.current_block)
+		self.update_track_info(self.current_block_green)
 	
 	def set_track_temperature(self):
 		try :
@@ -843,16 +883,16 @@ class MainWindow(QMainWindow):
 		for i in range(1, len(self.track_list)):	
 			self.track_list[i].set_ambient_temp(inputTemp)
 		
-		self.update_track_info(self.current_block)
+		self.update_track_info(self.current_block_green)
 	
 	def swap_switch(self, line_in, stem_in, branch_in): #change this to be inside the swtich class
-		'''if(self.track_list[self.current_block].get_is_switch() == True):
-			temp = not self.track_list[self.current_block].switch_list[Track.switch_num].get_switch_position()
-			self.track_list[self.current_block].switch_list[Track.switch_num].set_switch_position(temp)'''
+		'''if(self.track_list[self.current_block_green].get_is_switch() == True):
+			temp = not self.track_list[self.current_block_green].switch_list[Track.switch_num].get_switch_position()
+			self.track_list[self.current_block_green].switch_list[Track.switch_num].set_switch_position(temp)'''
 		print("swapping switch")
 		self.track_list[stem_in].set_connection_track_b(self.track_list[branch_in])	
 		print("new switch position is " + str(self.track_list[stem_in].get_connection_track_b().get_block()))
-		self.update_track_info(self.current_block)
+		self.update_track_info(self.current_block_green)
 	
 	def update_track_info(self,blckNum):
 		
@@ -864,11 +904,15 @@ class MainWindow(QMainWindow):
 		#loop through the whole track list to find if any occupied blocks
 		#for(i=0, i<=len(self.track_list), i++)
 		#	if(if(self.track_list[i-1].get_occupied == True)
-		print("track model updating")
+		print("track model updating green line")
+		
+		
+		
+		
 		self.ui.green_line_table.setItem(0,0, QTableWidgetItem("Block Number"))
 		self.ui.green_line_table.setItem(0,1, QTableWidgetItem("Status"))	
 		
-		for i in range(1, len(self.track_list)):
+		for i in range(1, len(self.track_list)-1):
 			#print("in for loop for table " + str(i) + "and is currently " + str(self. 
 			if(self.track_list[i].get_occupied() == True):
 				print("occupied block is" + str(self.track_list[i]))
@@ -974,12 +1018,15 @@ class MainWindow(QMainWindow):
 			#CTC outputs
 			self.ui.ctcTicketO.display(self.track_list[blckNum].get_ticket_count())
 			self.ui.ctcTrackUpO.setText("Tickets Updated")
-			self.ui.train_people_boarding.display(self.track_list[blckNum].get_boarding_count())
-			
-			
-			if(self.track_list[blckNum].get_station_side() == 0):
-				self.ui.selTrackStationSide.setText("Left")
+			if(self.track_list[blckNum].get_occupied() == True):
+				self.ui.train_people_boarding.display(self.track_list[blckNum].get_boarding_count())
+			else:
+				self.ui.train_people_boarding.display(0)
+				
+			#print(str(self.track_list[blckNum].get_station_side()))
 			if(self.track_list[blckNum].get_station_side() == 1):
+				self.ui.selTrackStationSide.setText("Left")
+			if(self.track_list[blckNum].get_station_side() == 2):
 				self.ui.selTrackStationSide.setText("Right")
 			if(self.track_list[blckNum].get_station_side() == 3):
 				self.ui.selTrackStationSide.setText("Left/Right")
@@ -989,6 +1036,8 @@ class MainWindow(QMainWindow):
 			self.ui.ctcTicketO.display(0)
 			self.ui.train_people_boarding.display(0)
 			self.ui.ctcTrackUpO.setText("Not a Station")
+			self.ui.selTrackStationSide.setText("Not a Station")
+			self.ui.train_people_boarding.display(0)
 			
 		if(self.track_list[blckNum].get_is_crossing() == True):
 			self.ui.selTrackCross.setText('Yes')
@@ -1013,12 +1062,19 @@ class MainWindow(QMainWindow):
 		else:
 			self.ui.selTrackUnderground.setText('No')	
 		
+		
+		self.ui.selTrackDirection.setText(str(self.track_list[blckNum].get_direction()))
+		self.ui.selTrackElevation.setText(str(self.track_list[blckNum].get_elevation()))
+		self.ui.selTrackElevationCumulative.setText(str(self.track_list[blckNum].get_elevation_c()))
+
+		
 		#railStatus
 		self.ui.selTrackRailStat.setText(str(self.track_list[blckNum].get_rail_condition()))
 		self.ui.selTrackCircStat.setText(str(self.track_list[blckNum].get_circuit_condition()))
 		self.ui.selTrackPowerStat.setText(str(self.track_list[blckNum].get_power_condition()))
 		
-	
+		if(self.track_list[blckNum].get_is_crossing()):
+			self.track_list[blckNum].set_signal_light == 'Slow'
 		
 		#railSignal
 		if(self.track_list[blckNum].get_signal_light() == 'Go'):
@@ -1043,10 +1099,11 @@ class MainWindow(QMainWindow):
 		self.ui.waySignal.setText(str(self.track_list[blckNum].get_signal_light()))
 		
 		#train outputs
+			
 		self.ui.trainSpeedLimitO.display(self.track_list[blckNum].get_speed_limit()*0.6213711922)
 		self.ui.trainAuthorityO.display(self.track_list[blckNum].get_authority())
 		self.ui.trainBeaconO.setText(str(self.track_list[blckNum].get_beacon()))
-	
+		self.ui.trainCommandedSpeedO.display(self.track_list[blckNum].get_commanded_speed()*0.6213711922)
 		
 		#Wayside outputs
 		self.ui.wayOccupiedO.setText(str(self.track_list[blckNum].get_occupied()))
