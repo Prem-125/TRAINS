@@ -1,3 +1,4 @@
+
 #include <PID_v1.h>
 #include "pinMaps.h"
 #include <Wire.h> 
@@ -5,7 +6,7 @@
 #include <LiquidCrystal_I2C.h>
 LiquidCrystal_I2C lcd(0x27,20,4);  // set the LCD address to 0x27 for a 20 chars and 4 line display
 unsigned int ToggleBtnStates = 0;
-unsigned int ToggleStates = 0;
+unsigned int ToggleStates = 32;
 unsigned int CntrlBtnStates = 0; 
 int LCDViewIndex = 6;
 
@@ -38,7 +39,7 @@ int flags;
 bool BLDoorsOpen;
 bool BRDoorsOpen;
 bool ExtLightsOn;
-
+bool StopAtStation = false;
 bool LDoorsOpen;
 bool RDoorsOpen;
 bool UpcomingStation = false;
@@ -87,7 +88,7 @@ void loop() {
 //  lcd.print(ToggleBtnStates);
 //  lcd.setCursor(0,1);
 //  lcd.print(CntrlBtnStates);
-  delay(400);
+  delay(200);
 }
 
 void pinSetup(){
@@ -135,6 +136,9 @@ ToggleStates &=~(1 << 3); // Override Right Door
 ToggleStates &=~( 1 << 4); // Override Left Door
 if(ExtLightsOn)  
 ToggleStates |=(3); // Force lights on if needed
+if(StopAtStation && get_curVel() == 0){
+  stationSequence();
+}
 }
 
 
@@ -144,21 +148,6 @@ ToggleStates |=(3); // Force lights on if needed
 
 
 void stationSequence(){// rework
-set_SBrake(true);
-updateToggleLEDs ();
-SendToggleStates();
-SendPower(calcPower());
-SendAnnouncement();
-while (get_curVel()!=0){
-   readCntrlBtns();
-  processCntrlBtns();
-  serialRead();
-  if(refresh || OnPowLCD){
-  (*funcSel[LCDViewIndex])(); // Refreshes LCD incase data changed from serial comms 
-  refresh = false;
-  }
-  updateToggleLEDs(); 
-}
 if(BRDoorsOpen)
 ToggleStates |= 1 << 3; // Open Right Door if needed
 if(BLDoorsOpen)
@@ -173,6 +162,8 @@ set_SBrake(false);
 updateToggleLEDs ();
 SendToggleStates();
 UpcomingStation=false;
+StopAtStation = false;
+
 }
 
 void updateToggleLEDs() {
@@ -275,7 +266,11 @@ void LCDPower(){
   lcd.print("Power Output: ");
     lcd.setCursor(0,1);
   lcd.print(get_power()/1000.0);
-   lcd.setCursor(10,1);
+   lcd.setCursor(7,1);
+  lcd.print("kW");
+      lcd.setCursor(10,1);
+  lcd.print(get_power2()/1000.0);
+   lcd.setCursor(15,1);
   lcd.print("kW");
   lcd.setCursor(0,2);
   lcd.print("Kp:");
@@ -402,11 +397,14 @@ void serialRead(){
       case 3:// Got Beacon
               beaconEnc = atoi(readbuff);
               decodeBeacon();
+              break;
       case 4: // got Kp and Ki
               kpkienc = atoll(readbuff);
               decodeKpKi();
+              break;
       case 5:
               set_PEBrake(true);
+              break;
   }
       memset(readbuff,0,sizeof readbuff); // clear buffer
       refresh = true; 
