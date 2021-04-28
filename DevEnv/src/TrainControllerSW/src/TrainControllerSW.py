@@ -73,7 +73,8 @@ class TrainController:
         self.TrainModel.s_brake_off()
 
     def SendEmergencyBrakeOn(self):
-        self.TrainModel.emergency_brake()
+        self.TrainModel.emergency_brake_on()
+
 
     #TRAIN MODEL : RECEIVING FROM
     def set_track_circuit(self, TrackInt):
@@ -167,18 +168,41 @@ class TrainController:
     #DecodeBeacon: used to decode beacon from train model
     def DecodeBeacon(self, BeaconInt):
         self.upcoming_station = (BeaconInt & 1)
-        print(self.upcoming_station)
+
+        print("Beacon Decoded! Upcoming station: " + str(self.upcoming_station))
         self.right_doors_at_dest = (BeaconInt >> 1)&1
         self.right_doors_at_dest = (BeaconInt >> 2)&1
         self.exterior_lights = (BeaconInt >> 3)&1
+        
+        print("Beacon Decoded! Exterior Lights: " + str(self.exterior_lights))
         self.station = self.stationArray[((BeaconInt >> 4) & 31)]
         self.BuildAnnouncement()
-        self.HandleExteriorLights()
+        #self.HandleExteriorLights() 
 
         if(self.is_auto):
             self.AuthorityHandler()
+        if(self.exterior_lights):
+            self.exterior_lights_on()
+            self.UI.ui.exteriorLights.setChecked(True)
+        else:
+            self.exterior_lights_off()
+            self.UI.ui.exteriorLights.setChecked(False)
         self.DisplayUpdate()
+
         #print("Beacon Decoded!")
+    #toggle_exterior_lights: function for keeping checks in UI in sync with beacon
+
+
+    # def HandleExteriorLights(self):
+    #     if(self.exterior_lights):
+    #         if(self.UI.ui.exteriorLights.isChecked() == False):
+    #             self.UI.ui.exteriorLights.setChecked(True)
+    #         self.DisplayUpdate()
+    #     else:
+    #         if(self.UI.ui.exteriorLights.isChecked() == True):
+    #             self.UI.ui.exteriorLights.setChecked(False)
+    #         self.DisplayUpdate()
+
 
     #BuildAnnouncement: used to build announcement upon receiving a beacon
     def BuildAnnouncement(self):
@@ -195,19 +219,24 @@ class TrainController:
 
     #SendAnnouncement: used to send announcement to train model and UI  
     def SendAnnouncement(self):
+        self.TrainModel.set_announcements(self.announcement)
         self.UI.Announce(self.announcement)
 
     def SendAdvertisement(self):
-        if(self.ad_length<100):
-            self.ad_length += 1
-            self.UI.Announce(self.advertisements[0])    
-        elif(self.ad_length<200):
-            self.ad_length += 1
-            self.UI.Announce(self.advertisements[1])
-        else:
-            self.UI.Announce(self.advertisements[0])
-            self.ad_length=0
-        #print("In send advertisement")
+        if(not(self.SR.current_speed == 0) and not(self.upcoming_station) and not(self.SR.authority == 0)):
+            if(self.ad_length<100):
+                self.ad_length += 1
+                self.TrainModel.set_announcements(self.advertisements[0])
+                self.UI.Announce(self.advertisements[0])    
+            elif(self.ad_length<200):
+                self.ad_length += 1
+                self.TrainModel.set_announcements(self.advertisements[1])
+                self.UI.Announce(self.advertisements[1])
+            else:
+                self.TrainModel.set_announcements(self.advertisements[0])
+                self.UI.Announce(self.advertisements[0])
+                self.ad_length=0
+            #print("In send advertisement")
 
     #Door/Lights Toggles
     def toggle_left_doors(self):
@@ -233,6 +262,16 @@ class TrainController:
         else:
             self.TrainModel.c_lights_off()
 
+    def exterior_lights_on(self):
+        self.TrainModel.t_lights_on()
+        self.UI.ui.exteriorLights.setChecked(True)
+        #self.HandleExteriorLights()
+
+    def exterior_lights_off(self):
+        self.TrainModel.t_lights_off()
+        self.UI.ui.exteriorLights.setChecked(False)
+        #self.HandleExteriorLights()
+
     #toggle_exterior_lights: function for toggling exterior lights based of checkmarks
     def toggle_exterior_lights(self):
         self.exterior_lights = not(self.exterior_lights)
@@ -242,16 +281,7 @@ class TrainController:
         else:
             self.TrainModel.t_lights_off()
 
-    #toggle_exterior_lights: function for keeping checks in UI in sync with beacon
-    def HandleExteriorLights(self):
-        if(self.exterior_lights):
-            if(self.UI.ui.exteriorLights.isChecked() == False):
-                self.UI.ui.exteriorLights.setChecked(True)
-            self.DisplayUpdate()
-        else:
-            if(self.UI.ui.exteriorLights.isChecked() == True):
-                self.UI.ui.exteriorLights.setChecked(False)
-            self.DisplayUpdate()
+
 
 
 
@@ -267,10 +297,9 @@ class TrainController:
 
     def AuthorityHandler(self):
         
-
         if(self.SR.authority==0 and self.upcoming_station):
             self.set_service_brake(True)
-            self.sendAnnouncement()
+            self.SendAnnouncement()
             print("both true in authoity handler")
 
         elif(self.SR.authority == 0 or self.upcoming_station):
@@ -450,11 +479,14 @@ class SpeedRegulator():
             self.TrainController.TrainModel.engine_failure_on()
 
     def DetectBrakeFailure(self):
-        if(self.service_brake and (self.current_speed >= self.previous_speed) and not(self.current_speed == 0)):
+        if(self.service_brake and (self.current_speed >= (self.previous_speed+.5)) and not(self.current_speed == 0)):
             self.brake_failure = True
             self.TrainController.UI.ui.textBrowser_14.setStyleSheet(u"background-color: rgb(255, 0, 0);")
             self.VitalFault()
             self.TrainController.TrainModel.brake_failure_on()
+            print("Service brake: " + str(self.service_brake))
+            print("Current Speed: " + str(self.current_speed))
+            print("Previous speed: " + str(self.previous_speed))
     
     def VitalFault(self):
         self.TrainController.any_failure = True

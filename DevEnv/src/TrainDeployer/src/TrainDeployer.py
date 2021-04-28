@@ -23,7 +23,6 @@ class TrainDeployer:
         signals.num_passengers_changed.connect(self.change_passengers)
         # self.CreateTrains(1, 2, 3, True)
         # self.CreateTrains(3, 2, 1, False)
-        print("fick")
 
         #self.CreateTrains(1, 2, 3, True)
         #self.CreateTrains(3, 2, 1, False)        

@@ -1,6 +1,6 @@
 import sys
 import time
-from signals import signals 
+from signals import signals, TrackLine
 from CTC.src.UI import *
 from CTC.src.CTCBackEnd import *
 from PySide6.QtWidgets import *
@@ -82,6 +82,12 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
         #Connect signal to obtain block closures from wayside controller
         signals.CTC_failure.connect(self.WaysideCloseBlock)
+
+        #Connect signal to obtain occupancy from wayside controller
+        signals.CTC_occupancy.connect(self.UpdateTrainParameters)
+
+        #Define functionality of toggle switch when in maintenance mode
+        self.ui.ToggleSwitchButton.clicked.connect(self.UpdateSwitchPos)
 
         #Initialize simulation speed to real time
         self.timer_interval = 1000
@@ -1470,6 +1476,67 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         #Set interval for system clock
         self.timer_interval = 1000/(slider_position + 1)
     #End method
+
+    #Method to invoke backend functions for train position and suggested speed
+    def UpdateTrainParameters(self, track_line_name, block_num, occupancy):
+        #Send occupancy information to each train
+        if(track_line_name == "Green"):
+            for TrainObj in CTCSchedule.train_list:
+                TrainObj.UpdatePosition(GreenLine, block_num, occupancy)
+            #End for loop
+        elif(track_line_name == "Red"):
+            for TrainObj in CTCSchedule.train_list:
+                TrainObj.UpdatePosition(RedLine, block_num, occupancy)
+            #End for loop
+        #End if-elif block
+    #End method
+
+    def UpdateSwitchPos(self):
+        #Initialize temporary variables to hold details of switch to be toggled
+        track_line = str(self.ui.TrackComboBox5.currentText())
+        switch_ID = int(self.ui.SwitchComboBox1.currentText())
+        
+        #Recover switch and block objects
+        if(track_line_name == "Green"):
+            SwitchObj = GreenLine.switch_list[switch_ID]
+            
+            #Determine if switch is on a closed block
+            if(SwitchObj.root not in GreenLine.closed_blocks):
+                #Create error message box
+                ClosureInfoMsg = QMessageBox()
+                ClosureInfoMsg.setWindowTitle("Switch Position")
+                ClosureInfoMsg.setText("ERROR: This switch is not closed for maintenance and therefore cannot be toggled manually")
+                ClosureInfoMsg.setIcon(QMessageBox.Critical)
+
+                MsgWin = ClosureInfoMsg.exec()
+
+                return
+            #End if
+
+        elif(track_line_name == "Red"):
+            SwitchObj = RedLine.switch_list[switch_ID]
+
+            #Determine if switch is on a closed block
+            if(SwitchObj.root not in RedLine.closed_blocks):
+                #Create error message box
+                ClosureInfoMsg = QMessageBox()
+                ClosureInfoMsg.setWindowTitle("Switch Position")
+                ClosureInfoMsg.setText("ERROR: This switch is not closed for maintenance and therefore cannot be toggled manually")
+                ClosureInfoMsg.setIcon(QMessageBox.Critical)
+
+                MsgWin = ClosureInfoMsg.exec()
+
+                return
+            #End if
+        #End if-elif block
+
+        #Update switch position
+
+    #End method
+
+
+
+
 
 
 #End MainWindow class definition

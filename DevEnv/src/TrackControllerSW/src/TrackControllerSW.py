@@ -2,7 +2,7 @@ import sys
 from signals import signals
 
 class TrackController:
-    def __init__(self, offset):
+    def __init__(self, offset, line):
 
         #Variables
         self.block_open = [True for i in range(150)]
@@ -15,21 +15,21 @@ class TrackController:
         self.block_authority = 0
         self.crossing_signal = False
         self.crossing_pos = 0
+        self.line = line
 
         #Switch
-        self.switch = SwitchObj(-1,-1,-1)
+        self.switch = SwitchObj(-1,-1,-1,line)
         self.crossing = Crossing(-1)
 
         #UI used variables
         self.ui_block = 0
 
     #Sets the block offset for the track controller
-    def setSwitch(self, block_num, branch_a, branch_b):
-        self.switch.setValues(block_num, branch_a, branch_b)
+    def setSwitch(self, block_num, branch_a, branch_b, line):
+        self.switch.setValues(block_num, branch_a, branch_b, line)
 
     #Gets the occupancy
     def getOccupancy(self, block_num, occupied):
-        self.getSugSpeed(block_num)
         self.occupancy[block_num-self.block_offset] = occupied        #Use block offset to set the occupancy
         self.setOfficeOccupancy(block_num, occupied)
 
@@ -47,15 +47,15 @@ class TrackController:
 
     #Gets the suggested speed
     def getSugSpeed(self, block_num, sug_speed, limit):
-        suggested_speed[block_num-self.block_offset] = sug_speed
+        self.suggested_speed[block_num-self.block_offset] = sug_speed
         self.setComSpeed(block_num, limit)
 
     #Gets the commanded speed
     def setComSpeed(self, block_num, limit):
-        if(suggested_speed[block_num-self.block_offset] > limit):
-            commanded_speed[block_num-self.block_offset] = limit
+        if(self.suggested_speed[block_num-self.block_offset] > limit):
+            self.commanded_speed[block_num-self.block_offset] = limit
         else:
-            commanded_speed[block_num - self.block_offset] = suggested_speed[block_num-self.block_offset]
+            self.commanded_speed[block_num - self.block_offset] = self.suggested_speed[block_num-self.block_offset]
 
     #Update Track Model of the authority and commanded speed
     def setTrackStats(self, block_num):
@@ -63,6 +63,7 @@ class TrackController:
             signals.wayside_to_track.emit(block_num, 0, 0)
         else:
             signals.wayside_to_track.emit(block_num, 1, self.commanded_speed[block_num-self.block_offset])
+            print("Suggested Speed: " + str(self.commanded_speed[block_num-self.block_offset]))
 
     #Update the block closure
     def setBlockClosure(self, line, block_num, break_type):
@@ -123,25 +124,31 @@ class TrackController:
                 #send signal
 
 class SwitchObj:
-    def __init__(self, block_num, branch_a, branch_b):
+    def __init__(self, block_num, branch_a, branch_b, line):
 
         # Variables
         self.block = block_num
         self.branch_a = branch_a
         self.branch_b = branch_b
         self.cur_branch = -1
+        self.line = ""
 
     def ToggleBranch(self):
         if(self.cur_branch == self.branch_a):
             self.cur_branch = self.branch_b
         elif(self.cur_branch == self.branch_b):
             self.cur_branch = self.branch_a
+        signals.track_switch_position.emit(self.line, self.block, self.cur_branch)
+        signals.CTC_switch_position.emit(self.line, self.block, self.cur_branch)
 
-    def setValues(self, block, branch_a, branch_b):
+    def setValues(self, block, branch_a, branch_b, line):
         self.block = block
         self.branch_a = branch_a
         self.branch_b = branch_b
         self.cur_branch = branch_a
+        self.line = line
+        signals.track_switch_position.emit(self.line, self.block, self.cur_branch)
+        #signals.CTC_switch_position.emit(self.line, self.block, self.cur_branch)
 
 class Crossing:
     def __init__(self, block_num):

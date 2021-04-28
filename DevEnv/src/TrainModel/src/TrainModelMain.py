@@ -45,7 +45,7 @@ class MainWindow(QMainWindow):
 		self.ui.brakeFailureOn.clicked.connect(self.brake_failure_on)
 		self.ui.brakeFailureOff.clicked.connect(self.brake_failure_off)
 		self.ui.cmdSpeed.textChanged.connect(self.set_command_speed)
-		self.ui.announcmentsInput.textChanged.connect(self.set_announcments)
+		self.ui.announcmentsInput.textChanged.connect(self.set_announcements)
 		self.ui.beacInput.textChanged.connect(self.set_beacon)
 		self.ui.routeInput.textChanged.connect(self.set_route)
 		#self.ui.pushButton.clicked.connect(self.emergency_brake)
@@ -142,7 +142,7 @@ class MainWindow(QMainWindow):
 		self.ui.routeOutput.setText(text)
 	def set_beacon(self, text):
 		self.ui.Beacon.setText(text)
-	def set_announcments(self, text):
+	def set_announcements(self, text):
 		self.ui.announcmentOutput.setText(text)
 	# def emergency_brake(self):
 	# 	if(self.train.EmergencyBrake==False):
@@ -295,9 +295,9 @@ class MainWindow(QMainWindow):
 		self.train.acceleration = force/self.train.mass
 		if(self.train.acceleration > self.train.accLimit):
 			self.train.acceleration = self.train.accLimit
-		elif(self.train.EmergencyBrake):
+		elif(self.train.EmergencyBrake and not self.train.brakeFailure):
 			self.train.acceleration = self.train.decLimitE
-		elif(self.train.serviceBrake):
+		elif(self.train.serviceBrake and not self.train.brakeFailure):
 			self.train.acceleration = self.train.decLimitS
 
 

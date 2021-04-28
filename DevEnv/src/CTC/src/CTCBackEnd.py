@@ -83,9 +83,6 @@ class Train:
         elif(self.track_line == "Red"):
             self.GenerateRedRoute()
 
-        #Obtain occupancy from wayside controller
-        signals.CTC_occupancy.connect(self.UpdatePosition)
-
         #Send destination (authority) to track controller TEMPORARY SETUP
         signals.CTC_authority.emit(self.track_line, self.destination)
         
@@ -162,15 +159,31 @@ class Train:
     #End method
 
     #Method to update position of train
-    def UpdatePosition(self, track_line_name, block_num, occupancy):
+    def UpdatePosition(self, TrackObj, block_num, occupancy):
         print("ENTERED UPDATE TRAIN POSITION FUNCTION")
         print("COMPARING " + str(block_num) + " WITH " + str(self.route_queue[1]) + " ON QUEUE")
         #Determine if occupancy corresponds to movement of self
-        if(occupancy == True and block_num == self.route_queue[1] and track_line_name == self.track_line):
+        if(occupancy == True and block_num == self.route_queue[1] and TrackObj.color == self.track_line):
             #Dequeue from list
             self.route_queue.pop(0)
             print("\nCTC- QUEUE HAS BEEN POPPED\n")
-        #End if
+
+            #Update suggested speed according to train position
+            if(self.destination == self.route_queue[3]):
+                suggested_speed = int(.75*TrackObj.block_list[self.route_queue[0]].speed_limit)
+                signals.CTC_suggested_speed.emit(self.track_line, self.route_queue[0], suggested_speed*3.60)
+            elif(self.destination == self.route_queue[2]):
+                suggested_speed = int(.50*TrackObj.block_list[self.route_queue[0]].speed_limit)
+                signals.CTC_suggested_speed.emit(self.track_line, self.route_queue[0], suggested_speed*3.60)
+            elif(self.destination == self.route_queue[1]):
+                suggested_speed = int(.25*TrackObj.block_list[self.route_queue[0]].speed_limit)
+                signals.CTC_suggested_speed.emit(self.track_line, self.route_queue[0], suggested_speed*3.60)
+            elif(self.destination == self.route_queue[0]):
+                suggested_speed = int(0*TrackObj.block_list[self.route_queue[0]].speed_limit)
+                signals.CTC_suggested_speed.emit(self.track_line, self.route_queue[0], suggested_speed*3.60)   
+            else:
+                suggested_speed = TrackObj.block_list[self.route_queue[0]].speed_limit
+                signals.CTC_suggested_speed.emit(self.track_line, self.route_queue[0], suggested_speed*3.60)   
     #End method
 
 
@@ -196,6 +209,9 @@ class TrackLine:
 
         #Obtain occupancy from wayside controller
         signals.CTC_occupancy.connect(self.UpdateOccupancy)
+
+        #Obtain switch position from wayside controller
+        signals.CTC_switch_position.connect(self.UpdateSwitchPos)
 
         #Initialize block composition of TrackLine
         self.TrackSetup(filepath, sheet_index)
@@ -226,8 +242,8 @@ class TrackLine:
             #Initialize temporary variables to hold cell contents of current row
             track_section = exl_sheet.cell_value(i, 1) 
             block_num = int(exl_sheet.cell_value(i, 2))
-            block_length = int(exl_sheet.cell_value(i, 3))               #Meters
-            block_speed_limit = int(exl_sheet.cell_value(i, 5)) * .27778 #Converted to Meters/Second
+            block_length = int(exl_sheet.cell_value(i, 3))      #Meters
+            block_speed_limit = int(exl_sheet.cell_value(i, 5)) * .27778 #Kilometers/Hour
 
             #Create new block and append to list
             self.block_list.append( Block(block_num, track_section, block_length, block_speed_limit) )
@@ -341,6 +357,17 @@ class TrackLine:
         if(track_line_name == self.color):
             self.block_list[block_number-1].occupancy = block_occupancy
         #End if
+    #End method
+
+    #Method to update switch position
+    def UpdateSwitchPos(self, track_line_name, root_block_num, branch_block_num):
+        #Search switch list
+        for SwitchObj in self.switch_list:
+            if(SwitchObj.root == root_block_num):
+                print("Switch on Block " + str(branch_block_num) + " is at position " + str(SwitchObj.curr_position))
+                SwitchObj.curr_position = branch_block_num
+            #End if
+        #End for loop
     #End method
 
 #End TrackLine class definition

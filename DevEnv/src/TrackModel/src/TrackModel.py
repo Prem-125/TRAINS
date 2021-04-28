@@ -278,7 +278,9 @@ class Track:
 		self.encodedBeacon = int(self.is_station) 
 		#self.encodedBeacon = int(self.ui.stationUpcoming.checkState()) >> 1
 		print(bin(self.encodedBeacon))
-		self.encodedBeacon += self.station_side << 1
+		print(self.station_side)
+		if(self.is_station):
+			self.encodedBeacon += self.station_side << 1
 		#self.encodedBeacon += (int(self.ui.leftDoorsFake.checkState()) >> 1) << 1
 		#self.encodedBeacon += (int(self.ui.rightDoorsFake.checkState()) >> 1) << 2
 		
@@ -286,11 +288,12 @@ class Track:
 		
 		#self.encodedBeacon += int(self.is_underground())
 		
-		self.encodedBeacon += (int(self.is_underground) >> 1) << 3
+		self.encodedBeacon += (int(self.is_underground)) << 3
 		
 		#self.encodeBeacon+=self.station_name
-		print(self.station_name)
-		self.encodedBeacon += (self.stationArray.index(self.station_name) & 31) << 4
+		if(self.is_station):
+			print(self.station_name)
+			self.encodedBeacon += (self.stationArray.index(self.station_name) & 31) << 4
 
 	def get_connection_track_a(self):
 		return self.connection_track_a
@@ -652,7 +655,7 @@ class MainWindow(QMainWindow):
 		signals.wayside_to_track.connect(self.get_wayside_info)
 		signals.train_creation.connect(self.set_occupied_initial)
 		signals.wayside_block_open.connect(self.get_open_block)
-		
+		signals.track_switch_position.connect(self.swap_switch)
 		
 		#if green line 
 		#Code to generate Green route		
@@ -702,7 +705,8 @@ class MainWindow(QMainWindow):
 		
 		print("just left block " + str(block) + " next is " + str(self.route_queue_green[0]))
 		self.track_list[self.route_queue_green[0]].set_occupied(True, id)
-		if(self.track_list[self.route_queue_green[1]].is_station):
+		if(self.track_list[self.route_queue_green[1]].is_station == True or self.track_list[self.route_queue_green[1]].is_underground == True):
+			
 			self.track_list[self.route_queue_green[1]].encode_beacon()
 			signals.Beacon_signal.emit(self.track_list[self.route_queue_green[1]].encodedBeacon, id) # ACTUALLY CALCULATE THE BEACON VAL AND BLOCK NUM
 		self.update_track_info(self.current_block)
@@ -841,11 +845,14 @@ class MainWindow(QMainWindow):
 		
 		self.update_track_info(self.current_block)
 	
-	def swap_switch(self): #change this to be inside the swtich class
-		if(self.track_list[self.current_block].get_is_switch() == True):
+	def swap_switch(self, line_in, stem_in, branch_in): #change this to be inside the swtich class
+		'''if(self.track_list[self.current_block].get_is_switch() == True):
 			temp = not self.track_list[self.current_block].switch_list[Track.switch_num].get_switch_position()
-			self.track_list[self.current_block].switch_list[Track.switch_num].set_switch_position(temp)
-			self.update_track_info(self.current_block)
+			self.track_list[self.current_block].switch_list[Track.switch_num].set_switch_position(temp)'''
+		print("swapping switch")
+		self.track_list[stem_in].set_connection_track_b(self.track_list[branch_in])	
+		print("new switch position is " + str(self.track_list[stem_in].get_connection_track_b().get_block()))
+		self.update_track_info(self.current_block)
 	
 	def update_track_info(self,blckNum):
 		
@@ -895,7 +902,7 @@ class MainWindow(QMainWindow):
 			elif(self.track_list[i].get_is_switch()==True):
 				#print("block " + str(i) + " is a switch or switch leg")
 				if self.track_list[i].switch_list[self.track_list[i].get_switch_index()].get_switch_position() == False:
-					print("switch index for block " + str(i)+" is " + str(self.track_list[i].get_switch_index()))
+					#print("switch index for block " + str(i)+" is " + str(self.track_list[i].get_switch_index()))
 					
 					if (self.track_list[i].switch_list[self.track_list[i].get_switch_index()].get_y_zero() < self.track_list[i].get_block()) or (self.track_list[i].switch_list[self.track_list[i].get_switch_index()].get_y_one() < self.track_list[i].get_block()):
 						self.track_list[i].set_connection_track_b(self.track_list[i+1])

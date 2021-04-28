@@ -13,39 +13,39 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
 
         # Green Track Controllers
-        self.GreenController1 = TrackController(0)
-        self.GreenController2 = TrackController(21)
-        self.GreenController3 = TrackController(33)
-        self.GreenController4 = TrackController(61)
-        self.GreenController5 = TrackController(74)
-        self.GreenController6 = TrackController(82)
-        self.GreenController7 = TrackController(105)
+        self.GreenController1 = TrackController(0, "Green")
+        self.GreenController2 = TrackController(21, "Green")
+        self.GreenController3 = TrackController(33, "Green")
+        self.GreenController4 = TrackController(61, "Green")
+        self.GreenController5 = TrackController(74, "Green")
+        self.GreenController6 = TrackController(82, "Green")
+        self.GreenController7 = TrackController(105, "Green")
 
         # Green switches
-        self.GreenController1.setSwitch(12, 13, 1)
-        self.GreenController2.setSwitch(29, 30, 150)
-        self.GreenController3.setSwitch(57, 151, 58)
-        self.GreenController4.setSwitch(63, 62, 151)
-        self.GreenController5.setSwitch(77, 76, 101)
-        self.GreenController6.setSwitch(85, 86, 100)
+        self.GreenController1.setSwitch(12, 13, 1, "Green")
+        self.GreenController2.setSwitch(29, 30, 150, "Green")
+        self.GreenController3.setSwitch(57, 151, 58, "Green")
+        self.GreenController4.setSwitch(63, 62, 151, "Green")
+        self.GreenController5.setSwitch(77, 76, 101, "Green")
+        self.GreenController6.setSwitch(85, 86, 100, "Green")
 
         # Red Track Controllers
-        self.RedController1 = TrackController(7)
-        self.RedController2 = TrackController(0)
-        self.RedController3 = TrackController(21)
-        self.RedController4 = TrackController(30)
-        self.RedController5 = TrackController(35)
-        self.RedController6 = TrackController(41)
-        self.RedController7 = TrackController(49)
+        self.RedController1 = TrackController(7, "Red")
+        self.RedController2 = TrackController(0, "Red")
+        self.RedController3 = TrackController(21, "Red")
+        self.RedController4 = TrackController(30, "Red")
+        self.RedController5 = TrackController(35, "Red")
+        self.RedController6 = TrackController(41, "Red")
+        self.RedController7 = TrackController(49, "Red")
 
         # Red switches
-        self.RedController1.setSwitch(9, 10, 151)
-        self.RedController2.setSwitch(16, 1, 15)
-        self.RedController3.setSwitch(27, 28, 76)
-        self.RedController4.setSwitch(33, 32, 72)
-        self.RedController5.setSwitch(38, 39, 71)
-        self.RedController6.setSwitch(44, 43, 67)
-        self.RedController7.setSwitch(52, 53, 66)
+        self.RedController1.setSwitch(9, 10, 151, "Red")
+        self.RedController2.setSwitch(16, 1, 15, "Red")
+        self.RedController3.setSwitch(27, 28, 76, "Red")
+        self.RedController4.setSwitch(33, 32, 72, "Red")
+        self.RedController5.setSwitch(38, 39, 71, "Red")
+        self.RedController6.setSwitch(44, 43, 67, "Red")
+        self.RedController7.setSwitch(52, 53, 66, "Red")
 
         #UI used variables
         self.ui_block = 0
@@ -66,9 +66,8 @@ class MainWindow(QMainWindow):
         signals.CTC_authority.connect(self.getAuthority)
         signals.track_break.connect(self.setBlockClosure)
         signals.wayside_block_status.connect(self.UpdateBlockStatus)
-        #signals.CTC_suggested_speed.connect(self.getSugSpeed)
-        #need wayside to track switch signals
-        #need crossing signals
+        signals.CTC_suggested_speed.connect(self.getSugSpeed)
+        signals.CTC_toggle_switch.connect(self.CTCToggleSwitch)
 
     # Returns the proper controller
     def getController(self, line, block_num):
@@ -272,6 +271,10 @@ class MainWindow(QMainWindow):
             elif(self.ui.MainControllerBox.currentText() == "7"):
                 self.RedController7.switch.ToggleBranch()
                 self.UISwitchOutput(self.RedController7)
+
+    # CTC Toggle Switch
+    def CTCToggleSwitch(self, line, block_num):
+        self.getController(line, block_num).switch.ToggleBranch()
 
     #Output for the UI
     def UIBlockOutput(self):
