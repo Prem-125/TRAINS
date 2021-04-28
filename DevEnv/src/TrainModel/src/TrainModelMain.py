@@ -122,8 +122,8 @@ class MainWindow(QMainWindow):
 		self.ui.brakeFailureOutput_4.setText("No") 
 	def circuit_failure_on(self):
 		self.train.circuitFailure = True
-		self.set_command_speed(None)
-		self.set_authority(None)
+		#self.set_command_speed(None)
+		#self.set_authority(None)
 		self.ui.circuitFailureOutput.setText("Yes")
 		self.ui.circuitFailureOutput_4.setText("Yes")
 	def circuit_failure_off(self):
@@ -134,10 +134,10 @@ class MainWindow(QMainWindow):
 		self.ui.circuitFailureOutput_4.setText("No") 
 	def set_command_speed(self,text):
 		if(self.train.circuitFailure):
-			self.ui.cmdSpeedOutput.setText("???")
+			self.ui.cmdSpeed.setText("???") #changed from cmdSpeedOutput to cmdSpeed
 		else:	
 			self.train.cmdSpeed = float(text)
-			self.ui.cmdSpeedOutput.setText(text + " mph")
+			self.ui.cmdSpeed.setText(text + " mph")
 	def set_route(self, text):
 		self.ui.routeOutput.setText(text)
 	def set_beacon(self, text):

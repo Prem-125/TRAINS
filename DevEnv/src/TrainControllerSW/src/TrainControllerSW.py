@@ -95,9 +95,10 @@ class TrainController:
         self.SR.previous_previous_speed = self.SR.previous_speed
         self.SR.previous_speed = self.SR.current_speed
         self.SR.current_speed = current_speed
+        self.SR.DetectEngineFailure(current_speed)
 
         self.SR.DetectBrakeFailure()
-        self.SR.DetectEngineFailure()
+
         
         #If we reach a station and our current speed is 0, open doors and all that jazz
         if(self.upcoming_station and self.SR.current_speed == 0):
@@ -160,8 +161,9 @@ class TrainController:
         print("Temp commanded Int" + str(tempCmdInt))
         print("Temp commanded Float" + str(tempCmdFloat))
         if(tempCheckSum != tempCmdInt+ tempCmdFloat + tempAuthInt + tempAuthFloat):
-            #print("Signal Pickup Failure")
-            self.UI.textBrowser_15.setStyleSheet(u"background-color: rgb(255, 0, 0);")
+            print("Signal Pickup Failure")
+            self.UI.ui.textBrowser_15.setStyleSheet(u"background-color: rgb(255, 0, 0);")
+            self.TrainModel.circuit_failure_on()
             self.signal_pickup_failure = True
             self.SR.VitalFault()
         else:
@@ -169,6 +171,11 @@ class TrainController:
             self.set_authority(tempAuthFloat/100 + tempAuthInt)
             if(self.is_auto):
                 self.AuthorityHandler()
+
+        if(not(self.is_auto)):
+            if(self.SR.setpoint_speed > self.SR.commanded_speed):
+                self.SR.setpoint_speed = self.SR.commanded_speed
+                self.DisplayUpdate()
         #print("Track Circuit Decoded!")
        
     #DecodeBeacon: used to decode beacon from train model
@@ -298,7 +305,7 @@ class TrainController:
             self.AuthorityHandler()
         else:
             self.AuthorityHandler()
-            self.set_service_brake(False)
+            #self.set_service_brake(False) #JUST CHANGED THIS 428
         self.SR.authority = authority
 
     def AuthorityHandler(self):
@@ -372,16 +379,27 @@ class SpeedRegulator():
         self.backupPID = PID(self.kp, self.ki, 0)
         self.backupPID.output_limits = (0, 120000)
 
+        self.braking_because_too_fast = False
+        self.backup_braking_because_too_fast = False
+
 
     ###################### POWER STUFF ######################
 
     #pidLoop: used to calculate power
     def pidLoop(self):
+        
 
-        #print("Main called. Main power is: " + str(self.power))
+
+        #Turning off The Brake if it was on from stopping maneuver
+        if(self.braking_because_too_fast and self.TrainController.is_auto and (self.current_speed < (self.commanded_speed)) and not(self.authority==0)):
+            print("Turning off brake because braking because too fast was true")
+            self.OnSBrakeOff()
+            self.braking_because_too_fast = False
 
         #If in Auto Mode, go off the commanded speed
         if(self.TrainController.is_auto and (self.current_speed > (self.commanded_speed+5))):
+            print("Braking because too fast")
+            self.braking_because_too_fast = True
             self.pid.setpoint=0
             self.power = 0
             self.OnSBrakeOn()
@@ -419,10 +437,20 @@ class SpeedRegulator():
     #backupPID: used to make PID Loop safety-critical
     def backupPIDLoop(self):
 
-        if((self.current_speed > (self.commanded_speed+5))):
-            self.pid.setpoint=0
-            self.power = 0
-            self.OnSBrakeOn()
+        #Turning off The Brake if it was on from stopping maneuver
+        if(self.backup_braking_because_too_fast and self.TrainController.is_auto and (self.current_speed < (self.commanded_speed)) and not(self.authority==0)):
+            print("Turning off brake because braking because too fast was true")
+            #self.OnSBrakeOff()
+            self.backup_braking_because_too_fast = False
+
+        #If in Auto Mode, go off the commanded speed
+        if(self.TrainController.is_auto and (self.current_speed > (self.commanded_speed+5))):
+            print("Braking because too fast")
+            self.backup_braking_because_too_fast = True
+            self.backupPID.setpoint=0
+            self.power_backup = 0
+            #self.OnSBrakeOn()
+
 
         #print("Backup called. Backup power is: " + str(self.power_backup))
         #If in Auto Mode, go off the commanded speed
@@ -439,13 +467,13 @@ class SpeedRegulator():
             
         #If in Manual Mode, go off the setpoint speed
         elif(not(self.setpoint_speed == 0) and not self.service_brake and not self.emergency_brake):
-            self.pid.setpoint = self.setpoint_speed
-            self.power_backup = self.pid(self.current_speed, dt = 1)
+            self.backupPID.setpoint = self.setpoint_speed
+            self.power_backup = self.backupPID(self.current_speed, dt = 1)
             ##self.power_backup = self.backupPID.output
 
         #If either brake is active, power is 0
         else:
-            self.pid.setpoint=0
+            self.backupPID.setpoint=0
             self.power_backup = 0
     
     #get_power: makes sure PID loops are in tune, returns power
@@ -453,10 +481,10 @@ class SpeedRegulator():
         if(self.power == 0):
             return self.power
         elif(not(self.power == 0 or self.power_backup == 0)):
-            if(self.power / self.power_backup > 2):
+            if(self.TrainController.is_auto and (self.power / self.power_backup > 4)):
                 print("TOO MUCH POWER DIFFERENCE")
                 return 0
-                self.Vital
+                self.VitalFault()
             else:
                 return self.power
         else:
@@ -490,10 +518,10 @@ class SpeedRegulator():
         self.TrainController.DisplayUpdate()
 
     ###################### FAILURE DETECTION ######################
-    def DetectEngineFailure(self):
-        if(self.current_speed == 666):
+    def DetectEngineFailure(self, current):
+        if(current == 666):
             self.engine_failure = True
-            self.UI.textBrowser_13.setStyleSheet(u"background-color: rgb(255, 0, 0);")
+            self.TrainController.UI.ui.textBrowser_13.setStyleSheet(u"background-color: rgb(255, 0, 0);")
             self.VitalFault()
             self.TrainController.TrainModel.engine_failure_on()
 
