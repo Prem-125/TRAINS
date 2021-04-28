@@ -118,7 +118,7 @@ class TrainControllerHWInterface(QMainWindow):
 
 	
 	def set_current_speed(self,speed):
-		//print("SETTING Current Speed" + str(speed))
+		#print("SETTING Current Speed" + str(speed))
 
 		self.curSpeed= speed
 		self.ui.CurSpeedVal.setPlainText(str(round(self.curSpeed,2)))
