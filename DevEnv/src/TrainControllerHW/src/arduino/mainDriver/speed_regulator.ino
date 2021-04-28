@@ -1,41 +1,65 @@
 #include <PID_v1.h>
+#include <AutoPID.h>
 float cmdVel = 19.0;
 double curVel = 0.0;
 double oldVel = 0.0;
 double buffVel = 0;
 float setpointVel = 17.935;
 double power = 0.0;
+double power2 = 0.0;
 double setpoint = 0.0;
-float kp = 1000.0;
+float kp = 25000.0;
 float ki = 1000.0;
+float SafetyMargin = 4.0;
 int auth = 1;
+AutoPID powLoop2(&curVel, &setpoint, &power2, 0, 120000, kp, ki/1.7, 0);
 PID powLoop(&curVel,&power,&setpoint,kp,ki,0,DIRECT);
-bool AutoMode;
+bool AutoMode = true;
 bool SBrake;
 bool EBrake;
 bool PEBrake;
+bool SBrakeReg = false;
 
 void initPID(){
   powLoop.SetOutputLimits(0,120000);
   powLoop.SetSampleTime(200);
   powLoop.SetMode(AUTOMATIC);
+  powLoop2.setTimeStep(200);
 }
 
 double calcPower(){
   if(AutoMode){
-  setpoint = cmdVel;
+  setpoint = cmdVel *.9;
   }else{
-  setpoint = setpointVel;
+  setpoint = setpointVel * .9;
   }
   powLoop.Compute();
+  powLoop2.run();
+  if((power/power2 > SafetyMargin|| power/power2 < 1.0/SafetyMargin) && !get_SBrake() ){
+    //set_EBrake(true);
+  }
+  
   if(PEBrake || EBrake || SBrake){
   power = 0;
+  power2 = 0;
+  }
+  
+   if (get_curVel()> setpoint + 2){
+    set_SBrake(true);
+    SBrakeReg = true;
+    return 0;
+  }else if (SBrakeReg){
+    set_SBrake(false);
+    SBrakeReg = false;
   }
 
   if(auth ==0){
     power =0;
+    power2 = 0;
     set_SBrake(true); 
   }
+
+ 
 
   return power;
 }
@@ -46,6 +70,10 @@ double calcPower(){
 
 double get_power(){
   return power;
+}
+
+double get_power2(){
+  return power2;
 }
 
 void set_cmdVel(float input){

@@ -12,47 +12,58 @@ class MainWindow(QMainWindow):
         self.ui = Ui_TrackControllerUI()
         self.ui.setupUi(self)
 
-        # Green Track Controllers
-        self.GreenController1 = TrackController(0, "Green")
-        self.GreenController2 = TrackController(21, "Green")
-        self.GreenController3 = TrackController(33, "Green")
-        self.GreenController4 = TrackController(61, "Green")
-        self.GreenController5 = TrackController(74, "Green")
-        self.GreenController6 = TrackController(82, "Green")
-        self.GreenController7 = TrackController(105, "Green")
+        # Instantiate Green Track Controllers for the system
+        # Parameters are block offset value for the controller, and the line the Track Controller is on
+        self.GreenController1 = TrackController(0, "Green", "G1")
+        self.GreenController2 = TrackController(21, "Green", "G2")
+        self.GreenController3 = TrackController(33, "Green", "G3")
+        self.GreenController4 = TrackController(61, "Green", "G4")
+        self.GreenController5 = TrackController(74, "Green", "G5")
+        self.GreenController6 = TrackController(82, "Green", "G6")
+        self.GreenController7 = TrackController(105, "Green", "G7")
 
-        # Green switches
-        self.GreenController1.setSwitch(12, 13, 1, "Green")
-        self.GreenController2.setSwitch(29, 30, 150, "Green")
-        self.GreenController3.setSwitch(57, 151, 58, "Green")
-        self.GreenController4.setSwitch(63, 62, 151, "Green")
-        self.GreenController5.setSwitch(77, 76, 101, "Green")
-        self.GreenController6.setSwitch(85, 86, 100, "Green")
+        # Instantiate the switches for the Green Controllers
+        # Parameters are the block stem number, branch a number, branch b number, and line
+        self.GreenController1.set_Switch(13, 12, 1, "Green")
+        self.GreenController2.set_Switch(29, 30, 150, "Green")
+        self.GreenController3.set_Switch(57, 58, 151, "Green")
+        self.GreenController4.set_Switch(63, 151, 62, "Green")
+        self.GreenController5.set_Switch(77, 101, 76, "Green")
+        self.GreenController6.set_Switch(85, 86, 100, "Green")
 
-        # Red Track Controllers
-        self.RedController1 = TrackController(7, "Red")
-        self.RedController2 = TrackController(0, "Red")
-        self.RedController3 = TrackController(21, "Red")
-        self.RedController4 = TrackController(30, "Red")
-        self.RedController5 = TrackController(35, "Red")
-        self.RedController6 = TrackController(41, "Red")
-        self.RedController7 = TrackController(49, "Red")
+        # Instantiate Red Track Controllers for the system
+        # Parameters are block offset value for the controller, and the line the Track Controller is on
+        self.RedController1 = TrackController(7, "Red", "R1")
+        self.RedController2 = TrackController(0, "Red", "R2")
+        self.RedController3 = TrackController(21, "Red", "R3")
+        self.RedController4 = TrackController(30, "Red", "R4")
+        self.RedController5 = TrackController(35, "Red", "R5")
+        self.RedController6 = TrackController(41, "Red", "R6")
+        self.RedController7 = TrackController(49, "Red", "R7")
 
-        # Red switches
-        self.RedController1.setSwitch(9, 10, 151, "Red")
-        self.RedController2.setSwitch(16, 1, 15, "Red")
-        self.RedController3.setSwitch(27, 28, 76, "Red")
-        self.RedController4.setSwitch(33, 32, 72, "Red")
-        self.RedController5.setSwitch(38, 39, 71, "Red")
-        self.RedController6.setSwitch(44, 43, 67, "Red")
-        self.RedController7.setSwitch(52, 53, 66, "Red")
+        # Instantiate the switches for the Red Controllers
+        # Parameters are the block stem number, branch a number, branch b number, and line
+        self.RedController1.set_Switch(9, 10, 151, "Red")
+        self.RedController2.set_Switch(16, 1, 15, "Red")
+        self.RedController3.set_Switch(27, 28, 76, "Red")
+        self.RedController4.set_Switch(33, 32, 72, "Red")
+        self.RedController5.set_Switch(38, 39, 71, "Red")
+        self.RedController6.set_Switch(44, 43, 67, "Red")
+        self.RedController7.set_Switch(52, 53, 66, "Red")
 
-        #UI used variables
+        # Instantiate the crossing for Red Controller
+        # Parameter is block number
+        self.RedController6.set_Crossing(47)
+
+        # Variables utilized by the UI functions
+        # ui_block and ui_switch indicate the number for the referenced object
         self.ui_block = 0
         self.ui_switch = 0
         self.plc_name = ""
 
-        #UI Functions
+        # UI Functions
+        # currentTextChanged method indicates a change in a combo box
+        # clicked method indicates the push of a button
         self.ui.StatusLineBox.currentTextChanged.connect(self.UIBlockOutput)
         self.ui.StatusControllerBox.currentTextChanged.connect(self.UIBlockOutput)
         self.ui.BlockInput.currentTextChanged.connect(self.UIBlockOutput)
@@ -61,16 +72,20 @@ class MainWindow(QMainWindow):
         self.ui.MainLineBox.currentTextChanged.connect(self.UISwitchOutput)
         self.ui.MainControllerBox.currentTextChanged.connect(self.UISwitchOutput)
 
-        #Signal Functions
-        signals.track_model_occupancy.connect(self.getOccupancy)
-        signals.CTC_authority.connect(self.getAuthority)
-        signals.track_break.connect(self.setBlockClosure)
+        # Signal Functions
+        # Signals sent from the CTC Office and Track Model are connected to functions here
+        signals.track_model_occupancy.connect(self.set_Occupancy)
+        signals.CTC_authority.connect(self.get_Authority)
+        signals.track_break.connect(self.set_BlockClosure)
         signals.wayside_block_status.connect(self.UpdateBlockStatus)
-        signals.CTC_suggested_speed.connect(self.getSugSpeed)
+        signals.CTC_suggested_speed.connect(self.get_SugSpeed)
         signals.CTC_toggle_switch.connect(self.CTCToggleSwitch)
 
-    # Returns the proper controller
-    def getController(self, line, block_num):
+    # get_Controller is called to return a Controller object based on input
+    # Parameters are track line name and block number
+    def get_Controller(self, line, block_num):
+        
+        # Green line controllers
         if(line == "Green"):
             if(block_num <21):
                 return self.GreenController1
@@ -86,6 +101,8 @@ class MainWindow(QMainWindow):
                 return self.GreenController6
             elif(block_num < 147):
                 return self.GreenController7
+        
+        # Red line controllers
         if(line == "Red"):
             if(block_num <7 or (block_num >12 and block_num <21)):
                 return self.RedController1
@@ -102,8 +119,12 @@ class MainWindow(QMainWindow):
             elif(block_num > 48):
                 return self.RedController7
 
-    # Returns switch controller
-    def getSwitchController(self, line, switch):
+    # get_SwitchController is called to return a Controller object based on input
+    # Parameters are track line name and switch number
+    # Used in UI functions
+    def get_SwitchController(self, line, switch):
+        
+        # Green line controllers
         if(line == "Green"):
             if(switch == 1):
                 return self.GreenController1
@@ -119,6 +140,8 @@ class MainWindow(QMainWindow):
                 return self.GreenController6
             elif(switch == 7):
                 return self.GreenController7
+        
+        # Red line controllers
         elif(line == "Red"):
             if(switch == 1):
                 return self.RedController1
@@ -135,39 +158,32 @@ class MainWindow(QMainWindow):
             elif(switch == 7):
                 return self.RedController7
 
-    # Occupancy Call
-    def getOccupancy(self, block_num, occupied):
-
-        self.getController("Green", block_num).getOccupancy(block_num, occupied)
-
-        # if(block_num < 33 or block_num > 146):
-        #     self.GreenController1.getOccupancy(block_num, occupied)
-        # elif(block_num > 32 and block_num < 74):
-        #     self.GreenController2.getOccupancy(block_num, occupied)
-        # elif(block_num > 73 and block_num < 105):
-        #     self.GreenController3.getOccupancy(block_num, occupied)
-        # elif(block_num > 104 and block_num < 147):
-        #     self.GreenController4.getOccupancy(block_num, occupied)
+    # set_Occupancy is called to set the occupancy recieved from the Track Model
+    # Calls set_Occupancy function in the proper TrackController object
+    # Parameters are block number, and boolean occupied status
+    def set_Occupancy(self, block_num, occupied):
+        # Asks for controller object, calls controller function
+        self.get_Controller("Green", block_num).set_Occupancy(block_num, occupied)
         self.UIBlockOutput()
 
-    # Authority Call
-    def getAuthority(self, line, block_num):
-
-        self.getController(line, block_num).getAuthority(block_num)
-
-        # if(block_num < 33 or block_num > 146):
-        #     self.GreenController1.getAuthority(block_num)
-        # elif(block_num > 32 and block_num < 74):
-        #     self.GreenController2.getAuthority(block_num)
-        # elif(block_num > 73 and block_num < 105):
-        #     self.GreenController3.getAuthority(block_num)
-        # elif(block_num > 104 and block_num < 147):
-        #     self.GreenController4.getAuthority(block_num)
+    # get_Authority is called to return the Authority of the block
+    # Calls get_Authority function in the proper TrackController object
+    # Parameters are track line name and block number
+    def get_Authority(self, line, block_num):
+        # Asks for controller object, calls controller function
+        self.get_Controller(line, block_num).get_Authority(block_num)
         self.UIBlockOutput()
 
-    # Suggested Speed Call
-    def getSugSpeed(self, line, block_num, sug_speed):
+    # get_SugSpeed is called to get the Suggested Speed from CTC Office
+    # Calls the respective TrackController get_SugSpeed Function
+    # Sets the limit with the suggested speed
+    # Parameters are track line name, block number, and suggested speed
+    def get_SugSpeed(self, line, block_num, sug_speed):
+        
+        # Initialize limit
         limit = 0
+        
+        # Green Limits
         if(line == "Green"):
             if((block_num > 0 and block_num < 13) \
             or (block_num > 85 and block_num < 101)):
@@ -181,6 +197,7 @@ class MainWindow(QMainWindow):
             else:
                 limit = 70
 
+        # Red Limits
         elif(line == "Red"):
             if(block_num > 0 and block_num < 17):
                 limit = 40
@@ -192,41 +209,30 @@ class MainWindow(QMainWindow):
                 limit = 60
             else:
                 limit = 70
-        self.getController(line, block_num).getSugSpeed(block_num, sug_speed, limit)
+        
+        # Asks for controller object, calls controller function
+        self.get_Controller(line, block_num).get_SugSpeed(block_num, sug_speed, limit)
 
-    # Block Closure
-    def setBlockClosure(self, line, block_num, break_type):
-
-        self.getController(line, block_num).setBlockClosure(line, block_num, break_type)
-        # if(block_num < 33 or block_num > 146):
-        #     self.GreenController1.setBlockClosure(line, block_num, break_type)
-        # elif(block_num > 32 and block_num < 74):
-        #     self.GreenController2.setBlockClosure(line, block_num, break_type)
-        # elif(block_num > 73 and block_num < 105):
-        #     self.GreenController3.setBlockClosure(line, block_num, break_type)
-        # elif(block_num > 104 and block_num < 147):
-        #     self.GreenController4.setBlockClosure(line, block_num, break_type)
-
+    # set_BlockClosure is called from Signal
+    # Calls the closure function in the proper TrackController object
+    # Parameters are track line name, block number, and break type
+    def set_BlockClosure(self, line, block_num, break_type):
+        # Asks for controller object, calls controller function
+        self.get_Controller(line, block_num).set_BlockClosure(line, block_num, break_type)
         self.UIBlockOutput()
 
-    # Block Status Updates
+    # Updates the Block status from Signal if reopened
+    # Calls the update block function in the proper TrackController object
+    # Parameters are track line name, block number, and block status
     def UpdateBlockStatus(self, line, block_num, status):
-
-        self.getController(line, block_num).UpdateBlockStatus(line, block_num, status)
-
-        # if(block_num < 33 or block_num > 146):
-        #     self.GreenController1.UpdateBlockStatus(line, block_num, status)
-        # elif(block_num > 32 and block_num < 74):
-        #     self.GreenController2.UpdateBlockStatus(line, block_num, status)
-        # elif(block_num > 73 and block_num < 105):
-        #     self.GreenController3.UpdateBlockStatus(line, block_num, status)
-        # elif(block_num > 104 and block_num < 147):
-        #     self.GreenController4.UpdateBlockStatus(line, block_num, status)
-
+        # Asks for controller object, calls controller function
+        self.get_Controller(line, block_num).UpdateBlockStatus(line, block_num, status)
         self.UIBlockOutput()
 
-    # Call Controller Toggle Switch
+    # ToggleSwitchBranch is called by the UI push button
+    # Checks the UI combobox text and toggles the proper switch
     def ToggleSwitchBranch(self):
+        # Green Controllers
         if(self.ui.MainLineBox.currentText() == "Green"):
             if(self.ui.MainControllerBox.currentText() == "1"):
                 self.GreenController1.switch.ToggleBranch()
@@ -249,6 +255,7 @@ class MainWindow(QMainWindow):
             elif(self.ui.MainControllerBox.currentText() == "7"):
                 self.GreenController7.switch.ToggleBranch()
                 self.UISwitchOutput(self.GreenController7)
+        # Red Controllers
         elif(self.ui.MainLineBox.currentText() == "Red"):
             if(self.ui.MainControllerBox.currentText() == "1"):
                 self.RedController1.switch.ToggleBranch()
@@ -272,14 +279,19 @@ class MainWindow(QMainWindow):
                 self.RedController7.switch.ToggleBranch()
                 self.UISwitchOutput(self.RedController7)
 
-    # CTC Toggle Switch
+    # CTCToggleSwitch is called when the CTC toggles a switch
+    # Uses the proper Track Controller to toggle the switch
+    # Parameters are track line name and block number
     def CTCToggleSwitch(self, line, block_num):
-        self.getController(line, block_num).switch.ToggleBranch()
+        # Asks for controller object, calls controller function
+        self.get_Controller(line, block_num).switch.ToggleBranch()
 
-    #Output for the UI
+    # Populates the comboboxes and selections for the UI
+    # Reads from the comboboxes to populate the boxes correctly
     def UIBlockOutput(self):
-        #List of Green Line Controllers
+        # List of Green Line Controllers
         green_controllers = ["Choose","1","2","3","4","5","6","7"]
+        # List of Red Line Controllers
         red_controllers = ["Choose","1","2","3","4","5","6","7"]
         if(str(self.ui.StatusLineBox.currentText()) == "Green"):
             #Clear Combo Box
@@ -294,7 +306,6 @@ class MainWindow(QMainWindow):
                 controller1_blocks[0] = "Choose"
                 for i in range(19):
                     controller1_blocks[i+1] = str(i+1)
-
 
                 #Enter Block Inputs
                 for block_name in controller1_blocks:
@@ -521,7 +532,8 @@ class MainWindow(QMainWindow):
                 #Call controller display function
                 self.displayUIOutput(self.RedController7)
 
-    # Output for Switch UI
+    # Populates the Switch Outputs for the UI
+    # Parameters are TrackControllerSW object
     def UISwitchOutput(self, controller):
         if(self.ui.MainControllerBox.currentText() == "Choose"):
             self.ui.StemBox.setText("N/A")
@@ -529,7 +541,7 @@ class MainWindow(QMainWindow):
             self.ui.BranchBBox.setText("N/A")
             self.ui.MainBranchCon.setText("N/A")
         else:
-            controller = self.getSwitchController(self.ui.MainLineBox.currentText(), int(self.ui.MainControllerBox.currentText()))
+            controller = self.get_SwitchController(self.ui.MainLineBox.currentText(), int(self.ui.MainControllerBox.currentText()))
             if(controller.switch.block == -1):
                 self.ui.StemBox.setText("N/A")
                 self.ui.BranchABox.setText("N/A")
@@ -541,7 +553,8 @@ class MainWindow(QMainWindow):
                 self.ui.BranchBBox.setText(str(controller.switch.branch_b))
                 self.ui.MainBranchCon.setText(str(controller.switch.cur_branch))
 
-    #Display the UI functions
+    # Displays the UI output for the specified controller
+    # Parameters are TrackControllerSW object
     def displayUIOutput(self, controller):
         if (self.ui.BlockInput.currentText() == "Choose"):
             self.ui.BlockStatus.setText("N/A")
@@ -551,7 +564,7 @@ class MainWindow(QMainWindow):
             self.ui.CrossingStatus.setText("N/A")
             self.ui.SwitchStatus.setText("N/A")
         else:
-            controller.ui_block = int(self.ui.BlockInput.currentText()) #Convert block input to string
+            controller.ui_block = int(self.ui.BlockInput.currentText())
 
             if(controller.block_open[controller.ui_block-controller.block_offset] == True):
                 self.ui.BlockStatus.setText("Open")
@@ -568,10 +581,11 @@ class MainWindow(QMainWindow):
                 self.ui.CrossingStatus.setText("N/A")
                 self.ui.SwitchStatus.setText("N/A")
 
-    #Import PLC
+    # Imports the PLC script designated by the UI
+    # Prints validity output
     def ImportPLC(self):
+        
         inputFileName = self.ui.ImportLine.text()
-
         try:
             plc_name = open(inputFileName,'r')
 
@@ -580,9 +594,18 @@ class MainWindow(QMainWindow):
 
         with plc_name:
             self.ui.SuccessFailLine.setText("Valid File")
-
         plc_name.close()
+    
+    # Parses through the PLC file as
+    # Parameter is tag for the PLC function call 
+    """
+    def PLCParser(self, tag):
+        plc_line = ["" for i in range(7)]
 
+        if(plc_line == tag):
+            
+        """
+        
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
