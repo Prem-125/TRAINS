@@ -116,14 +116,18 @@ class TrainController:
                     if(self.left_doors):
                          pass
                     else:
-                        self.toggle_left_doors()
+                        #self.toggle_left_doors()
+                        self.UI.ui.leftDoors.setChecked(True)
 
                 #Opening Right Doors in auto mode
                 if(self.right_doors_at_dest and self.is_auto):
                     if(self.right_doors):
                          pass
                     else:
-                        self.toggle_right_doors()
+                        #self.toggle_right_doors()
+                        self.UI.ui.rightDoors.setChecked(True)
+                                #keeping door info up to date
+
         else:
             self.SendAdvertisement()
     
@@ -163,6 +167,8 @@ class TrainController:
         else:
             self.set_commanded_speed(tempCmdFloat/100 + tempCmdInt)
             self.set_authority(tempAuthFloat/100 + tempAuthInt)
+            if(self.is_auto):
+                self.AuthorityHandler()
         #print("Track Circuit Decoded!")
        
     #DecodeBeacon: used to decode beacon from train model
@@ -297,15 +303,16 @@ class TrainController:
 
     def AuthorityHandler(self):
         
-        if(self.SR.authority==0 and self.upcoming_station):
+        if(self.SR.authority==0): #and self.upcoming_station):
             self.set_service_brake(True)
             self.SendAnnouncement()
             print("both true in authoity handler")
 
-        elif(self.SR.authority == 0 or self.upcoming_station):
+        #elif(self.SR.authority == 0 or self.upcoming_station):
             #this is the equivalent of my station handler.
-            self.set_service_brake(True)
-            print("one true in authority handler")
+            #self.set_service_brake(True)
+            #edited just now
+           # print("one true in authority handler")
 
         else:
             self.SendAdvertisement()
@@ -352,7 +359,7 @@ class SpeedRegulator():
 
 
         #variables for main PID loop
-        self.kp = 1000.0
+        self.kp = 2500.0
         self.ki = 1000.0
         self.power = 0.0
         self.previous_power = 0.0
@@ -374,24 +381,31 @@ class SpeedRegulator():
         #print("Main called. Main power is: " + str(self.power))
 
         #If in Auto Mode, go off the commanded speed
-        if(self.TrainController.is_auto and ((not self.service_brake ) and (not self.emergency_brake))):
+        if(self.TrainController.is_auto and (self.current_speed > (self.commanded_speed+5))):
+            self.pid.setpoint=0
+            self.power = 0
+            self.OnSBrakeOn()
+
+        elif(self.TrainController.is_auto and ((not self.service_brake ) and (not self.emergency_brake))):
 
             #Closing the doors if we are leaving a destination
             if(self.TrainController.atDestination):
                 if(self.TrainController.right_doors):
-                    self.TrainController.toggle_right_doors
+                    #self.TrainController.toggle_right_doors
+                    self.TrainController.UI.ui.rightDoors.setChecked(True)
                 if(self.TrainController.left_doors):
-                    self.TrainController.toggle_left_doors
+                    #self.TrainController.toggle_left_doors
+                    self.TrainController.UI.ui.rightDoors.setChecked(False)
                 self.atDestination = False
 
             #updating setpoint
-            self.pid.setpoint = self.commanded_speed
+            self.pid.setpoint = .9*(self.commanded_speed)
             self.previous_power = self.power
             self.power = self.pid(self.current_speed, dt = 1)
             
         #If in Manual Mode, go off the setpoint speed
         elif(not(self.setpoint_speed == 0) and not self.service_brake and not self.emergency_brake):
-            self.pid.setpoint = self.setpoint_speed
+            self.pid.setpoint = .9*(self.setpoint_speed)
             self.power = self.pid(self.current_speed, dt = 1)
 
         #If either brake is active, power is 0
@@ -405,14 +419,19 @@ class SpeedRegulator():
     #backupPID: used to make PID Loop safety-critical
     def backupPIDLoop(self):
 
+        if((self.current_speed > (self.commanded_speed+5))):
+            self.pid.setpoint=0
+            self.power = 0
+            self.OnSBrakeOn()
+
         #print("Backup called. Backup power is: " + str(self.power_backup))
         #If in Auto Mode, go off the commanded speed
-        if(self.TrainController.is_auto and ((not self.service_brake ) and (not self.emergency_brake))):
+        elif(self.TrainController.is_auto and ((not self.service_brake ) and (not self.emergency_brake))):
             #updating setpoint
-            self.backupPID.setpoint = self.commanded_speed
+            self.backupPID.setpoint = .9*(self.commanded_speed)
             
             #updating power variables
-            self.previous_power_backup = self.power_backup
+            self.previous_power_backup = .9*(self.power_backup)
             self.power_backup = self.pid(self.current_speed, dt = 1)
             #Doing the power math
             ##self.backupPID.SetPoint = self.commanded_speed
@@ -548,14 +567,6 @@ class MainWindow(QMainWindow):
         else:
             self.ui.textBrowser_8.setPlainText("E Brake Inactive")
             #self.ui.textBrowser_10.setPlainText("E Brake Inactive")
-
-        #keeping door info up to date
-        if(self.TrainController.is_auto):
-            self.ui.leftDoors.setEnabled(False)
-            self.ui.rightDoors.setEnabled(False)
-        else:
-            self.ui.leftDoors.setEnabled(True)
-            self.ui.rightDoors.setEnabled(True)
 
     def Announce(self, announceString):
         self.ui.announcementDisplay.setPlainText(announceString)

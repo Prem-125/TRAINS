@@ -140,6 +140,7 @@ class SwitchObj:
             self.cur_branch = self.branch_a
         signals.track_switch_position.emit(self.line, self.block, self.cur_branch)
         signals.CTC_switch_position.emit(self.line, self.block, self.cur_branch)
+        print('emmit toggle' + self.line)
 
     def setValues(self, block, branch_a, branch_b, line):
         self.block = block

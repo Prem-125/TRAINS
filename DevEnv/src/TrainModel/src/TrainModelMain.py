@@ -246,11 +246,11 @@ class MainWindow(QMainWindow):
 	def s_brake_on(self):
    		self.train.serviceBrake=True
    		self.ui.serviceBreakOuput.setText("On")
-   		self.set_velocity()
+   		#self.set_velocity()
 	def s_brake_off(self):
    		self.train.serviceBrake=False
    		self.ui.serviceBreakOuput.setText("Off")
-   		self.set_velocity()
+   		#self.set_velocity()
 
 
 

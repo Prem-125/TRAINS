@@ -222,6 +222,11 @@ class TrackLine:
         #Declare a list of closed blocks
         self.closed_blocks = []
 
+        print("INITIAL SWITCH LAYOUT FOR " + str(self.color) + "LINE")
+
+        for SwitchObj in self.switch_list:
+            print("Switch on Block " + str(SwitchObj.root) + " with Branches " + str(SwitchObj.branch_1) + " and " + str(SwitchObj.branch_2))
+
     #End contructor
 
     #Define method to establish track layout
@@ -292,7 +297,7 @@ class TrackLine:
                     if(temp_str != ''):
                         if(int(temp_str) in branch_block_nums): #Isolate root block
                             branch_block_nums.remove( int(temp_str) )
-                            root_block_num = temp_str
+                            root_block_num = int(temp_str)
                         else: #Store branch blocks in list
                             branch_block_nums.append( int(temp_str) )
                         #End if-else block
@@ -361,11 +366,15 @@ class TrackLine:
 
     #Method to update switch position
     def UpdateSwitchPos(self, track_line_name, root_block_num, branch_block_num):
+
+        print("Zack sends Switch on Block " + str(root_block_num) + " of " + track_line_name + " connected to block " + str(branch_block_num))
+
         #Search switch list
         for SwitchObj in self.switch_list:
-            if(SwitchObj.root == root_block_num):
-                print("Switch on Block " + str(branch_block_num) + " is at position " + str(SwitchObj.curr_position))
+            if(self.color == track_line_name and SwitchObj.root == root_block_num):
+                print("Switch on Block " + str(root_block_num) + " was at position " + str(SwitchObj.curr_position))
                 SwitchObj.curr_position = branch_block_num
+                print("Switch on Block " + str(root_block_num) + " is now at position " + str(SwitchObj.curr_position))
             #End if
         #End for loop
     #End method

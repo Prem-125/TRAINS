@@ -2,7 +2,6 @@
 """Module defining signals for communications"""
 
 from PySide6.QtCore import QObject, Signal
-import xlrd
 
 #Define TrackLine class
 class TrackLine:
