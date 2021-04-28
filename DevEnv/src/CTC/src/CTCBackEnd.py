@@ -84,9 +84,6 @@ class Train:
         elif(self.HostTrackLine.color == "Red"):
             self.GenerateRedRoute()
 
-        #Send destination (authority) to track controller TEMPORARY SETUP
-        #signals.CTC_authority.emit(self.track_line, self.destination)
-
         #Connect signal to obtain occupancy from wayside controller
         signals.CTC_occupancy.connect(self.UpdatePosition)
 
@@ -209,10 +206,13 @@ class Train:
                 signals.CTC_suggested_speed.emit(self.HostTrackLine.color, self.route_queue[0], suggested_speed*3.60)
             elif(self.destination == self.route_queue[0]):
                 suggested_speed = int(0*self.HostTrackLine.block_list[self.route_queue[0]-1].speed_limit)
-                signals.CTC_suggested_speed.emit(self.HostTrackLine.color, self.route_queue[0], suggested_speed*3.60)   
+                signals.CTC_suggested_speed.emit(self.HostTrackLine.color, self.route_queue[0], suggested_speed*3.60) 
+
+                #Send destination (authority) to track controller TEMPORARY SETUP
+                signals.CTC_authority.emit(self.track_line, self.destination)  
 
                 #Start dwell timer
-                QTimer.singleShot(5000, self.LeaveStation)
+                QTimer.singleShot(6000, self.LeaveStation)
                 print("\n\nTIMER HAS BEEN STARTED\n\n")
             else:
                 suggested_speed = self.HostTrackLine.block_list[self.route_queue[0]-1].speed_limit

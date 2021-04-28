@@ -47,7 +47,9 @@ bool OnPowLCD = false;
 const String  Stations[] = {"Shadyside","Herron Ave","Swissville","Penn Station","Steel Plaza","First Ave","Station Square","South Hills Junction", 
                             "Pioneer","Edgebrook","Whited","South Bank","Central","Inglewood","Overbrook","Glenburry","Dormont","Mt Lebanon", "Poplar","Castle Shannon"};
 String announcement = "No Announcement at this Time";
-
+String Ads[] = {"Choose Duquesne Light for all your home power needs", "Universtiy of Pittsburgh, a quality education", "Save money Today at Walmart!", "Thank you for riding the North Shore Expansion" };
+int timeCount = 0;
+int adIndex = 0;
 void setup() {
   Serial.begin(115200);
   Serial.setTimeout(1);
@@ -82,13 +84,25 @@ void loop() {
   updateToggleLEDs();
   SendToggleStates();
   SendTemperature();
+  if(timeCount %10 == 0){
+    sendAds();
+  }
 
 //  lcd.clear();
 //  lcd.setCursor(0,0);
 //  lcd.print(ToggleBtnStates);
 //  lcd.setCursor(0,1);
 //  lcd.print(CntrlBtnStates);
+  timeCount++;
   delay(200);
+}
+
+void sendAds(){
+  if(!StopAtStation){
+    announcement = Ads[adIndex % 4];
+    adIndex++;
+    SendAnnouncement();
+  }
 }
 
 void pinSetup(){

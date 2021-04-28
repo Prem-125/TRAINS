@@ -3,6 +3,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtCore import QFile
 from .UI import Ui_TrackControllerUI
 from signals import signals
+import csv
 from TrackControllerSW.src.TrackControllerSW import *
 
 class MainWindow(QMainWindow):
@@ -594,6 +595,8 @@ class MainWindow(QMainWindow):
 
         with plc_name:
             self.ui.SuccessFailLine.setText("Valid File")
+
+
         plc_name.close()
     
     # Parses through the PLC file as
@@ -605,7 +608,7 @@ class MainWindow(QMainWindow):
         if(plc_line == tag):
             
         """
-        
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 

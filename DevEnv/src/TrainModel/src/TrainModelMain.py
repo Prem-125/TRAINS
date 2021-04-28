@@ -204,7 +204,7 @@ class MainWindow(QMainWindow):
 			self.train.engineFailure= self.train.engineFailure + 1
 			self.ui.engineFailureOutput.setText("Yes")
 			self.ui.engineFailureOutput_4.setText("Yes")
-			#self.train_controller.set_current_speed(666)
+			self.train_controller.set_current_speed(666)
 		else:
 			self.train.engineFailure = self.train.engineFailure - 1
 			if(self.train.engineFailure == 0):
@@ -216,7 +216,7 @@ class MainWindow(QMainWindow):
 			self.train.engineFailure= self.train.engineFailure + 1
 			self.ui.engineFailureOutput.setText("Yes")
 			self.ui.engineFailureOutput_4.setText("Yes")
-			#self.train_controller.set_current_speed(666)
+			self.train_controller.set_current_speed(666)
 		else:
 			self.train.engineFailure = self.train.engineFailure - 1
 			if(self.train.engineFailure == 0):
@@ -228,7 +228,7 @@ class MainWindow(QMainWindow):
 			self.train.engineFailure= self.train.engineFailure + 1
 			self.ui.engineFailureOutput.setText("Yes")
 			self.ui.engineFailureOutput_4.setText("Yes")
-			#self.train_controller.set_current_speed(666)
+			self.train_controller.set_current_speed(666)
 		else:
 			self.train.engineFailure = self.train.engineFailure - 1
 			if(self.train.engineFailure == 0):
@@ -321,10 +321,10 @@ class MainWindow(QMainWindow):
 
 		self.ui.veloOutput.setText(str(round(self.train.velocity*2.23694,2))+ " mph")
 		#print("the speedbeing sent to train controler " + str(self.train.velocity))
-		if(self.train.engineFailure == 5):
-			self.train_controller.set_current_speed(666)
-		else:
-			self.train_controller.set_current_speed(self.train.velocity)
+		# if(self.train.engineFailure == 5):
+		# 	self.train_controller.set_current_speed(666)
+		# else:
+		self.train_controller.set_current_speed(self.train.velocity)
 
 		disCovered = (self.train.velocity * self.train.samplePeriod)
 

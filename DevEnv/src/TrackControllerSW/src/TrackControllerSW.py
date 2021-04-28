@@ -68,6 +68,7 @@ class TrackController:
         # Uses block offset to set the correct block
         self.suggested_speed[block_num-self.block_offset] = sug_speed
         self.set_ComSpeed(block_num, limit)
+        print("Suggested Speed: " + str(sug_speed))
 
     # Calculates the commanded speed
     # If the speed limit is less than the suggested speed, commanded becomes the limit
@@ -84,7 +85,7 @@ class TrackController:
     # Called upon when an occupancy is read
     # Parameter is block number
     def set_TrackStats(self, block_num):
-        if(self.authority[block_num-self.offset] == False):
+        if(self.authority[block_num-self.block_offset] == False):
             signals.wayside_to_track.emit(block_num, 0, 0)
         else:
             signals.wayside_to_track.emit(block_num, 1, self.commanded_speed[block_num-self.block_offset])
@@ -148,10 +149,10 @@ class TrackController:
             elif(direction == False):
                 if(self.switch.cur_branch == self.switch.branch_a):
                     self.switch.ToggleBranch()
-        elif(block_num == self.switch.branch_a and self.authority[block_num-self.offset] == True):
+        elif(block_num == self.switch.branch_a and self.authority[block_num-self.block_offset] == True):
             if(self.switch.branch_b == self.switch.cur_branch):
                 self.switch.ToggleBranch()
-        elif(blokc_num == self.switch.branch_a and self.authority[block_num-self.offset] == True):
+        elif(blokc_num == self.switch.branch_a and self.authority[block_num-self.block_offset] == True):
             if(self.switch.branch_a == self.switch.cur_branch):
                 self.switch.ToggleBranch()
 
@@ -159,12 +160,12 @@ class TrackController:
     # Parameter is block number
     def CheckCollision(self, block_num, direction):
         if(direction == True):
-            if(self.occupancy(block_num-self.offset+1) == True):
-                self.authority[block_num-self.offset] = False
+            if(self.occupancy(block_num-self.block_offset+1) == True):
+                self.authority[block_num-self.block_offset] = False
                 #send signal
         if(direction == False):
-            if(self.occupancy(block_num-self.offset-1) == True):
-                self.authority[block_num-self.offset] = False
+            if(self.occupancy(block_num-self.block_offset-1) == True):
+                self.authority[block_num-self.block_offset] = False
                 #send signal
 
 # Describes the function of a Switch under jurisdiction of a Track Controller
@@ -233,3 +234,7 @@ class Crossing:
         self.traffic_light = 0
         self.light = False
         self.gate = False
+
+class PLC_Line:
+    def __init__(self):
+        self.text = []
