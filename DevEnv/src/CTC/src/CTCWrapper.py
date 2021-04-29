@@ -546,16 +546,17 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                 #Increment iterator
                 iterator += 1
             #End destination loop
-
-            #Inform user of successful dispatch
-            AutoDispMsg = QMessageBox()
-            AutoDispMsg.setWindowTitle("Dispatch Fulfilled")
-            AutoDispMsg.setText("The imported schedule was succesfully processed.\nThe schedule has been updated accordingly.")
-            AutoDispMsg.setIcon(QMessageBox.Information)
-
-            MsgWin = AutoDispMsg.exec()
-
         #End train loop
+
+        #Inform user of successful dispatch
+        AutoDispMsg = QMessageBox()
+        AutoDispMsg.setWindowTitle("Dispatch Fulfilled")
+        AutoDispMsg.setText("The imported schedule was succesfully processed.\nThe schedule has been updated accordingly.")
+        AutoDispMsg.setIcon(QMessageBox.Information)
+
+        MsgWin = AutoDispMsg.exec()
+    #End method
+
 
     #Methods to modify map information
     def SetGreenMap(self):

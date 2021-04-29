@@ -323,6 +323,7 @@ class MainWindow(QMainWindow):
 		elif(self.train.serviceBrake and not self.train.brakeFailure):
 			self.train.acceleration = self.train.decLimitS
 
+		self.ui.accOutput.setText(str(round(self.train.acceleration,2))+ " m/s^2")
 
 		#calculate teh velocity (in meters per sec)
 		calcVelocity = (self.train.velocity + ( (self.train.samplePeriod /2) * (self.train.acceleration + previousAcc)  * (1 - .2 * self.train.engineFailure)))
@@ -374,10 +375,11 @@ class MainWindow(QMainWindow):
 	def change_passengers(self, delta):
 		self.train.passengers += delta
 		self.change_mass()
+		self.ui.OccupantOutput.setText(str(self.train.passengers)+ " Kg")
 
 	def change_mass(self):
 		self.train.mass = 37103.86 + (70*self.train.passengers) # average mass of a human = 70 kg
-
+		self.ui.massOutput.setText(str(round(self.train.mass,2))+ " Kg")
    
 
 if __name__ == "__main__":

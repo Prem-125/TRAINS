@@ -26,9 +26,9 @@ Green,F,24,300,0,70,,,0,0.5,15.4,Bidirectional
 Green,F,25,200,0,70,,,0,0.5,10.3,Bidirectional
 Green,F,26,100,0,70,,,0,0.5,5.1,Bidirectional
 Green,F,27,50,0,30,,,0,0.5,6.0,Bidirectional
-Green,F,28,50,0,30,,,0,0.5,6.0,Bidirectional
-Green,G,29,50,0,30,SWITCH ( 29 30 ) or ( 29 150 ),,0,0.5,6.0,Unidirectional
-Green,G,30,50,0,30,SWITCH ( 29 30 ),,0,0.5,6.0,Unidirectional
+Green,F,28,50,0,30,SWITCH ( 28 29 ) or ( 28 150 ),,0,0.5,6.0,Bidirectional
+Green,G,29,50,0,30,SWITCH ( 28 29 ),,0,0.5,6.0,Unidirectional
+Green,G,30,50,0,30,,,0,0.5,6.0,Unidirectional
 Green,G,31,50,0,30,STATION SOUTHBANK,Left,0,0.5,6.0,Unidirectional
 Green,G,32,50,0,30,,,0,0.5,6.0,Unidirectional
 Green,H,33,50,0,30,,,0,0.5,6.0,Unidirectional
@@ -148,4 +148,4 @@ Green,X,146,50,0,20,,,0,0.5,9.0,Unidirectional
 Green,Y,147,50,0,20,,,0,0.5,9.0,Unidirectional
 Green,Y,148,184,0,20,,,0,0.5,33.1,Unidirectional
 Green,Y,149,40,0,20,,,0,0.5,7.2,Unidirectional
-Green,Z,150,35,0,20,SWITCH ( 29 150 ),,0,0.5,6.3,Unidirectional
+Green,Z,150,35,0,20,SWITCH ( 28 150 ),,0,0.5,6.3,Unidirectional

@@ -523,7 +523,7 @@ class Schedule:
         arrival_times = []
 
         #Loop through first four trains
-        for col in range(31, 34):
+        for col in range(31, 35):
             #Loop through contents of column row-size
             for row in range(1, exl_sheet.nrows):
                 print("\n" + str(exl_sheet.cell_value(row, 6)))
@@ -534,7 +534,7 @@ class Schedule:
 
                     #Convert arrival time to seconds
                     input_time = exl_sheet.cell_value(row, col)
-                    print("\n" + str( repr(exl_sheet.cell_value(row, col)) ))
+                    print("\n" + str(exl_sheet.cell_value(row, col)))
                     train_arrival_time = float(input_time)*86400
 
                     #Add arrival times to list
