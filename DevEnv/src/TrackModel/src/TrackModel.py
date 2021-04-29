@@ -1189,10 +1189,14 @@ class MainWindow(QMainWindow):
 		if(self.track_list_green[blckNum].get_is_crossing() == True):
 			self.ui.sigCrossBarrier.setChecked(self.track_list_green[blckNum].get_crossing_status())
 			self.ui.sigCrossLights.setChecked(self.track_list_green[blckNum].get_crossing_light())
-		else:
-			self.ui.selTrackCross.setText('Not a crossing')
 		
 		if(self.track_list_green[blckNum].get_is_crossing() == True):
+			self.ui.selTrackCross.setText('Yes')
+		else:
+			self.ui.selTrackCross.setText('No')	
+
+
+		if(self.track_list_green[blckNum].get_is_branch() == True):
 			self.ui.selTrackBranch.setText('Yes')
 		else:
 			self.ui.selTrackBranch.setText('No')	
@@ -1220,8 +1224,6 @@ class MainWindow(QMainWindow):
 		self.ui.selTrackCircStat.setText(str(self.track_list_green[blckNum].get_circuit_condition()))
 		self.ui.selTrackPowerStat.setText(str(self.track_list_green[blckNum].get_power_condition()))
 		
-		if(self.track_list_green[blckNum].get_is_crossing()):
-			self.track_list_green[blckNum].set_signal_light == 'Slow'
 		
 		#railSignal
 		if(self.track_list_green[blckNum].get_signal_light() == 'Go'):
@@ -1394,9 +1396,9 @@ class MainWindow(QMainWindow):
 		if(self.track_list_red[blckNum].get_is_crossing() == True):
 			self.ui.sigCrossBarrier_red.setChecked(self.track_list_red[blckNum].get_crossing_status())
 			self.ui.sigCrossLights_red.setChecked(self.track_list_red[blckNum].get_crossing_light())
-			
+			self.ui.selTrackCross_red.setText('Yes')
 		else:
-			self.ui.selTrackCross_red.setText('Not a crossing')
+			self.ui.selTrackCross_red.setText('No')
 		
 		if(self.track_list_red[blckNum].get_is_branch() == True):
 			self.ui.selTrackBranch_red.setText('Yes')
