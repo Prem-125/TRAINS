@@ -344,6 +344,9 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
                     MsgWin = ClosureInfoMsg.exec()
 
+                    #Clear destination list
+                    self.dest_list.clear()
+
                     return
                 #End if-else block
             #End for loop
@@ -392,6 +395,9 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
                     MsgWin = ClosureInfoMsg.exec()
 
+                    #Clear destination list
+                    self.dest_list.clear()
+
                     return
                 #End if-else block
             #End for loop
@@ -427,6 +433,9 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
             ManDispFailMsg.setIcon(QMessageBox.Critical)
 
             MsgWin = ManDispFailMsg.exec()
+
+            #Clear destination list
+            self.dest_list.clear()
 
             return
         #End if
@@ -519,7 +528,11 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
             #Reset loop iterator
             iterator = 0
 
+            print("\n\nTRAIN ARRIVAL TIMES IN GUI FUNCTION")
+
             for destination_block in trainObj.destination_list:
+
+                print(str(trainObj.arrival_times[iterator]))
 
                 numRows = self.ui.SchedTable.rowCount()
                 self.ui.SchedTable.insertRow(numRows)
@@ -536,7 +549,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                     self.ui.SchedTable.setItem(numRows, 3, QTableWidgetItem(trainObj.HostTrackLine.station_list[iterator-1].name))
 
                 #Convert seconds to display time
-                backend_time = trainObj.arrival_times[trainObj.destination_list.index(destination_block)]
+                backend_time = trainObj.arrival_times[iterator]
                 arrival_hours = int(backend_time/3600)
                 arrival_minutes = int( (backend_time%3600)/60 )
                 arrival_seconds = int( (backend_time%60) )

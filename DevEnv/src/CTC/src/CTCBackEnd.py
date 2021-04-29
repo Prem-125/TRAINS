@@ -1,6 +1,7 @@
 import xlrd
 from PySide6.QtCore import *
 from signals import signals
+import copy
 
 #Define Block class
 class Block:
@@ -72,10 +73,12 @@ class Train:
         #Initialize Block instance variables
         self.number = train_number
         self.destination_list = dest_block_list #Block Numbers
-        print("Number of destinations within train is " + str(len(self.destination_list)))
         self.HostTrackLine = TrackLineObj #String
         self.arrival_times = dest_arrival_times   #Seconds
+        for time in self.arrival_times:
+            print(str(time))
         self.departure_time = train_departure_time #Seconds
+        print("Departure time for train " + str(train_number) + " is " + str(self.departure_time))
         
         #Initialize route queue
         self.route_queue = []
@@ -89,17 +92,16 @@ class Train:
         #Connect signal to obtain occupancy from wayside controller
         signals.CTC_occupancy.connect(self.UpdatePosition)
 
+        signals.time_signal.connect(self.UpdateTiming)
+
         #Connect signal to send wayside controller upcoming 4 blocks
         signals.CTC_next_four_request.connect(self.SendNextFour)
-
-        #Configure single shot timer for dwell period at destinations
-        """
-        self.dwell_timer = QTimer()
-        self.dwell_timer.setSingleShot(True)
-        self.dwell_timer.timeout.connect(self.LeaveStation)
-        """
         
     #End contructor
+
+    #Method to update timing interval for dwell periods
+    def UpdateTiming(self, current_time, timer_interval):
+        self.timer_period = timer_interval
 
     #Method to populate queue structure that specifies train route for Green line
     def GenerateGreenRoute(self):
@@ -171,22 +173,6 @@ class Train:
         self.route_queue.append(0)
     #End method
 
-    """
-    #Method to invoke backend functions for train position and suggested speed
-    def UpdateTrainParameters(self, track_line_name, block_num, occupancy):
-        #Send occupancy information to each train
-        if(track_line_name == "Green"):
-            for TrainObj in CTCSchedule.train_list:
-                TrainObj.UpdatePosition(GreenLine, block_num, occupancy)
-            #End for loop
-        elif(track_line_name == "Red"):
-            for TrainObj in CTCSchedule.train_list:
-                TrainObj.UpdatePosition(RedLine, block_num, occupancy)
-            #End for loop
-        #End if-elif block
-    #End method
-    """
-
     #Method to update position of train
     def UpdatePosition(self, track_line_name, block_num, occupancy):
         print("ENTERED UPDATE TRAIN POSITION FUNCTION")
@@ -217,8 +203,7 @@ class Train:
                 signals.CTC_authority.emit(self.HostTrackLine.color, self.destination_list[0], False)  
 
                 #Start dwell timer
-                QTimer.singleShot(6000, self.LeaveStation)
-                print("\n\nTIMER HAS BEEN STARTED\n\n")
+                QTimer.singleShot(8*timer_interval, self.LeaveStation)
             else:
                 suggested_speed = self.HostTrackLine.block_list[self.route_queue[0]-1].speed_limit
                 signals.CTC_suggested_speed.emit(self.HostTrackLine.color, self.route_queue[0], suggested_speed*3.60)   
@@ -231,11 +216,8 @@ class Train:
 
         #Send authority to track controller
         signals.CTC_authority.emit(self.HostTrackLine.color, self.route_queue[0], True)
-        print("\nHIT1\n")
         suggested_speed = self.HostTrackLine.block_list[self.route_queue[0]-1].speed_limit
-        print("\nHIT2\n")
         signals.CTC_suggested_speed.emit(self.HostTrackLine.color, self.route_queue[0], suggested_speed*3.60)
-        print("\nHIT3\n")
     #End method
 
     #Method to send next four blocks to wayside controller
@@ -412,7 +394,7 @@ class TrackLine:
     #Method to compute throughput
     def ComputeThroughput(self, curr_time):
         #Recompute throughput
-        throughput = self.ticket_sales / curr_time
+        throughput = self.ticket_sales / (curr_time/3600)
 
         return throughput
     #End method
@@ -448,9 +430,6 @@ class Schedule:
 
     #Constructor
     def __init__(self):
-        #Initialize operational mode to manual
-        self.mode = "manual"
-
         #Declare a list of trains
         self.train_list = []
     #End constructor
@@ -458,8 +437,6 @@ class Schedule:
     #Define method for manual train dispatch
     def ManualSchedule(self, dest_block_list, train_arrival_time, TrackLineObj, curr_time):
         global gbl_seconds
-
-        print("\n\nLenght of Destination List: " + str(len(dest_block_list)))
         
         #Assign train number
         train_number = len(self.train_list) + 1
@@ -470,8 +447,6 @@ class Schedule:
         #Ensure at least one destination has been specified
         if(len(dest_block_list) == 0):
             return dest_arrival_times
-
-        print("\n\nLength of Destination List: " + str(len(dest_block_list)))
 
         #Create temporary destination block list
         temp_block_list = dest_block_list[:]
@@ -496,14 +471,10 @@ class Schedule:
         #Compute remaining arrival times
         for travel_time in dest_travel_times:
             dest_arrival_times.append(train_departure_time + travel_time)
-            print("Travel Time: " + str(travel_time))
         #End for loop
 
         #Overwrite first element of arrival time list with time specified by dispatcher
         dest_arrival_times[0] = train_arrival_time
-
-        print("\n\nLength of Destination List: " + str(len(dest_block_list)))
-        print("\n\nLength of arrival time List: " + str(len(dest_arrival_times)))
         
         #If travel parameters have been verified, add train object to the schedule's train list
         self.train_list.append( Train(train_number, dest_block_list, TrackLineObj, dest_arrival_times, train_departure_time) )
@@ -526,15 +497,12 @@ class Schedule:
         for col in range(31, 35):
             #Loop through contents of column row-size
             for row in range(1, exl_sheet.nrows):
-                print("\n" + str(exl_sheet.cell_value(row, 6)))
                 if("STATION" in str(exl_sheet.cell_value(row, 6))):
                     #Add block to destination list
                     dest_block_list.append( int(exl_sheet.cell_value(row, 2)) )
-                    print("\n" + str(exl_sheet.cell_value(row, 2)))
 
                     #Convert arrival time to seconds
                     input_time = exl_sheet.cell_value(row, col)
-                    print("\n" + str(exl_sheet.cell_value(row, col)))
                     train_arrival_time = float(input_time)*86400
 
                     #Add arrival times to list
@@ -543,27 +511,29 @@ class Schedule:
             #End row loop
 
             #Create temporary destination block list
-            temp_block_list = dest_block_list[:]
+            temp_block_list = copy.deepcopy(dest_block_list)
 
             #Compute travel time to first destination
             dest_travel_times = self.ComputeTravelTimes(temp_block_list, TrackLineObj)
 
             #Compute train departure time
-            train_departure_time = train_arrival_time - dest_travel_times[0]
-
-            print("Number of backend destinations is " + str(len(dest_block_list)))
+            train_departure_time = arrival_times[0] - dest_travel_times[0]
 
             #Perform deep copy of destination list
-            temp_dest_list = dest_block_list[:]
+            temp_block_list = copy.deepcopy(dest_block_list)
+
+            #Perform deep copy of arrival times
+            temp_arrival_times = copy.deepcopy(arrival_times)
 
             #If travel parameters have been verified, add train object to the schedule's train list
-            self.train_list.append( Train(col-30, temp_dest_list, TrackLineObj, arrival_times, train_departure_time) )
+            self.train_list.append( Train(col-30, temp_block_list, TrackLineObj, temp_arrival_times, train_departure_time) )
 
             #Clear destination list for next train
             dest_block_list.clear()
+            #Clear arrival times for next train
+            arrival_times.clear()
             
         #End col loop
-
     #End method
 
 
@@ -705,6 +675,7 @@ class Schedule:
         for trainObj in self.train_list:
             if(int(trainObj.departure_time) == curr_time):
                 #MUST COMPELTE: Inform Train Deployer of newly created train object
+                print("YOU ARE DISPATCHING A TRAIN")
                 signals.train_creation.emit(trainObj.HostTrackLine.color, trainObj.number)
                 break
 

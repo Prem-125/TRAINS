@@ -13,7 +13,7 @@ class TrackController:
 
         # Adjacent Controllers
         self.adj_controller_list = [""]
-        
+
         # Block Status Variables
         self.block_open = [True for i in range(150)]
         self.occupancy = [False for i in range(150)]
