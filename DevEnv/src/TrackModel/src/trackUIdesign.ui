@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>2</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -353,7 +353,7 @@
      <widget class="QLabel" name="selTrackSection">
       <property name="geometry">
        <rect>
-        <x>310</x>
+        <x>280</x>
         <y>16</y>
         <width>80</width>
         <height>31</height>
@@ -654,7 +654,7 @@
        <x>700</x>
        <y>350</y>
        <width>411</width>
-       <height>411</height>
+       <height>361</height>
       </rect>
      </property>
      <property name="title">
@@ -716,7 +716,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>310</y>
+        <y>290</y>
         <width>111</width>
         <height>41</height>
        </rect>
@@ -729,7 +729,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>360</y>
+        <y>340</y>
         <width>261</width>
         <height>31</height>
        </rect>
@@ -811,7 +811,7 @@
       <property name="geometry">
        <rect>
         <x>290</x>
-        <y>350</y>
+        <y>330</y>
         <width>91</width>
         <height>31</height>
        </rect>
@@ -1042,6 +1042,48 @@
       </property>
      </widget>
     </widget>
+    <widget class="QGroupBox" name="trackSignalBox_7">
+     <property name="geometry">
+      <rect>
+       <x>700</x>
+       <y>710</y>
+       <width>411</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Railway Crossing Traffic Lights</string>
+     </property>
+     <widget class="QRadioButton" name="sigCrossLights">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>20</y>
+        <width>95</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Lights</string>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="sigCrossBarrier">
+      <property name="geometry">
+       <rect>
+        <x>290</x>
+        <y>20</y>
+        <width>111</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Barrier Status</string>
+      </property>
+     </widget>
+    </widget>
    </widget>
    <widget class="QWidget" name="tab_3">
     <attribute name="title">
@@ -1053,7 +1095,7 @@
        <x>700</x>
        <y>350</y>
        <width>411</width>
-       <height>421</height>
+       <height>361</height>
       </rect>
      </property>
      <property name="title">
@@ -1115,7 +1157,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>310</y>
+        <y>290</y>
         <width>111</width>
         <height>41</height>
        </rect>
@@ -1128,7 +1170,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>360</y>
+        <y>340</y>
         <width>261</width>
         <height>31</height>
        </rect>
@@ -1210,7 +1252,7 @@
       <property name="geometry">
        <rect>
         <x>290</x>
-        <y>350</y>
+        <y>330</y>
         <width>91</width>
         <height>31</height>
        </rect>
@@ -1373,7 +1415,7 @@
        <x>420</x>
        <y>160</y>
        <width>241</width>
-       <height>611</height>
+       <height>601</height>
       </rect>
      </property>
      <property name="rowCount">
@@ -1480,7 +1522,7 @@
        <x>10</x>
        <y>140</y>
        <width>371</width>
-       <height>631</height>
+       <height>621</height>
       </rect>
      </property>
      <property name="title">
@@ -1611,7 +1653,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>460</y>
+        <y>450</y>
         <width>351</width>
         <height>111</height>
        </rect>
@@ -1676,7 +1718,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>570</y>
+        <y>560</y>
         <width>351</width>
         <height>51</height>
        </rect>
@@ -1730,7 +1772,7 @@
      <widget class="QLabel" name="selTrackSection_red">
       <property name="geometry">
        <rect>
-        <x>310</x>
+        <x>280</x>
         <y>16</y>
         <width>80</width>
         <height>31</height>
@@ -2054,6 +2096,48 @@
       </property>
       <property name="text">
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Valid&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QGroupBox" name="trackSignalBox_6">
+     <property name="geometry">
+      <rect>
+       <x>700</x>
+       <y>710</y>
+       <width>411</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Railway Crossing Traffic Lights</string>
+     </property>
+     <widget class="QRadioButton" name="sigCrossLights_red">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>20</y>
+        <width>95</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Lights</string>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="sigCrossBarrier_red">
+      <property name="geometry">
+       <rect>
+        <x>290</x>
+        <y>20</y>
+        <width>111</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Barrier Status</string>
       </property>
      </widget>
     </widget>
