@@ -24,6 +24,7 @@ class MainWindow(QMainWindow):
 		#self.train.cmdSpeed = commanded_speed
 		self.train.velocity = float(current_speed)
 		self.train.trainID = trainID
+		self.train.line = line
 
 		if(soft_or_hard):
 			self.train_controller = TrainControllerSW(self, commanded_speed, current_speed, 1, trainID)
@@ -183,7 +184,7 @@ class MainWindow(QMainWindow):
 	def engine1_failure(self):
 		if(self.ui.engine1.isChecked()):
 			self.train.engineFailure= self.train.engineFailure + 1
-			self.ui.engineFailureOutput.setText("Yes")
+			#self.ui.engineFailureOutput.setText("Yes")
 			self.ui.engineFailureOutput_4.setText("Yes")
 			self.train_controller.set_current_speed(666)
 			
@@ -196,7 +197,7 @@ class MainWindow(QMainWindow):
 	def engine2_failure(self):
 		if(self.ui.engine2.isChecked()):
 			self.train.engineFailure= self.train.engineFailure + 1
-			self.ui.engineFailureOutput.setText("Yes")
+			#self.ui.engineFailureOutput.setText("Yes")
 			self.ui.engineFailureOutput_4.setText("Yes")
 			self.train_controller.set_current_speed(666)
 		else:
@@ -208,7 +209,7 @@ class MainWindow(QMainWindow):
 	def engine3_failure(self):
 		if(self.ui.engine3.isChecked()):
 			self.train.engineFailure= self.train.engineFailure + 1
-			self.ui.engineFailureOutput.setText("Yes")
+			#self.ui.engineFailureOutput.setText("Yes")
 			self.ui.engineFailureOutput_4.setText("Yes")
 			self.train_controller.set_current_speed(666)
 		else:
@@ -220,7 +221,7 @@ class MainWindow(QMainWindow):
 	def engine4_failure(self):
 		if(self.ui.engine4.isChecked()):
 			self.train.engineFailure= self.train.engineFailure + 1
-			self.ui.engineFailureOutput.setText("Yes")
+			#self.ui.engineFailureOutput.setText("Yes")
 			self.ui.engineFailureOutput_4.setText("Yes")
 			self.train_controller.set_current_speed(666)
 		else:
@@ -232,7 +233,7 @@ class MainWindow(QMainWindow):
 	def engine5_failure(self):
 		if(self.ui.engine5.isChecked()):
 			self.train.engineFailure= self.train.engineFailure + 1
-			self.ui.engineFailureOutput.setText("Yes")
+			#self.ui.engineFailureOutput.setText("Yes")
 			self.ui.engineFailureOutput_4.setText("Yes")
 			self.train_controller.set_current_speed(666)
 		else:
@@ -277,6 +278,8 @@ class MainWindow(QMainWindow):
 	def train_detected_brake_failure(self):
 		self.ui.brakeFailureOutput.setText("Yes")
 		
+	def train_detected_engine_failure(self):
+		self.ui.engineFailureOutput.setText("Yes")
 
 	def	set_beacon(self,BeaconInt):
 		self.train_controller.set_beacon(BeaconInt)	
@@ -348,7 +351,7 @@ class MainWindow(QMainWindow):
 			print("Block Len is:" + str(self.blockLen))
 
 			self.currPosition -= self.blockLen
-			signals.need_new_block.emit(self.blockNum,self.train.trainID)
+			signals.need_new_block.emit(self.train.line, self.blockNum,self.train.trainID)
     
 	def get_power(self):
 		self.train.power = self.train_controller.get_power()

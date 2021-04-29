@@ -406,7 +406,6 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         print("Train Number " + str(CTCSchedule.train_list[-1].number) )
         print("Train Destination: Block " + str(CTCSchedule.train_list[-1].destination_list[0]))
         print("Track Line: " + CTCSchedule.train_list[-1].HostTrackLine.color)
-        print("Arrival Time: " + str(CTCSchedule.train_list[-1].arrival_time))
         print("Departure Time: " + str(CTCSchedule.train_list[-1].departure_time))
     #End method
         

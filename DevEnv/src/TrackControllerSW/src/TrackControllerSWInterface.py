@@ -677,19 +677,36 @@ class MainWindow(QMainWindow):
                 # Switch Instruction
                 if(tag(0) == "G" or tag(0) == "R"):
                     if(tag(0) == "G"):
-                        controller = self.get_SwitchController("Green", int(tag(1)))
+                        s_controller = self.get_SwitchController("Green", int(tag(1)))
                     elif(tag(0) == "R"):
-                        controller = self.get_SwitchController("Red", int(tag(1)))
+                        s_controller = self.get_SwitchController("Red", int(tag(1)))
                         block_1 = self.plc_name[i+1].elements[2]
-                        offset = controller.block_offset
-                        if(controller.occupancy[block - offset] == True):
-                            if(controller.switch.cur_branch != 1):
-                                continue
 
                         # More than one block
-                        if(len(self.plc_name[i+1].elements) > 2):
+                        if(len(self.plc_name[i+1].elements) > 3):
                             op_1 = self.plc_name[i+1].elements[3]
-                            block_2 = self.plc_name[i+1].elements[4]
+                            block_2 = self.plc_name[i+1].elements[5]
+                            block_end = self.plc_name[i+1].elements[7]
+                            
+                            # More than two blocks
+                            if(len(self.plc_name[i+1].elements)>8):
+                                block_4 = self.plc_name[i+1].elements[9]
+
+                            # One block and Range
+                            else:
+                                continue
+
+                        # Only one block
+                        else:
+                            s_offset = s_controller.block_offset
+                            # Boolean True
+                            if(s_controller.occupancy[block - s_offset] == True):
+                                if(s_controller.switch.cur_branch != block_1):
+                                    s_controller.switch.ToggleBranch()
+                            # Boolean False
+                            else:
+                                if(s_controller.switch.cur_branch == block_1):
+                                    s_controller.switch.ToggleBranch()
                             
 
 
