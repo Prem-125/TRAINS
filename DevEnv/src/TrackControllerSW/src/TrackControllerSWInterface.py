@@ -680,11 +680,19 @@ class MainWindow(QMainWindow):
                         controller = self.get_SwitchController("Green", int(tag(1)))
                     elif(tag(0) == "R"):
                         controller = self.get_SwitchController("Red", int(tag(1)))
+                        block_1 = self.plc_name[i+1].elements[2]
+                        offset = controller.block_offset
+                        if(controller.occupancy[block - offset] == True):
+                            if(controller.switch.cur_branch != 1):
+                                continue
 
-                        block_a = self.plc_name[i+1].element[2]
-                        
-                        #op_1 = self.plc_name[i+1].element[3]
-                
+                        # More than one block
+                        if(len(self.plc_name[i+1].elements) > 2):
+                            op_1 = self.plc_name[i+1].elements[3]
+                            block_2 = self.plc_name[i+1].elements[4]
+                            
+
+
                 # Collision Instruction
                 elif(tag == "COL"):
                     continue

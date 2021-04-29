@@ -720,7 +720,8 @@ class MainWindow(QMainWindow):
 		signals.train_creation.connect(self.set_occupied_initial)
 		signals.wayside_block_open.connect(self.get_open_block)
 		signals.track_switch_position.connect(self.swap_switch)
-		
+		signals.wayside_signal_light.connect(self.get_wayside_signals)
+
 		#if green line 
 		#Code to generate Green route		
 		#Train always begins at yard
@@ -827,11 +828,7 @@ class MainWindow(QMainWindow):
 			signals.Beacon_signal.emit(self.track_list_green[self.route_queue_green[self.id_list[id]+1]].encodedBeacon, id) # ACTUALLY CALCULATE THE BEACON VAL AND BLOCK NUM
 		
 		self.update_track_info_green(self.current_block_green)
-	'''	if(self.track_list_green[self.route_queue_green[self.id_list[id]-1]].is_station == True or self.track_list_green[self.route_queue_green[self.id_list[id]-1]].is_underground == True):
-
-			self.track_list_green[self.route_queue_green[self.id_list[id]-1]].encode_beacon()
-			signals.Beacon_signal.emit(self.track_list_green[self.route_queue_green[self.id_list[id]-1]].encodedBeacon, id) # ACTUALLY CALCULATE THE BEACON VAL AND BLOCK NUM'''
-		
+	
 
 	#function for inital train spawn
 	def set_occupied_initial(self, track_line, id):
@@ -859,6 +856,23 @@ class MainWindow(QMainWindow):
 				signals.TC_signal.emit(self.track_list_green[block_in].encoded_TC, i)
 		
 		print("Sending occupancy to wayside")
+
+	def get_wayside_signals(self, line_in, block_in, signal_in):
+		if(signal_in == 0):
+			temp = 'Go'
+		elif(signal_in == 1):
+			temp = 'Slow'
+		else: 
+			temp = 'Stop'
+
+		if(line_in == "Green"):
+			self.track_list_green[in_block].set_signal_light(temp)
+			self.update_track_info_green(self.current_block_green)
+		else:
+			self.track_list_red[in_block].set_signal_light(temp)
+			self.update_track_info_red(self.current_block_red)
+		
+
 
 	def get_open_block(self, line_in, in_block): 
 		if(line_in == "Green"):

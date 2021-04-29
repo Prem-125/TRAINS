@@ -40,7 +40,7 @@ class SignalsClass(QObject):
     wayside_block_open = Signal(str, int) # Parameters are line name, block number
     track_switch_position = Signal(str, int, int) # Parameters are Line Name, switch stem, current branch
     crossing_activation = Signal(str, int, bool) # Parameters are line name, block num, activate/deactivate bool
-
+    wayside_signal_light = Signal(str, int, int) #parameters are line name, block num, and signal light status
 
     need_new_block = Signal(int,int) #block num and trainID train model sends to track model
     new_block = Signal(int, int, float, int) #block number, block length, block slope and trainID ---Track model sends to train model
