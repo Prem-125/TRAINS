@@ -12,7 +12,7 @@ class SignalsClass(QObject):
 
     TC_signal = Signal(int,int)
     Beacon_signal = Signal(int,int)
-    time_signal = Signal(int,int)
+    time_signal = Signal(int,int) # Parameters are accumulated time, interval between
 
     #Signal to exchange ticket sales information per track line
     station_ticket_sales = Signal(str, int) #Parameters are track line name and new ticket sales
@@ -29,6 +29,8 @@ class SignalsClass(QObject):
     wayside_block_status = Signal(str, int, bool) #Parameters are track line, block number, block status
     CTC_switch_position = Signal(str, int, int) #Parameters are track line, switch stem, current branch
     CTC_toggle_switch = Signal(str, int) #Parameters are track line, switch stem
+    CTC_next_four_request = Signal(str, int) #Parameters are track line, and block number
+    CTC_next_four_fulfilled = Signal(str, int, object) #Parameters are track line, block number, list of next four
 
 
     #Signals exchanged between wayside and track model
@@ -42,7 +44,7 @@ class SignalsClass(QObject):
     crossing_activation = Signal(str, int, bool) # Parameters are line name, block num, activate/deactivate bool
     wayside_signal_light = Signal(str, int, int) #parameters are line name, block num, and signal light status
 
-    need_new_block = Signal(int,int) #block num and trainID train model sends to track model
+    need_new_block = Signal(str, int,int) #block num and trainID train model sends to track model
     new_block = Signal(int, int, float, int) #block number, block length, block slope and trainID ---Track model sends to train model
 
     num_passengers_changed = Signal(int, int) #when at station and number of passengers change this is the result 

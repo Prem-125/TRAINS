@@ -163,7 +163,8 @@ class Track:
 		
 		#crossing Variables
 		self.is_crossing = 0
-		
+		self.crossing_status = 0
+
 		#branch variable
 		self.is_branch = 0
 		
@@ -379,6 +380,11 @@ class Track:
 		return self.is_crossing
 	def set_is_crossing(self, in_condition):
 		self.is_crossing=in_condition
+
+	def get_crossing_status(self):
+		return self.crossing_status
+	def set_crossing_status(self, in_condition):
+		self.crossing_status = in_condition
 
 	def get_is_branch(self):
 		return self.is_branch
@@ -721,6 +727,8 @@ class MainWindow(QMainWindow):
 		signals.wayside_block_open.connect(self.get_open_block)
 		signals.track_switch_position.connect(self.swap_switch)
 		signals.wayside_signal_light.connect(self.get_wayside_signals)
+		signals.crossing_activation.connect(self.get_wayside_crossing)
+
 
 		#if green line 
 		#Code to generate Green route		
@@ -811,23 +819,40 @@ class MainWindow(QMainWindow):
 		
 		
 	#function to tell me where the train is
-	def send_block_to_model(self,block,id):   #NEED LINE ARGUMENT
+	def send_block_to_model(self,line_in, block, id):   #NEED LINE ARGUMENT
 		#print("sent block123")
-		print("block length: " + str(self.track_list_green[block+1].get_length()))
-		self.track_list_green[block].set_occupied(False)
-		#self.route_queue_green.pop(0)
-		self.id_list[id]+=1
+		if(line_in == "Green"):
+			print("block length: " + str(self.track_list_green[block+1].get_length()))
+			self.track_list_green[block].set_occupied(False)
+			#self.route_queue_green.pop(0)
+			self.id_list[id]+=1
 
-		print("just left block " + str(block) + " next is " + str(self.route_queue_green[self.id_list[id]]))
-		self.track_list_green[self.route_queue_green[self.id_list[id]]].set_occupied(True, id)
+			print("just left block " + str(block) + " next is " + str(self.route_queue_green[self.id_list[id]]))
+			self.track_list_green[self.route_queue_green[self.id_list[id]]].set_occupied(True, id)
 
-		#send the beacon if there is a station or tunnel ahead 
-		if(self.track_list_green[self.route_queue_green[self.id_list[id]+1]].is_station == True or self.track_list_green[self.route_queue_green[self.id_list[id]+1]].is_underground == True):
+			#send the beacon if there is a station or tunnel ahead 
+			if(self.track_list_green[self.route_queue_green[self.id_list[id]+1]].is_station == True or self.track_list_green[self.route_queue_green[self.id_list[id]+1]].is_underground == True):
+				
+				self.track_list_green[self.route_queue_green[self.id_list[id]+1]].encode_beacon()
+				signals.Beacon_signal.emit(self.track_list_green[self.route_queue_green[self.id_list[id]+1]].encodedBeacon, id) # ACTUALLY CALCULATE THE BEACON VAL AND BLOCK NUM
 			
-			self.track_list_green[self.route_queue_green[self.id_list[id]+1]].encode_beacon()
-			signals.Beacon_signal.emit(self.track_list_green[self.route_queue_green[self.id_list[id]+1]].encodedBeacon, id) # ACTUALLY CALCULATE THE BEACON VAL AND BLOCK NUM
-		
-		self.update_track_info_green(self.current_block_green)
+			self.update_track_info_green(self.current_block_green)
+		else:
+			print("block length: " + str(self.track_list_red[block+1].get_length()))
+			self.track_list_red[block].set_occupied(False)
+			#self.route_queue_green.pop(0)
+			self.id_list[id]+=1
+
+			print("just left block " + str(block) + " next is " + str(self.route_queue_red[self.id_list[id]]))
+			self.track_list_red[self.route_queue_red[self.id_list[id]]].set_occupied(True, id)
+
+			#send the beacon if there is a station or tunnel ahead 
+			if(self.track_list_red[self.route_queue_red[self.id_list[id]+1]].is_station == True or self.track_list_red[self.route_queue_red[self.id_list[id]+1]].is_underground == True):
+				
+				self.track_list_red[self.route_queue_red[self.id_list[id]+1]].encode_beacon()
+				signals.Beacon_signal.emit(self.track_list_red[self.route_queue_red[self.id_list[id]+1]].encodedBeacon, id) # ACTUALLY CALCULATE THE BEACON VAL AND BLOCK NUM
+			
+			self.update_track_info_red(self.current_block_red)
 	
 
 	#function for inital train spawn
@@ -845,15 +870,29 @@ class MainWindow(QMainWindow):
 		
 	#function to update from wayside
 	def get_wayside_info(self, line_in, block_in, authority_in, commanded_speed_in): 
+		
+		
 		self.track_list_green[block_in].set_authority(authority_in)
 		self.track_list_green[block_in].set_commanded_speed(commanded_speed_in*(5.0/18.0))
 		#self.track_list[block_in].set_occupied(1)
-		
-		for i in range(0, len(self.id_list)):
-			if(self.id_list[i] == block_in):
-				self.track_list_green[block_in].encode_track_circuit_signal()
-				print("tc emit at 856")
-				signals.TC_signal.emit(self.track_list_green[block_in].encoded_TC, i)
+		if line_in == "Green":
+			for i in range(0, len(self.id_list)):
+				print("id_list[i] = " + str(self.route_queue_green[self.id_list[i]]))
+				print("block_in = " + str(block_in))
+				if(self.route_queue_green[self.id_list[i]] == block_in):
+					self.track_list_green[block_in].encode_track_circuit_signal()
+					print("tc emit at 856")
+					signals.TC_signal.emit(self.track_list_green[block_in].encoded_TC, i)
+			self.update_track_info_green(self.current_block_green)
+		else:
+			for i in range(0, len(self.id_list)):
+				print("id_list[i] = " + str(self.route_queue_red[self.id_list[i]]))
+				print("block_in = " + str(block_in))
+				if(self.route_queue_red[self.id_list[i]] == block_in):
+					self.track_list_red[block_in].encode_track_circuit_signal()
+					print("tc emit at 856")
+					signals.TC_signal.emit(self.track_list_red[block_in].encoded_TC, i)
+			self.update_track_info_red(self.current_block_red)
 		
 		print("Sending occupancy to wayside")
 
@@ -871,8 +910,14 @@ class MainWindow(QMainWindow):
 		else:
 			self.track_list_red[in_block].set_signal_light(temp)
 			self.update_track_info_red(self.current_block_red)
-		
 
+	def get_wayside_crossing(self, line_in, block_in, status_in):		
+		if(line_in == "Green"):
+			self.track_list_green[in_block].set_crossing_status(status_in)
+			self.update_track_info_green(current_block_green)
+		else:
+			self.track_list_red[in_block].set_crossing_status(status_in)
+			self.update_track_info_red(current_block_red)
 
 	def get_open_block(self, line_in, in_block): 
 		if(line_in == "Green"):
@@ -1114,7 +1159,7 @@ class MainWindow(QMainWindow):
 		self.ui.selTrackSection.setText(str(self.track_list_green[blckNum].get_line()))
 		
 		
-		self.ui.selTrackSpeed.display(self.track_list_green[blckNum].get_speed_limit()*0.6213711922)
+		self.ui.selTrackSpeed.display(self.track_list_green[blckNum].get_speed_limit()*2.23694)
 		
 		self.ui.selTrackGrade.setText(str(self.track_list_green[blckNum].get_grade()))
 		self.ui.selTrackHeater.setText(str(self.track_list_green[blckNum].get_heater_status()))
@@ -1146,9 +1191,12 @@ class MainWindow(QMainWindow):
 			self.ui.train_people_boarding.display(0)
 			
 		if(self.track_list_green[blckNum].get_is_crossing() == True):
-			self.ui.selTrackCross.setText('Yes')
+			if(self.track_list_green[blckNum].get_crossing_status() == False):
+				self.ui.selTrackCross.setText('Barrier Up')
+			else:
+				self.ui.selTrackCross.setText('Barrier Down')
 		else:
-			self.ui.selTrackCross.setText('No')
+			self.ui.selTrackCross.setText('Not a crossing')
 		
 		if(self.track_list_green[blckNum].get_is_crossing() == True):
 			self.ui.selTrackBranch.setText('Yes')
@@ -1208,7 +1256,7 @@ class MainWindow(QMainWindow):
 		self.ui.trainSpeedLimitO.display(self.track_list_green[blckNum].get_speed_limit()*0.6213711922)
 		self.ui.trainAuthorityO.display(self.track_list_green[blckNum].get_authority())
 		self.ui.trainBeaconO.setText(str(self.track_list_green[blckNum].get_beacon()))
-		self.ui.trainCommandedSpeedO.display(self.track_list_green[blckNum].get_commanded_speed()*0.6213711922)
+		self.ui.trainCommandedSpeedO.display(self.track_list_green[blckNum].get_commanded_speed()*2.23694)
 		
 		#Wayside outputs
 		self.ui.wayOccupiedO.setText(str(self.track_list_green[blckNum].get_occupied()))
@@ -1350,9 +1398,12 @@ class MainWindow(QMainWindow):
 			self.ui.train_people_boarding_red.display(0)
 			
 		if(self.track_list_red[blckNum].get_is_crossing() == True):
-			self.ui.selTrackCross_red.setText('Yes')
+			if(self.track_list_red[blckNum].get_crossing_status() == False):
+				self.ui.selTrackCross_red.setText('Barrier Up')
+			else:
+				self.ui.selTrackCross_red.setText('Barrier Down')
 		else:
-			self.ui.selTrackCross_red.setText('No')
+			self.ui.selTrackCross.setText('Not a crossing')
 		
 		if(self.track_list_red[blckNum].get_is_branch() == True):
 			self.ui.selTrackBranch_red.setText('Yes')
