@@ -80,6 +80,7 @@ class TrackController:
             self.commanded_speed[block_num-self.block_offset] = limit
         else:
             self.commanded_speed[block_num - self.block_offset] = self.suggested_speed[block_num-self.block_offset]
+        self.set_TrackStats(block_num)
 
     # Update Track Model on the authority and commanded speed
     # Called upon when an occupancy is read
@@ -235,6 +236,11 @@ class Crossing:
         self.light = False
         self.gate = False
 
-class PLC_Line:
+# Class for the line of the PLC script
+# Contains an element for each line
+class PLCLine:
     def __init__(self):
-        self.text = []
+        self.elements = ["" for i in range(10)]
+
+    def set_element(self, iteration, element):
+        self.elements[iteration] = element
