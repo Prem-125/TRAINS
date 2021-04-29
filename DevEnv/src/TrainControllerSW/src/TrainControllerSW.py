@@ -40,6 +40,7 @@ class TrainController:
         self.announcement = ""
         self.ad_length = 0
         self.current_ad=0
+        self.temperature = 70
 
         #sending vital info to SpeedRegulator
         self.SR = SpeedRegulator(self, commanded_speed, current_speed, authority, self.train_ID)
@@ -86,7 +87,11 @@ class TrainController:
     def set_passenger_brake(self):
         self.passenger_brake_detected = True
         self.UI.ui.textBrowser_16.setStyleSheet(u"background-color: rgb(255, 0, 0);")
-        self.VitalFault()
+        self.SendEmergencyBrakeOn()
+        self.SR.OnEBrakeOn()
+        #3self.SR.On
+        self.DisplayUpdate()
+        self.SR.VitalFault()
 
     def set_current_speed(self, current_speed):
         self.SR.pidLoop()
@@ -98,6 +103,7 @@ class TrainController:
         self.SR.DetectEngineFailure(current_speed)
 
         self.SR.DetectBrakeFailure()
+
 
         
         #If we reach a station and our current speed is 0, open doors and all that jazz
@@ -131,6 +137,7 @@ class TrainController:
 
         else:
             self.SendAdvertisement()
+
     
     def set_commanded_speed(self, commanded_speed):
         self.SR.commanded_speed = commanded_speed
@@ -337,6 +344,7 @@ class TrainController:
     def set_service_brake(self, s_brake):
         if(s_brake):
             self.SR.OnSBrakeOn()
+
         else:
             self.SR.OnSBrakeOff()
    
@@ -346,6 +354,11 @@ class TrainController:
     def set_kp_ki(self, kp, ki):
         self.SR.kp = kp
         self.SR.ki = ki
+
+    def on_temperature_change(self):
+        self.temperature = int(self.UI.ui.temperature.value())
+        self.TrainModel.temp_changed(self.temperature)
+        self.displayUpdate()
 
 
     
@@ -496,6 +509,7 @@ class SpeedRegulator():
     def OnSBrakeOn(self):
         self.service_brake = True
         self.TrainController.SendServiceBrakeOn()
+        self.BrakeFailureTest()
         self.TrainController.DisplayUpdate()
 
     def OnSBrakeOff(self):
@@ -531,15 +545,29 @@ class SpeedRegulator():
             self.brake_failure = True
             self.TrainController.UI.ui.textBrowser_14.setStyleSheet(u"background-color: rgb(255, 0, 0);")
             self.VitalFault()
-            self.TrainController.TrainModel.brake_failure_on()
+            self.TrainController.TrainModel.train_detected_brake_failure()
+
             print("Service brake: " + str(self.service_brake))
             print("Current Speed: " + str(self.current_speed))
             print("Previous speed: " + str(self.previous_speed))
+
+
+    #testing brake failure
+    def BrakeFailureTest(self):
+        if(self.TrainController.TrainModel.train.brakeFailure):
+            self.brake_failure = True
+            self.TrainController.UI.ui.textBrowser_14.setStyleSheet(u"background-color: rgb(255, 0, 0);")
+            self.VitalFault()
+            self.TrainController.TrainModel.train_detected_brake_failure()
+           # print("Service brake: " + str(self.service_brake))
+           # print("Current Speed: " + str(self.current_speed))
+           # print("Previous speed: " + str(self.previous_speed))
     
     def VitalFault(self):
         self.TrainController.any_failure = True
         print("********************************************************* VITAL FAULT DETECTED *********************************************************")
-        self.OnEBrakeOn()
+        if(not(self.TrainController.passenger_brake_detected)):
+            self.OnEBrakeOn()
 
         
 #MainWindow class - interfaces with TrainController UI
@@ -566,7 +594,7 @@ class MainWindow(QMainWindow):
         self.ui.rightDoors.stateChanged.connect(self.TrainController.toggle_right_doors)
         self.ui.interiorLights.stateChanged.connect(self.TrainController.toggle_interior_lights)
         self.ui.exteriorLights.stateChanged.connect(self.TrainController.toggle_exterior_lights)
-        
+        self.ui.temperature.valueChanged.connect(self.TrainController.on_temperature_change)
 
         #self.pidTimer = QTimer()
         #self.pidTimer.timeout.connect(self.TrainController.SR.pidLoop)
