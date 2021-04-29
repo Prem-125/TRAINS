@@ -200,11 +200,11 @@ class MainWindow(QMainWindow):
     # set_Occupancy is called to set the occupancy recieved from the Track Model
     # Calls set_Occupancy function in the proper TrackController object
     # Parameters are block number, and boolean occupied status
-    def set_Occupancy(self, block_num, occupied):
+    def set_Occupancy(self, line, block_num, occupied):
         # Asks for controller object, calls controller function
-        self.get_Controller("Green", block_num).set_Occupancy(block_num, occupied)
+        self.get_Controller(line, block_num).set_Occupancy(block_num, occupied)
         self.UIBlockOutput()
-        self.RunPLC(self.get_Tag("Green", block_num))
+        self.RunPLC(self.get_Tag(line, block_num))
 
     # get_Authority is called to return the Authority of the block
     # Calls get_Authority function in the proper TrackController object
@@ -632,16 +632,16 @@ class MainWindow(QMainWindow):
 
         # Error checking
         try:
-            plc_name = open(inputFileName,'r')
+            plc_file = open(inputFileName,'r')
 
         except OSError:
             self.ui.SuccessFailLine.setText("Invalid File")
 
-        with plc_name:
+        with plc_file:
             self.ui.SuccessFailLine.setText("Valid File")
             
             # CSV reader implementation
-            csv_reader = csv.reader(plc_name, delimiter=' ')
+            csv_reader = csv.reader(plc_file, delimiter=' ')
             num_lines = 0
             for row in csv_reader:
                 if(num_lines == 0):
@@ -656,7 +656,7 @@ class MainWindow(QMainWindow):
                 
                 num_lines+=1
 
-        plc_name.close()
+        plc_file.close()
     
     # Runs the PLC script for the designated tag
     # Outputs the proper boolean value of the 
@@ -688,10 +688,6 @@ class MainWindow(QMainWindow):
                 # Crossing Instruction
                 elif(tag == "CRX"):
                     continue
-
-
-
-
 
 
 if __name__ == "__main__":

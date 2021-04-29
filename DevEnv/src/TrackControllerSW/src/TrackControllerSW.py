@@ -87,9 +87,9 @@ class TrackController:
     # Parameter is block number
     def set_TrackStats(self, block_num):
         if(self.authority[block_num-self.block_offset] == False):
-            signals.wayside_to_track.emit(block_num, 0, 0)
+            signals.wayside_to_track.emit(self.line, block_num, 0, 0)
         else:
-            signals.wayside_to_track.emit(block_num, 1, self.commanded_speed[block_num-self.block_offset])
+            signals.wayside_to_track.emit(self.line, block_num, 1, self.commanded_speed[block_num-self.block_offset])
             print("Suggested Speed: " + str(self.commanded_speed[block_num-self.block_offset]))
 
     # Closes a block after a received signal
