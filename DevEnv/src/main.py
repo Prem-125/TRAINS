@@ -9,7 +9,7 @@ from CTC.src.CTCWrapper import *
 
 from TrackModel.src.TrackModel import MainWindow as TrackModel
 from TrainDeployer.src.TrainDeployer import TrainDeployer
-from TrackControllerSW.src.TrackControllerSW import MainWindow as TrackControllerSW
+from TrackControllerSW.src.TrackControllerSWInterface import MainWindow as TrackControllerSW
 from signals import signals 
 #from src.UI.window_manager import window_list
 
@@ -20,6 +20,7 @@ def open_modules():
 
 """
 
+
 def start():
     app = QApplication()
     CTC = CTC_Office()
@@ -29,8 +30,8 @@ def start():
     TC = TrackControllerSW()
     TC.show()
     TrainConsole = TrainDeployer()
-    #TrainConsole.CreateTrains(GreenLine, 1)
-    #signals.train_creation.emit('Green',1)
+    # TrainConsole.CreateTrains(GreenLine, 1)
+    # signals.train_creation.emit('Green',1)
 
     sys.exit(app.exec_())
     

@@ -31,9 +31,9 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>310</y>
+        <y>190</y>
         <width>1211</width>
-        <height>581</height>
+        <height>701</height>
        </rect>
       </property>
       <property name="font">
@@ -85,12 +85,7 @@
       </attribute>
       <column>
        <property name="text">
-        <string>Arrival Time</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Destination</string>
+        <string>Train ID</string>
        </property>
       </column>
       <column>
@@ -100,181 +95,25 @@
       </column>
       <column>
        <property name="text">
-        <string>Train ID</string>
+        <string>Current Position</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>Current Position</string>
+        <string>Destination</string>
        </property>
       </column>
-     </widget>
-     <widget class="QGroupBox" name="AutoGroupBox">
-      <property name="geometry">
-       <rect>
-        <x>350</x>
-        <y>40</y>
-        <width>431</width>
-        <height>211</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>10</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true"/>
-      </property>
-      <property name="title">
-       <string>Automatic Sheduling</string>
-      </property>
-      <property name="flat">
-       <bool>false</bool>
-      </property>
-      <property name="checkable">
-       <bool>true</bool>
-      </property>
-      <property name="checked">
-       <bool>false</bool>
-      </property>
-      <widget class="QLabel" name="ImportSchedLabel">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>40</y>
-         <width>221</width>
-         <height>41</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
+      <column>
        <property name="text">
-        <string>Import Predefined Schedule:</string>
+        <string>Arrival Time</string>
        </property>
-      </widget>
-      <widget class="QPushButton" name="pushButton_4">
-       <property name="geometry">
-        <rect>
-         <x>230</x>
-         <y>50</y>
-         <width>181</width>
-         <height>31</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="autoFillBackground">
-        <bool>false</bool>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 246, 219);</string>
-       </property>
-       <property name="text">
-        <string>Select File</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="FileNameLabel">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>80</y>
-         <width>221</width>
-         <height>41</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Last Loaded Schedule:</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="ImportSchedButton">
-       <property name="geometry">
-        <rect>
-         <x>190</x>
-         <y>40</y>
-         <width>221</width>
-         <height>41</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-      <widget class="QLabel" name="AutoActiveLabel">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>120</y>
-         <width>221</width>
-         <height>41</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Automatic Mode is Active</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="DirectionsLabel">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>150</y>
-         <width>421</width>
-         <height>41</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Switching to manual mode will clear schedule contents</string>
-       </property>
-      </widget>
+      </column>
      </widget>
      <widget class="QLabel" name="ThroughputTitleLabel2">
       <property name="geometry">
        <rect>
-        <x>10</x>
-        <y>130</y>
+        <x>380</x>
+        <y>60</y>
         <width>171</width>
         <height>41</height>
        </rect>
@@ -300,8 +139,8 @@
      <widget class="QLabel" name="ThroughputTitleLabel1">
       <property name="geometry">
        <rect>
-        <x>10</x>
-        <y>90</y>
+        <x>380</x>
+        <y>20</y>
         <width>331</width>
         <height>41</height>
        </rect>
@@ -327,237 +166,11 @@
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
-     <widget class="QGroupBox" name="ManGroupBox">
-      <property name="geometry">
-       <rect>
-        <x>790</x>
-        <y>40</y>
-        <width>431</width>
-        <height>211</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>10</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="title">
-       <string>Manual Scheduling</string>
-      </property>
-      <property name="flat">
-       <bool>false</bool>
-      </property>
-      <property name="checkable">
-       <bool>true</bool>
-      </property>
-      <property name="checked">
-       <bool>false</bool>
-      </property>
-      <widget class="QLabel" name="DestPromptLabel1">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>110</y>
-         <width>221</width>
-         <height>41</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Select Destination:</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="TimePromptLabel1">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>150</y>
-         <width>221</width>
-         <height>41</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Input Arrival Time:</string>
-       </property>
-      </widget>
-      <widget class="QComboBox" name="DestComboBox1">
-       <property name="geometry">
-        <rect>
-         <x>160</x>
-         <y>120</y>
-         <width>251</width>
-         <height>31</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 255, 255);</string>
-       </property>
-       <property name="currentText">
-        <string/>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="TimeLineEdit1">
-       <property name="geometry">
-        <rect>
-         <x>160</x>
-         <y>160</y>
-         <width>113</width>
-         <height>31</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="placeholderText">
-        <string>00:00:00</string>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="ManDispButton">
-       <property name="geometry">
-        <rect>
-         <x>280</x>
-         <y>160</y>
-         <width>131</width>
-         <height>31</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 246, 219);</string>
-       </property>
-       <property name="text">
-        <string>Dispatch</string>
-       </property>
-      </widget>
-      <widget class="QRadioButton" name="StationRadioButton">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>70</y>
-         <width>191</width>
-         <height>31</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Specify Station Name</string>
-       </property>
-      </widget>
-      <widget class="QRadioButton" name="BlockRadioButton">
-       <property name="geometry">
-        <rect>
-         <x>200</x>
-         <y>70</y>
-         <width>211</width>
-         <height>31</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Specify Block Number</string>
-       </property>
-      </widget>
-      <widget class="QComboBox" name="TrackComboBox1">
-       <property name="geometry">
-        <rect>
-         <x>160</x>
-         <y>30</y>
-         <width>251</width>
-         <height>31</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 255, 255);</string>
-       </property>
-       <item>
-        <property name="text">
-         <string>Green</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Red</string>
-        </property>
-       </item>
-      </widget>
-      <widget class="QLabel" name="TrackPromptLabel1">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>30</y>
-         <width>161</width>
-         <height>31</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Specify Track Line:</string>
-       </property>
-      </widget>
-     </widget>
      <widget class="QLabel" name="ThroughputLabel1">
       <property name="geometry">
        <rect>
-        <x>10</x>
-        <y>170</y>
+        <x>380</x>
+        <y>100</y>
         <width>171</width>
         <height>41</height>
        </rect>
@@ -583,8 +196,8 @@
      <widget class="QLabel" name="ThroughputLabel2">
       <property name="geometry">
        <rect>
-        <x>180</x>
-        <y>170</y>
+        <x>550</x>
+        <y>100</y>
         <width>161</width>
         <height>41</height>
        </rect>
@@ -610,8 +223,8 @@
      <widget class="QLabel" name="ThroughputTitleLabel3">
       <property name="geometry">
        <rect>
-        <x>180</x>
-        <y>130</y>
+        <x>550</x>
+        <y>60</y>
         <width>161</width>
         <height>41</height>
        </rect>
@@ -638,7 +251,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>270</y>
+        <y>150</y>
         <width>1211</width>
         <height>41</height>
        </rect>
@@ -671,6 +284,164 @@
       <property name="alignment">
        <set>Qt::AlignCenter</set>
       </property>
+     </widget>
+     <widget class="QGroupBox" name="groupBox">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>361</width>
+        <height>131</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="title">
+       <string>Simulation Timing</string>
+      </property>
+      <widget class="QPushButton" name="PlayPauseButton">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>30</y>
+         <width>121</width>
+         <height>51</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 246, 219);</string>
+       </property>
+       <property name="text">
+        <string>Pause
+Simulation</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_2">
+       <property name="geometry">
+        <rect>
+         <x>40</x>
+         <y>80</y>
+         <width>141</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>(Real Time) 1x</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="SimSpeedLabel1">
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>20</y>
+         <width>171</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Simulation Speed</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_4">
+       <property name="geometry">
+        <rect>
+         <x>290</x>
+         <y>80</y>
+         <width>71</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>10x</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QSlider" name="SimSpeedSlider">
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>60</y>
+         <width>160</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="maximum">
+        <number>9</number>
+       </property>
+       <property name="sliderPosition">
+        <number>0</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="tickPosition">
+        <enum>QSlider::TicksBelow</enum>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_3">
+       <property name="geometry">
+        <rect>
+         <x>200</x>
+         <y>80</y>
+         <width>81</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>5x</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
      </widget>
     </widget>
     <widget class="QWidget" name="page_2">
@@ -8851,7 +8622,7 @@
       <property name="geometry">
        <rect>
         <x>20</x>
-        <y>330</y>
+        <y>30</y>
         <width>191</width>
         <height>31</height>
        </rect>
@@ -8874,7 +8645,7 @@
       <property name="geometry">
        <rect>
         <x>220</x>
-        <y>330</y>
+        <y>30</y>
         <width>191</width>
         <height>31</height>
        </rect>
@@ -8897,7 +8668,7 @@
       <property name="geometry">
        <rect>
         <x>20</x>
-        <y>380</y>
+        <y>80</y>
         <width>391</width>
         <height>141</height>
        </rect>
@@ -8974,6 +8745,420 @@
        </property>
        <property name="wordWrap">
         <bool>true</bool>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="ManGroupBox">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>390</y>
+        <width>391</width>
+        <height>511</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="title">
+       <string>Manual Scheduling</string>
+      </property>
+      <property name="flat">
+       <bool>false</bool>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
+      <property name="checked">
+       <bool>false</bool>
+      </property>
+      <widget class="QLabel" name="DestPromptLabel1">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>120</y>
+         <width>221</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Select Destination:</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="TimePromptLabel1">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>410</y>
+         <width>141</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>First Destination
+Arrival Time</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="DestComboBox1">
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>120</y>
+         <width>201</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="currentText">
+        <string/>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="TimeLineEdit1">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>460</y>
+         <width>141</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="placeholderText">
+        <string>00:00:00</string>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="StationRadioButton">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>70</y>
+         <width>191</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Station Name</string>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="BlockRadioButton">
+       <property name="geometry">
+        <rect>
+         <x>220</x>
+         <y>70</y>
+         <width>211</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Block Number</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="TrackComboBox1">
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>30</y>
+         <width>201</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="currentIndex">
+        <number>-1</number>
+       </property>
+       <item>
+        <property name="text">
+         <string>Green</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Red</string>
+        </property>
+       </item>
+      </widget>
+      <widget class="QLabel" name="TrackPromptLabel1">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>30</y>
+         <width>161</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Specify Track Line:</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="AddDestButton">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>170</y>
+         <width>141</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 246, 219);</string>
+       </property>
+       <property name="text">
+        <string>Add Destination</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="ManDispButton">
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>460</y>
+         <width>201</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 246, 219);</string>
+       </property>
+       <property name="text">
+        <string>Dispatch</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="DestListLabel">
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>170</y>
+         <width>201</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(197, 220, 255);</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="text">
+        <string>Destination List</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QTableWidget" name="DestTable">
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>200</y>
+         <width>201</width>
+         <height>241</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="columnCount">
+        <number>1</number>
+       </property>
+       <attribute name="horizontalHeaderVisible">
+        <bool>false</bool>
+       </attribute>
+       <attribute name="horizontalHeaderDefaultSectionSize">
+        <number>200</number>
+       </attribute>
+       <attribute name="verticalHeaderHighlightSections">
+        <bool>true</bool>
+       </attribute>
+       <column/>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="AutoGroupBox">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>240</y>
+        <width>391</width>
+        <height>131</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="title">
+       <string>Automatic Sheduling</string>
+      </property>
+      <property name="flat">
+       <bool>false</bool>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+      <widget class="QLabel" name="ImportSchedLabel">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>30</y>
+         <width>221</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Import Schedule:</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="ImportSchedButton">
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>40</y>
+         <width>201</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 246, 219);</string>
+       </property>
+       <property name="text">
+        <string>Select File</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="FileNameLabel">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>80</y>
+         <width>221</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Loaded Schedule:</string>
        </property>
       </widget>
      </widget>
@@ -9118,6 +9303,9 @@
         </property>
         <property name="styleSheet">
          <string notr="true">background-color: rgb(255, 255, 255);</string>
+        </property>
+        <property name="currentIndex">
+         <number>-1</number>
         </property>
         <item>
          <property name="text">
@@ -9278,6 +9466,9 @@
         <property name="styleSheet">
          <string notr="true">background-color: rgb(255, 255, 255);</string>
         </property>
+        <property name="currentIndex">
+         <number>-1</number>
+        </property>
         <item>
          <property name="text">
           <string>Green</string>
@@ -9357,7 +9548,7 @@
         <x>200</x>
         <y>280</y>
         <width>361</width>
-        <height>311</height>
+        <height>281</height>
        </rect>
       </property>
       <property name="font">
@@ -9407,6 +9598,9 @@
        </property>
        <property name="styleSheet">
         <string notr="true">background-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="currentIndex">
+        <number>-1</number>
        </property>
        <item>
         <property name="text">
@@ -9461,30 +9655,11 @@
         <bool>true</bool>
        </property>
       </widget>
-      <widget class="QLabel" name="BlockSectionLabel">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>140</y>
-         <width>261</width>
-         <height>41</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Section:</string>
-       </property>
-      </widget>
       <widget class="QLabel" name="BlockLengthLabel">
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>170</y>
+         <y>140</y>
          <width>261</width>
          <height>41</height>
         </rect>
@@ -9503,7 +9678,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>200</y>
+         <y>170</y>
          <width>261</width>
          <height>41</height>
         </rect>
@@ -9522,7 +9697,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>260</y>
+         <y>230</y>
          <width>261</width>
          <height>41</height>
         </rect>
@@ -9541,7 +9716,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>230</y>
+         <y>200</y>
          <width>261</width>
          <height>41</height>
         </rect>
@@ -9603,9 +9778,9 @@
       <property name="geometry">
        <rect>
         <x>200</x>
-        <y>610</y>
+        <y>580</y>
         <width>361</width>
-        <height>241</height>
+        <height>271</height>
        </rect>
       </property>
       <property name="font">
@@ -9657,7 +9832,7 @@
         <string notr="true">background-color: rgb(255, 255, 255);</string>
        </property>
       </widget>
-      <widget class="QLabel" name="label_29">
+      <widget class="QLabel" name="StemBlockLabel">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -9673,10 +9848,10 @@
         </font>
        </property>
        <property name="text">
-        <string>Switch Position:</string>
+        <string>Stem Block ID:</string>
        </property>
       </widget>
-      <widget class="QLabel" name="SwitchPositionLabel">
+      <widget class="QLabel" name="BranchBlockLabel">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -9692,7 +9867,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Block 5 to Block 6</string>
+        <string>Branch Block ID:</string>
        </property>
       </widget>
       <widget class="QComboBox" name="TrackComboBox5">
@@ -9713,6 +9888,9 @@
        </property>
        <property name="styleSheet">
         <string notr="true">background-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="currentIndex">
+        <number>-1</number>
        </property>
        <item>
         <property name="text">
@@ -9748,7 +9926,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>190</y>
+         <y>210</y>
          <width>331</width>
          <height>41</height>
         </rect>
@@ -17910,7 +18088,7 @@ background-color: rgb(30, 106, 220);</string>
 background-color: rgb(30, 106, 220);</string>
     </property>
     <property name="text">
-     <string>Track Map</string>
+     <string>Dispatch</string>
     </property>
    </widget>
   </widget>

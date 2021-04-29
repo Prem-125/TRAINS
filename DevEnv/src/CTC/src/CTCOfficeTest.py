@@ -2,7 +2,7 @@ import TransitSystem
 import unittest
 
 #TestCase 1 - Ensure track layout is properly built
-class TestTrackLine(unittest.TestCase):
+rackLine(unittest.TestCase):
 
     #Ensure green line is correctly configured
     def testGreenLine(self):

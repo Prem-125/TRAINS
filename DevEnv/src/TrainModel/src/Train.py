@@ -16,6 +16,7 @@ class Train:
 		self.gravity = 9.8
 		self.samplePeriod = .5
 		self.trainID = 0
+		self.line = None
 
 		self.acceleration = 0.0
 		self.power = 0.0

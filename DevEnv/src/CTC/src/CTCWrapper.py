@@ -1,10 +1,9 @@
 import sys
 import time
-from signals import signals 
+from signals import signals
 from CTC.src.UI import *
 from CTC.src.CTCBackEnd import *
 from PySide6.QtWidgets import *
-from PySide6.QtCore import *
 from PySide6.QtGui import *
 
 #Load in track layout
@@ -53,9 +52,20 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         #Define functionality of radio buttons and combo boxes in manual scheduler
         self.ui.StationRadioButton.clicked.connect(self.SetManDispStations)
         self.ui.BlockRadioButton.clicked.connect(self.SetManDispBlocks)
+        self.ui.TrackComboBox1.currentTextChanged.connect(self.UpdateManDispDisplay)
+        self.ui.AddDestButton.clicked.connect(self.UpdateDestList)
 
         #Define connection for manual dispatch button
         self.ui.ManDispButton.clicked.connect(self.GUIManualDispatch)
+        #Define connection for automatic dispatch button
+        self.ui.ImportSchedButton.clicked.connect(self.GUIAutoDispatch)
+
+        #Define high-level functionality of Automatic and Manual group boxes
+        self.ui.AutoGroupBox.clicked.connect(self.ExitAutoMode)
+        self.ui.ManGroupBox.clicked.connect(self.EnterManMode)
+
+        #Declare destination list for manual dispatch procedures
+        self.dest_list = []
 
         #Define user navigation buttons in stacked widget of track map page
         self.ui.GreenLineButton1.clicked.connect(self.SetGreenMap)
@@ -79,10 +89,24 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         #Define switch status informational display
         self.ui.TrackComboBox5.currentTextChanged.connect(self.StatusSwitchNums)
 
+        #Connect signal to obtain block closures from wayside controller
+        signals.CTC_failure.connect(self.WaysideCloseBlock)
+
+        #Define functionality of toggle switch when in maintenance mode
+        self.ui.ToggleSwitchButton.clicked.connect(self.UpdateSwitchPos)
+
+        #Initialize simulation speed to real time
+        self.timer_interval = 1000
+        #Define functionality for simulation speed slider
+        self.ui.SimSpeedSlider.valueChanged.connect(self.GUISetSimSpeed)
+
+        #Define button interaction to pause timer
+        self.ui.PlayPauseButton.clicked.connect(self.PlayPauseSim)
+
         #Set global clock
         self.utimer = QTimer()
         self.utimer.timeout.connect(self.timerUpdate)
-        self.utimer.start(1000)
+        self.utimer.start(self.timer_interval)
 
         #Initialize simulation timers
         self.gbl_seconds = 0
@@ -99,14 +123,64 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
     def SetStack1Index2(self):
         self.ui.StackedWidget1.setCurrentIndex(2)
 
+    #Method to leave automatic mode
+    def ExitAutoMode(self):
+        #Display warning message box
+        AutoExitMsg = QMessageBox()
+        AutoExitMsg.setWindowTitle("Exiting Automatic Mode")
+        AutoExitMsg.setText("WARNING: Are you sure you would like to disable automatic mode?\nOnce disabled, automatic mode cannot be reenabled.")
+        AutoExitMsg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Yes)
+        AutoExitMsg.setIcon(QMessageBox.Warning)
+
+        AutoExitMsg.buttonClicked.connect(self.PopUpSelection)
+
+        MsgWin = AutoExitMsg.exec()
+    #End method
+
+    #Method to respond to user selection in pop-up window for leaving automatic mode
+    def PopUpSelection(self, response):
+        if(response.text() == "Cancel"):
+            self.ui.AutoGroupBox.setChecked(True)
+            return
+        else:
+            self.ui.AutoGroupBox.setDisabled(True)
+            self.ui.ManGroupBox.setChecked(True)
+        #End if-else block
+    #End method
+
+    #Method to responsd to attempted modification of manual dispatch group checkbox
+    def EnterManMode(self):
+        if(self.ui.AutoGroupBox.isChecked() == True):
+            #Display warning message box
+            AutoExitMsg = QMessageBox()
+            AutoExitMsg.setWindowTitle("Exiting Automatic Mode")
+            AutoExitMsg.setText("WARNING: Are you sure you would like to disable automatic mode and enter manual mode?\nOnce disabled, automatic mode cannot be reenabled.")
+            AutoExitMsg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Yes)
+            AutoExitMsg.setIcon(QMessageBox.Warning)
+
+            AutoExitMsg.buttonClicked.connect(self.PopUpSelection)
+
+            MsgWin = AutoExitMsg.exec()
+        else:
+            #Display warning message box
+            ManExitMsg = QMessageBox()
+            ManExitMsg.setWindowTitle("Operational Mode Immutable")
+            ManExitMsg.setText("ERROR: Once entered, manual mode cannot be disabled.")
+            ManExitMsg.setIcon(QMessageBox.Critical)
+
+            MsgWin = ManExitMsg.exec()
+
+            self.ui.ManGroupBox.setChecked(True)
+        #End if-else block
+    #End method
+
     #Method to fill destination combo box with stations in manual scheduler
     def SetManDispStations(self):
         #Determine which track line is currently being viewed
         if(str(self.ui.TrackComboBox1.currentText()) == "Green"): #Green line is being viewed
             #Create list of Green line stations
-            green_line_stations = ["Glenbury", "Dormont", "Mt Lebanon", "Poplar", "Castle Shannon",
-                                    "Overbrook", "Inglewood", "Central", "Whited", "Edgebrook",
-                                    "Pioneer", "South Bank"]
+            green_line_stations = ["Glenbury", "Dormont", "Mt Lebanon", "Poplar", "Castle Shannon", 
+                                    "Overbrook", "Inglewood", "Central", "Whited", "Edgebrook", "Pioneer", "South Bank"]
             
             #Clear contents of destination combo box
             self.ui.DestComboBox1.clear()
@@ -132,7 +206,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
     #Method to fill destination combo box with blocks in manual scheduler
     def SetManDispBlocks(self):
-         #Determine which track line is currently being viewed
+        #Determine which track line is currently being viewed
         if(str(self.ui.TrackComboBox1.currentText()) == "Green"): #Green line is being viewed
             #Create list of Green line blocks
             green_line_blocks = list(range(1,151))
@@ -158,13 +232,178 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         #End if-elif block
     #End method
 
+    #Method to update destination combo boxes in respose to changes in track line
+    def UpdateManDispDisplay(self):
+        #Determine which radio button is selected
+        if(self.ui.StationRadioButton.isChecked()):
+            self.SetManDispStations() 
+        elif(self.ui.BlockRadioButton.isChecked()):
+            self.SetManDispBlocks()
+        #End if-else
+    #End method
+
+    #Method to update destination list in manual dispather
+    def UpdateDestList(self):
+        #Obtain train destination
+        train_destination = str(self.ui.DestComboBox1.currentText())
+
+        #Append to desination list
+        self.dest_list.append(train_destination)
+
+        #Update block closure list in maintenance mode of GUI
+        numRows = self.ui.DestTable.rowCount()
+        self.ui.DestTable.insertRow(numRows)
+        self.ui.DestTable.setItem(numRows, 0, QTableWidgetItem(train_destination))
+    #End method
+
     #Method to initiate manual dispatch and update scheduler accordingly
     def GUIManualDispatch(self):
         #Obtain track line on which train is to be dispatched
         track_line_name = str(self.ui.TrackComboBox1.currentText())
 
-        #Obtain train destination
-        train_destination = str(self.ui.DestComboBox1.currentText())
+        #Clear destination table
+        self.ui.DestTable.setRowCount(0)
+
+        #Declare processed list to be returned to calling environment
+        proc_block_list = []
+
+        print("\n\nFULL DEST LIST")
+        for dest_name in self.dest_list:
+            print(dest_name)
+
+        #Obtain train destinations from list
+        if(track_line_name == "Green" and self.ui.StationRadioButton.isChecked()):
+            #Create list of all track stations in the order they appear beginning at the yard
+            dest_order = ["Glenbury", "Dormont", "Mt Lebanon", "Poplar", "Castle Shannon", "Mt Lebanon", "Dormont", "Glenbury", "Overbrook", "Inglewood", "Central",
+                            "Whited", "Edgebrook", "Pioneer", "Whited", "South Bank", "Central", "Inglewood", "Overbrook"]
+
+            #Declare list of passed stations as the ordered list is traversed
+            prev_stations = []
+
+            #Ensure destination list abides by track layout
+            for destination_name in self.dest_list:
+                print("Trying to find " + destination_name + " in dest_list")
+                print("Length of destination ordered list: " + str(len(dest_order)))
+                for dest_order_elem in dest_order:
+                    print(dest_order_elem)
+
+                if(destination_name in dest_order):
+                    #Check if this is the second visitation of this station
+                    if(destination_name in prev_stations):
+                        if(destination_name == "Dormont"):
+                            proc_block_list.append(105)
+                        elif(destination_name == "Glenbury"):
+                            proc_block_list.append(114)
+                        elif(destination_name == "Overbrook"):
+                            proc_block_list.append(57)
+                        elif(destination_name == "Inglewood"):
+                            proc_block_list.append(38)
+                        elif(destination_name == "Central"):
+                            proc_block_list.append(49)
+                        elif(destination_name == "Mt Lebanon"):
+                            proc_block_list.append(77)
+                        elif(destination_name == "Whited"):
+                            proc_block_list.append(22)
+                        #End if-elif block
+                    else:
+                        if(destination_name == "Overbrook"):
+                            proc_block_list.append(123)
+                        elif(destination_name == "Inglewood"):
+                            proc_block_list.append(132)
+                        elif(destination_name == "Central"):
+                            proc_block_list.append(141)
+                        else:
+                            for StationObj in GreenLine.station_list:
+                                if(StationObj.name == destination_name.upper()):
+                                    proc_block_list.append(StationObj.block_num)
+                                    break
+                                #End if
+                            #End for loop
+                        #End if-elif block
+                    #End if-else block
+
+                    #Determine position of station in ordered list
+                    dest_pos = dest_order.index(destination_name) + 1
+
+                    #Do not exceed bounds of list
+                    if(dest_pos == len(dest_order)):
+                        break
+
+                    #Collect passed stations
+                    prev_stations = prev_stations + dest_order[:dest_pos]
+
+                    #Remove all list elements up to and including this station
+                    del dest_order[:dest_pos]
+
+                else:
+                    #Create error message box
+                    ClosureInfoMsg = QMessageBox()
+                    ClosureInfoMsg.setWindowTitle("Dispatch Failed")
+                    ClosureInfoMsg.setText("INFO: The specified destination list does not reflect the track layout")
+                    ClosureInfoMsg.setIcon(QMessageBox.Critical)
+
+                    MsgWin = ClosureInfoMsg.exec()
+
+                    #Clear destination list
+                    self.dest_list.clear()
+
+                    return
+                #End if-else block
+            #End for loop
+            
+        elif(track_line_name == "Red" and self.ui.StationRadioButton.isChecked()):
+            #Create list of all track stations in the order they appear beginning at the yard
+            dest_order = ["Shadyside", "Herron Ave", "Swissville", "Penn Station", "Steel Plaza", "First Ave", "Station Square", "South Hills Junction",
+                            "Station Square", "First Ave", "Steel Plaza", "Penn Station", "Swissville", "Herron Ave", "Shadyside"]
+
+            #Declare list of passed stations as the ordered list is traversed
+            prev_stations = []
+
+            #Ensure destination list abides by track layout
+            for destination_name in self.dest_list:
+                print("Trying to find " + destination_name + " in dest_list")
+                print("Length of destination ordered list: " + str(len(dest_order)))
+                for dest_order_elem in dest_order:
+                    print(dest_order_elem)
+                if(destination_name in dest_order):
+                    for StationObj in RedLine.station_list:
+                        if(StationObj.name == destination_name.upper()):
+                            proc_block_list.append(StationObj.block_num)
+                            break
+                        #End if
+                    #End for loop
+
+                    #Determine position of station in ordered list
+                    dest_pos = dest_order.index(destination_name) + 1
+
+                    #Do not exceed bounds of list
+                    if(dest_pos == len(dest_order)):
+                        break
+
+                    #Collect passed stations
+                    prev_stations = prev_stations + dest_order[:dest_pos]
+
+                    #Remove all list elements up to and including this station
+                    del dest_order[:dest_pos]
+
+                else:
+                    #Create error message box
+                    ClosureInfoMsg = QMessageBox()
+                    ClosureInfoMsg.setWindowTitle("Dispatch Failed")
+                    ClosureInfoMsg.setText("INFO: The specified destination list does not reflect the track layout")
+                    ClosureInfoMsg.setIcon(QMessageBox.Critical)
+
+                    MsgWin = ClosureInfoMsg.exec()
+
+                    #Clear destination list
+                    self.dest_list.clear()
+
+                    return
+                #End if-else block
+            #End for loop
+        #End if-else block
+            
+        print("\nLength of processed list: " + str( len(proc_block_list) ) + "\n")
 
         #Obtain train arrival time
         input_time = str(self.ui.TimeLineEdit1.text())
@@ -173,36 +412,30 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         parsed_input_time = input_time.split(":")
         train_arrival_time = int(parsed_input_time[0])*3600 + int(parsed_input_time[1])*60 + int(parsed_input_time[2])
 
-        #If destination is expressed as a station, convert to corresponding block number
-        if(self.ui.StationRadioButton.isChecked()):
-            if(track_line_name == "Green"):
-                for StationObj in GreenLine.station_list:
-                    if(StationObj.name == train_destination.upper()):
-                        block_destination = StationObj.block_num
-
-            elif(track_line_name == "Red"):
-                for StationObj in RedLine.station_list:
-                    if(StationObj.name == train_destination.upper()):
-                        block_destination = StationObj.block_num
-
-        else:
-            block_destination = int(train_destination)
+        print("\nBLOCK LIST")
+        for dest_block in proc_block_list:
+            print(str(dest_block))
 
         #Call back-end function for manual dispatch
         if(track_line_name == "Green"):
-            success = CTCSchedule.ManualSchedule(block_destination, train_arrival_time, GreenLine, self.gbl_seconds)
+            dest_arrival_times = CTCSchedule.ManualSchedule(proc_block_list, train_arrival_time, GreenLine, self.gbl_seconds)
         if(track_line_name == "Red"):
-            success = CTCSchedule.ManualSchedule(block_destination, train_arrival_time, RedLine, self.gbl_seconds)
+            dest_arrival_times = CTCSchedule.ManualSchedule(proc_block_list, train_arrival_time, RedLine, self.gbl_seconds)
+
+        print("\nLength of destination arrival times list is " + str(len(dest_arrival_times)))
 
         #If train could not be scheduled, display pop-up window and return to calling environment
-        if(not success):
+        if(len(dest_arrival_times) == 0):
             #Create error message box
             ManDispFailMsg = QMessageBox()
             ManDispFailMsg.setWindowTitle("Dispatch Failed")
-            ManDispFailMsg.setText("ERROR: The dispatch request could not be fullfilled\nCheck to ensure travel paramters are valid")
+            ManDispFailMsg.setText("ERROR: The dispatch request could not be fullfilled\nThe specified arrival time cannot be achieved for the provided destinations.")
             ManDispFailMsg.setIcon(QMessageBox.Critical)
 
             MsgWin = ManDispFailMsg.exec()
+
+            #Clear destination list
+            self.dest_list.clear()
 
             return
         #End if
@@ -211,28 +444,132 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         trainObj = CTCSchedule.train_list[-1]
 
         #Add train to scheduling table
-        numRows = self.ui.SchedTable.rowCount()
-        self.ui.SchedTable.insertRow(numRows)
-        self.ui.SchedTable.setItem(numRows, 0, QTableWidgetItem(input_time))
-
         if(self.ui.StationRadioButton.isChecked()):
-            self.ui.SchedTable.setItem(numRows, 1, QTableWidgetItem(train_destination))
+            for destination_name in self.dest_list:
+                numRows = self.ui.SchedTable.rowCount()
+                self.ui.SchedTable.insertRow(numRows)
+
+                self.ui.SchedTable.setItem(numRows, 0, QTableWidgetItem(str(trainObj.number)))
+                self.ui.SchedTable.setItem(numRows, 1, QTableWidgetItem(trainObj.HostTrackLine.color))
+                self.ui.SchedTable.setItem(numRows, 2, QTableWidgetItem("Block " + str(trainObj.route_queue[0])))
+                self.ui.SchedTable.setItem(numRows, 3, QTableWidgetItem(destination_name))
+
+                #Convert seconds to display time
+                backend_time = dest_arrival_times[self.dest_list.index(destination_name)]
+                arrival_hours = int(backend_time/3600)
+                arrival_minutes = int( (backend_time%3600)/60 )
+                arrival_seconds = int( (backend_time%60) )
+                display_time = str(arrival_hours).zfill(2) + ":" + str(arrival_minutes).zfill(2) + ":" + str(arrival_seconds).zfill(2)
+                self.ui.SchedTable.setItem( numRows, 4, QTableWidgetItem(display_time) )
+            #End for
+
         else:
-            self.ui.SchedTable.setItem(numRows, 1, QTableWidgetItem("Block " + str(block_destination)))
+            for block_destination in self.dest_list:
+                numRows = self.ui.SchedTable.rowCount()
+                self.ui.SchedTable.insertRow(numRows)
 
-        self.ui.SchedTable.setItem(numRows, 2, QTableWidgetItem(trainObj.track_line))
-        self.ui.SchedTable.setItem(numRows, 3, QTableWidgetItem(str(trainObj.number)))
-        self.ui.SchedTable.setItem(numRows, 3, QTableWidgetItem(str(trainObj.number)))
-        self.ui.SchedTable.setItem(numRows, 4, QTableWidgetItem("Block " + str(trainObj.route_queue[0])))
+                self.ui.SchedTable.setItem(numRows, 0, QTableWidgetItem(str(trainObj.number)))
+                self.ui.SchedTable.setItem(numRows, 1, QTableWidgetItem(trainObj.HostTrackLine.color))
+                self.ui.SchedTable.setItem(numRows, 2, QTableWidgetItem("Block " + str(trainObj.route_queue[0])))
+                self.ui.SchedTable.setItem(numRows, 3, QTableWidgetItem("Block " + str(block_destination)))
+                
+                #Convert seconds to display time
+                backend_time = dest_arrival_times[self.dest_list.index(destination_name)]
+                arrival_hours = int(backend_time/3600)
+                arrival_minutes = int( (backend_time%3600)/60 )
+                arrival_seconds = int( (backend_time%60) )
+                display_time = str(arrival_hours).zfill(2) + ":" + str(arrival_minutes).zfill(2) + ":" + str(arrival_seconds).zfill(2)
+                self.ui.SchedTable.setItem( numRows, 4, QTableWidgetItem(display_time) )
+            #End for
+        #End if-else block
 
-        #MUST COMPLETE: Send authority to track controller as the block number of destination
+        #Inform user of successful dispatch
+        ManDispFailMsg = QMessageBox()
+        ManDispFailMsg.setWindowTitle("Dispatch Fulfilled")
+        ManDispFailMsg.setText("Dispatch request was successful.\nThe schedule has been updated accordingly.")
+        ManDispFailMsg.setIcon(QMessageBox.Information)
+
+        MsgWin = ManDispFailMsg.exec()
+
+        #Clear destination list
+        self.dest_list.clear()
 
         print("Train Number " + str(CTCSchedule.train_list[-1].number) )
-        print("Train Destination: Block " + str(CTCSchedule.train_list[-1].destination))
-        print("Track Line: " + CTCSchedule.train_list[-1].track_line)
-        print("Arrival Time: " + str(CTCSchedule.train_list[-1].arrival_time))
+        print("Train Destination: Block " + str(CTCSchedule.train_list[-1].destination_list[0]))
+        print("Track Line: " + CTCSchedule.train_list[-1].HostTrackLine.color)
         print("Departure Time: " + str(CTCSchedule.train_list[-1].departure_time))
     #End method
+    
+    #Method to initiate automatic dispatch and update scheduler accordingly
+    def GUIAutoDispatch(self):
+        #Get schedule file from user
+        #fileDialog will be of type tuple
+        file_dialog = QFileDialog.getOpenFileName()
+
+        #Access first fileDialog element to isolate schedule file path
+        filepath = file_dialog[0]
+
+        #Parse file name from file path
+        parsed_filepath = filepath.split('/')
+        file_name = parsed_filepath.pop()
+
+        #Update last loaded schedule label
+        self.ui.FileNameLabel.setText(file_name)
+
+        #Call back-end function for automatic dispatch
+        CTCSchedule.AutoSchedule(file_name, 1, GreenLine)
+
+        print("Number of trains is " + str(len(CTCSchedule.train_list)))
+
+        for trainObj in CTCSchedule.train_list:
+            print("Number of final destinations is " + str(len(trainObj.destination_list)))
+            #Loop through destinations of each train
+
+            #Reset loop iterator
+            iterator = 0
+
+            print("\n\nTRAIN ARRIVAL TIMES IN GUI FUNCTION")
+
+            for destination_block in trainObj.destination_list:
+
+                print(str(trainObj.arrival_times[iterator]))
+
+                numRows = self.ui.SchedTable.rowCount()
+                self.ui.SchedTable.insertRow(numRows)
+
+                self.ui.SchedTable.setItem(numRows, 0, QTableWidgetItem(str(trainObj.number)))
+                self.ui.SchedTable.setItem(numRows, 1, QTableWidgetItem(trainObj.HostTrackLine.color))
+                self.ui.SchedTable.setItem(numRows, 2, QTableWidgetItem("Block " + str(trainObj.route_queue[0])))
+
+                if(iterator == 2):
+                    self.ui.SchedTable.setItem(numRows, 3, QTableWidgetItem("LUIGI'S MANSION"))
+                elif(iterator < 2):
+                    self.ui.SchedTable.setItem(numRows, 3, QTableWidgetItem(trainObj.HostTrackLine.station_list[iterator].name))
+                elif(iterator > 2):
+                    self.ui.SchedTable.setItem(numRows, 3, QTableWidgetItem(trainObj.HostTrackLine.station_list[iterator-1].name))
+
+                #Convert seconds to display time
+                backend_time = trainObj.arrival_times[iterator]
+                arrival_hours = int(backend_time/3600)
+                arrival_minutes = int( (backend_time%3600)/60 )
+                arrival_seconds = int( (backend_time%60) )
+                display_time = str(arrival_hours).zfill(2) + ":" + str(arrival_minutes).zfill(2) + ":" + str(arrival_seconds).zfill(2)
+                self.ui.SchedTable.setItem( numRows, 4, QTableWidgetItem(display_time) )
+
+                #Increment iterator
+                iterator += 1
+            #End destination loop
+        #End train loop
+
+        #Inform user of successful dispatch
+        AutoDispMsg = QMessageBox()
+        AutoDispMsg.setWindowTitle("Dispatch Fulfilled")
+        AutoDispMsg.setText("The imported schedule was succesfully processed.\nThe schedule has been updated accordingly.")
+        AutoDispMsg.setIcon(QMessageBox.Information)
+
+        MsgWin = AutoDispMsg.exec()
+    #End method
+
 
     #Methods to modify map information
     def SetGreenMap(self):
@@ -372,7 +709,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         self.gbl_seconds += 1
 
         #Emit seconds to all modules/functions
-        signals.time_signal.emit(self.gbl_seconds)
+        signals.time_signal.emit(self.gbl_seconds, self.timer_interval)
 
         #Convert seconds to hours:minutes:seconds
         hour = int(self.gbl_seconds / 3600)
@@ -395,8 +732,11 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         #Update block information in block status group of maintenance mode
         self.UpdateBlockInfo()
 
+        #Update switch information in switch status group of maintenance mode
+        self.UpdateSwitchInfo()
+
         #Restart timout period
-        self.utimer.start(1000)
+        self.utimer.start(self.timer_interval)
     #End method
 
     #Method to set track section combo box in closure tab of maintenance mode
@@ -1119,24 +1459,23 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
     #Method to update block information when specified track block changes
     def UpdateBlockInfo(self):
-        #Leave function is a block has not been specified
+        #Leave function if block has not been specified
         if(str(self.ui.SectionComboBox4.currentText()) == ''):
             return
 
         if(str(self.ui.TrackComboBox4.currentText()) == "Green"):
-                #Obtain block number
-                block_num = int(self.ui.BlockComboBox3.currentText())
-                #Retrieve block object
-                blockObj = GreenLine.block_list[block_num-1]
+            #Obtain block number
+            block_num = int(self.ui.BlockComboBox3.currentText())
+            #Retrieve block object
+            blockObj = GreenLine.block_list[block_num-1]
 
-                #Convert speed limit from meters/second to miles/hour
-                block_speed_limit = round(blockObj.speed_limit * 2.23694, 2)
+            #Convert speed limit from meters/second to miles/hour
+            block_speed_limit = round(blockObj.speed_limit * 2.23694, 2)
 
-                self.ui.BlockSectionLabel.setText("Section: " + blockObj.section)
-                self.ui.BlockLengthLabel.setText("Block Length: " + str(blockObj.length) + " m")
-                self.ui.SpeedLimitLabel.setText("Speed Limit: " + str(block_speed_limit) + " mph")
-                self.ui.OccupancyLabel.setText("Occupancy: " + str(blockObj.occupancy))
-                self.ui.BlockStatusLabel.setText("Status: " + str(blockObj.status))
+            self.ui.BlockLengthLabel.setText("Block Length: " + str(blockObj.length) + " m")
+            self.ui.SpeedLimitLabel.setText("Speed Limit: " + str(block_speed_limit) + " mph")
+            self.ui.OccupancyLabel.setText("Occupancy: " + str(blockObj.occupancy))
+            self.ui.BlockStatusLabel.setText("Status: Open" if blockObj.status else "Status: Closed")
 
         elif(str(self.ui.TrackComboBox4.currentText()) == "Red"):
             #Obtain block number
@@ -1147,11 +1486,10 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
             #Convert speed limit from meters/second to miles/hour
             block_speed_limit = round(blockObj.speed_limit * 2.23694, 2)
 
-            self.ui.BlockSectionLabel.setText("Section: " + blockObj.section)
             self.ui.BlockLengthLabel.setText("Block Length: " + str(blockObj.length) + " m")
             self.ui.SpeedLimitLabel.setText("Speed Limit: " + str(block_speed_limit) + " mph")
             self.ui.OccupancyLabel.setText("Occupancy: " + str(blockObj.occupancy))
-            self.ui.BlockStatusLabel.setText("Status: " + str(blockObj.status))
+            self.ui.BlockStatusLabel.setText("Status: Open" if blockObj.status else "Status: Closed")
         #End if
     #End method
 
@@ -1170,6 +1508,32 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
             for i in range(1, 8):
                 self.ui.SwitchComboBox1.addItem(str(i))
         #End if-elif block
+    #End method
+
+    #Method to update switch information when the specified track switch changes
+    def UpdateSwitchInfo(self):
+        #Leave function if switch has not been specified
+        if(str(self.ui.SwitchComboBox1.currentText()) == ''):
+            return
+
+        if(str(self.ui.TrackComboBox5.currentText()) == "Green"):
+            #Obtain switch ID
+            switch_ID = int(self.ui.SwitchComboBox1.currentText())
+            #Retrieve switch object
+            switchObj = GreenLine.switch_list[switch_ID-1]
+
+            self.ui.StemBlockLabel.setText("Stem Block ID: " + str(switchObj.root))
+            self.ui.BranchBlockLabel.setText("Branch Block ID: " + str(switchObj.curr_position))
+
+        elif(str(self.ui.TrackComboBox5.currentText()) == "Red"):
+            #Obtain switch ID
+            switch_ID = int(self.ui.SwitchComboBox1.currentText())
+            #Retrieve switch object
+            switchObj = RedLine.switch_list[switch_ID-1]
+
+            self.ui.StemBlockLabel.setText("Stem Block ID: " + str(switchObj.root))
+            self.ui.BranchBlockLabel.setText("Branch Block ID: " + str(switchObj.curr_position))
+        #End if
     #End method
 
     #Method to determine and display updated throughput
@@ -1207,6 +1571,9 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                 return
             #End if
 
+            #Set block status to false
+            GreenLine.block_list[block_num-1].status = False
+
             #Add block to closure list in track object
             GreenLine.closed_blocks.append(block_num)
 
@@ -1230,6 +1597,9 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                 return
             #End if
 
+            #Set block status to false
+            RedLine.block_list[block_num-1].status = False
+
             #Add block to closure list in track object
             RedLine.closed_blocks.append(block_num)
 
@@ -1240,6 +1610,105 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
             self.ui.BlockClosureTable.setItem(numRows, 1, QTableWidgetItem(str(block_num)))
 
         #End if-elif block
+    #End method
+
+    #Method to close block due to track fault
+    def WaysideCloseBlock(self, track_line, block_num, error_type):
+        if(track_line == "Green"):
+            #Ensure block is not already closed
+            if(block_num in GreenLine.closed_blocks):
+                #Create error message box
+                ClosureInfoMsg = QMessageBox()
+                ClosureInfoMsg.setWindowTitle("Block Closure")
+                if(error_type == 0):
+                    ClosureInfoMsg.setText("INFO: Green Line block " + str(block_num) + " has also suffered a rail failure\nThis block is already closed for maintenance")
+                elif(error_type == 1):
+                    ClosureInfoMsg.setText("INFO: Green Line block " + str(block_num) + " has also suffered a circuit failure\nThis block is already closed for maintenance")
+                elif(error_type == 2):
+                    ClosureInfoMsg.setText("INFO: Green Line block " + str(block_num) + " has also suffered a power failure\nThis block is already closed for maintenance")
+                #End if-else block
+
+                ClosureInfoMsg.setIcon(QMessageBox.Information)
+
+                MsgWin = ClosureInfoMsg.exec()
+
+                return
+            #End if
+
+            #Create inform user of closure
+            ClosureInfoMsg = QMessageBox()
+            ClosureInfoMsg.setWindowTitle("Block Closure")
+            if(error_type == 0):
+                ClosureInfoMsg.setText("INFO: Green Line block " + str(block_num) + " has suffered a rail failure\nThis block is now closed for maintenance")
+            elif(error_type == 1):
+                ClosureInfoMsg.setText("INFO: Green Line block " + str(block_num) + " has suffered a circuit failure\nThis block is now closed for maintenance")
+            elif(error_type == 2):
+                ClosureInfoMsg.setText("INFO: Green Line block " + str(block_num) + " has suffered a power failure\nThis block is now closed for maintenance")
+            #End if-else block
+
+            ClosureInfoMsg.setIcon(QMessageBox.Information)
+
+            MsgWin = ClosureInfoMsg.exec()
+
+            #Set block status to false
+            GreenLine.block_list[block_num-1].status = False
+
+            #Add block to closure list in track object
+            GreenLine.closed_blocks.append(block_num)
+
+            #Update block closure list in maintenance mode of GUI
+            numRows = self.ui.BlockClosureTable.rowCount()
+            self.ui.BlockClosureTable.insertRow(numRows)
+            self.ui.BlockClosureTable.setItem(numRows, 0, QTableWidgetItem("Green"))
+            self.ui.BlockClosureTable.setItem(numRows, 1, QTableWidgetItem(str(block_num)))
+        
+        elif(track_line == "Red"):
+            #Ensure block is not already closed
+            if(block_num in RedLine.closed_blocks):
+                ClosureInfoMsg = QMessageBox()
+                ClosureInfoMsg.setWindowTitle("Block Closure")
+                if(error_type == 0):
+                    ClosureInfoMsg.setText("INFO: Red Line block " + str(block_num) + " has also suffered a rail failure\nThis block is already closed for maintenance")
+                elif(error_type == 1):
+                    ClosureInfoMsg.setText("INFO: Red Line block " + str(block_num) + " has also suffered a circuit failure\nThis block is already closed for maintenance")
+                elif(error_type == 2):
+                    ClosureInfoMsg.setText("INFO: Red Line block " + str(block_num) + " has also suffered a power failure\nThis block is already closed for maintenance")
+                #End if-else block
+
+                ClosureInfoMsg.setIcon(QMessageBox.Information)
+
+                MsgWin = ClosureInfoMsg.exec()
+
+                return
+            #End if
+
+            #Create inform user of closure
+            ClosureInfoMsg = QMessageBox()
+            ClosureInfoMsg.setWindowTitle("Block Closure")
+            if(error_type == 0):
+                ClosureInfoMsg.setText("INFO: Red Line block " + str(block_num) + " has suffered a rail failure\nThis block is now closed for maintenance")
+            elif(error_type == 1):
+                ClosureInfoMsg.setText("INFO: Red Line block " + str(block_num) + " has suffered a circuit failure\nThis block is now closed for maintenance")
+            elif(error_type == 2):
+                ClosureInfoMsg.setText("INFO: Red Line block " + str(block_num) + " has suffered a power failure\nThis block is now closed for maintenance")
+            #End if-else block
+
+            ClosureInfoMsg.setIcon(QMessageBox.Information)
+
+            MsgWin = ClosureInfoMsg.exec()
+
+            #Set block status to false
+            RedLine.block_list[block_num-1].status = False
+
+            #Add block to closure list in track object
+            RedLine.closed_blocks.append(block_num)
+
+            #Update block closure list in maintenance mode of GUI
+            numRows = self.ui.BlockClosureTable.rowCount()
+            self.ui.BlockClosureTable.insertRow(numRows)
+            self.ui.BlockClosureTable.setItem(numRows, 0, QTableWidgetItem("Red"))
+            self.ui.BlockClosureTable.setItem(numRows, 1, QTableWidgetItem(str(block_num)))
+        #End if-else block
     #End method
 
     #Method to reopen block at the request of the dispatcher
@@ -1266,6 +1735,9 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                 return
             #End if
 
+            #Set block status to true
+            GreenLine.block_list[block_num-1].status = True
+
             #Remove block from closure list in track object
             GreenLine.closed_blocks.remove(block_num)
 
@@ -1291,6 +1763,9 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                 return
             #End if
 
+            #Set block status to true
+            RedLine.block_list[block_num-1].status = True
+
             #Remove block from closure list in track object
             RedLine.closed_blocks.remove(block_num)
 
@@ -1308,18 +1783,106 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
     def UpdateTrainPositions(self):
         for trainObj in CTCSchedule.train_list:
             currPosition = "Block " + str(trainObj.route_queue[0])
-            self.ui.SchedTable.setItem(trainObj.number-1, 4, QTableWidgetItem(currPosition))
+
+            #Append to string if current position is a station
+            if(trainObj.HostTrackLine.color == "Green"):
+                #Loop over all stations of Green line
+                for stationObj in GreenLine.station_list:
+                    if(stationObj.block_num == trainObj.route_queue[0]):
+                        currPosition = currPosition + " (" + stationObj.name + ")"
+                    #End if
+                #End for loop
+            #End if
+
+            if(trainObj.HostTrackLine.color == "Red"):
+                #Loop over all stations of Green line
+                for stationObj in RedLine.station_list:
+                    if(stationObj.block_num == trainObj.route_queue[0]):
+                        currPosition = currPosition + " (" + stationObj.name + ")"
+                    #End if
+                #End for loop
+            #End if
+
+            #Display block 0 as yard
+            if(trainObj.route_queue[0] == 0):
+                currPosition = currPosition + " (YARD)"
+
+            #Loop over all rows of scheduling table
+            for i in range(0, self.ui.SchedTable.rowCount()):
+                if(self.ui.SchedTable.item(i, 0).text() == str(trainObj.number)):
+                    self.ui.SchedTable.setItem(i, 2, QTableWidgetItem(currPosition))
+                #End if
+            #End for loop
+        #End for loop
     #End method
+
+    #Method to set the simulation speed based on position of horization slider in GUI
+    def GUISetSimSpeed(self):
+        #Obtain position of slider
+        slider_position = self.ui.SimSpeedSlider.value()
+
+        #Set interval for system clock
+        self.timer_interval = 1000/(slider_position + 1)
+    #End method
+
+    #Method to update switch positions at request of dispatcher
+    def UpdateSwitchPos(self):
+        #Initialize temporary variables to hold details of switch to be toggled
+        track_line = str(self.ui.TrackComboBox5.currentText())
+        switch_ID = int(self.ui.SwitchComboBox1.currentText())
+        
+        #Recover switch and block objects
+        if(track_line == "Green"):
+            SwitchObj = GreenLine.switch_list[switch_ID-1]
             
-    """
-    #Method to close block at the request of the dispatcher
-    def GUICloseBlock(self):
-        #Initialize temporary variables to hold details of block to be closed
-        track_line = self.ui.TrackComboBox2.currentText()
-        track_section = self.ui.SectionComboBox2.currentText()
-        block_num = self.ui.BlockComboBox1.currentText()
-    """
-    
+            #Determine if switch is on a closed block
+            if(SwitchObj.root not in GreenLine.closed_blocks):
+                #Create error message box
+                ClosureInfoMsg = QMessageBox()
+                ClosureInfoMsg.setWindowTitle("Switch Position")
+                ClosureInfoMsg.setText("ERROR: This switch is not closed for maintenance and therefore cannot be toggled manually")
+                ClosureInfoMsg.setIcon(QMessageBox.Critical)
+
+                MsgWin = ClosureInfoMsg.exec()
+
+                return
+            #End if
+
+            #Update switch position
+            SwitchObj.TogglePosition()
+
+        elif(track_line == "Red"):
+            SwitchObj = RedLine.switch_list[switch_ID-1]
+
+            #Determine if switch is on a closed block
+            if(SwitchObj.root not in RedLine.closed_blocks):
+                #Create error message box
+                ClosureInfoMsg = QMessageBox()
+                ClosureInfoMsg.setWindowTitle("Switch Position")
+                ClosureInfoMsg.setText("ERROR: This switch is not closed for maintenance and therefore cannot be toggled manually")
+                ClosureInfoMsg.setIcon(QMessageBox.Critical)
+
+                MsgWin = ClosureInfoMsg.exec()
+
+                return
+            #End if
+
+            #Update switch position
+            SwitchObj.TogglePosition()
+
+        #End if-elif block
+    #End method
+
+    #Method to pause or continue simulation
+    def PlayPauseSim(self):
+        if(str(self.ui.PlayPauseButton.text()) == "Pause\nSimulation"):
+            self.utimer.stop()
+            self.ui.PlayPauseButton.setText("Continue\nSimulation")
+        elif(str(self.ui.PlayPauseButton.text()) == "Continue\nSimulation"):
+            self.utimer.start(self.timer_interval)
+            self.ui.PlayPauseButton.setText("Pause\nSimulation")
+        #End if-elif block
+    #End method
 
 
 #End MainWindow class definition

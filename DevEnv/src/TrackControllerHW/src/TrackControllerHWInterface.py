@@ -1,10 +1,10 @@
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtCore import QFile
-from .UI import Ui_TrackControllerUI
+from UI2 import Ui_TrackControllerUI
 from signals import signals
 import csv
-from TrackControllerSW.src.TrackControllerSW import *
+from TrackControllerHW.src.TrackControllerHW2 import *
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -112,6 +112,84 @@ class MainWindow(QMainWindow):
         signals.CTC_toggle_switch.connect(self.CTCToggleSwitch)
         signals.time_signal.connect(self.DelayRun)
         signals.CTC_next_four_fulfilled.connect(self.set_UpcomingBlocks)
+
+        #setup arduino
+        self.utimer = QTimer()
+        self.utimer.timeout.connect(self.timerCallback)
+        self.utimer.start(500)
+        self.testval = 0
+        self.arduino = serial.Serial(port='COM4', baudrate=115200,timeout=.5)
+        self.eol = '\n'.encode('utf-8')
+        self.nFlag=0
+        self.encodedTC=0
+        self.rawToggle = 0
+        self.encodedB=0
+        self.switch_state1 = None
+        self.switch_state2 = None
+        self.switch_state3 = None
+        self.switch_state4 = None
+        self.switch_state5 = None
+        self.temp_out = 0
+        self.temp_val = ''
+
+    #set up arduino reading
+    def timerCallback(self):
+        self.serialRead()
+
+    #read arduino values and interpret
+    def serialRead(self):
+        
+        #print("test")
+        #print(self.arduino.in_waiting)
+        while(self.arduino.in_waiting > 0):
+
+            raw = self.arduino.readline()
+            raw2 = self.arduino.readline()
+            raw3 = self.arduino.readline()
+            raw4 = self.arduino.readline()
+            raw5 = self.arduino.readline()
+
+
+            status1 = raw.decode('ascii').strip('\r\n')
+            status2 = raw2.decode('ascii').strip('\r\n')
+            status3 = raw3.decode('ascii').strip('\r\n')
+            status4 = raw4.decode('ascii').strip('\r\n')
+            status5 = raw5.decode('ascii').strip('\r\n')
+
+            #print("ur in")
+
+
+            #button 1 logic
+            #make button to toggle tabs
+            if int(status1)== 1 and self.switch_state1 !=1:
+                self.switch_state1 = 1
+                #print(type(self.ui.junctionPositionDisplay.text()))
+                self.temp_val = self.ui.BlockInput.currentIndex()
+                if(self.temp_val == 0):
+                    self.ui.Program_2.setCurrentIndex(1)
+                    self.UIBlockOutput()
+                elif(self.temp_val == 1):
+                    self.ui.Program_2.setCurrentIndex(2)
+                    self.UIBlockOutput()
+                else:
+                    self.ui.Program_2.setCurrentIndex(0)
+                    self.UIBlockOutput()
+            if int(status1)==0 and self.switch_state1 !=0:
+                self.switch_state1 = 0
+
+            #button 2 logic
+            #hardcode for specific controller
+            if int(status2)== 1 and self.switch_state2 !=1:
+                self.switch_state2 = 1
+                #get index of tabwidget
+                self.temp_val = self.ui.Program_2.currentIndex()
+                if(self.temp_val == 2):
+                    self.ToggleSwitchBranch()
+            if int(status2)==0 and self.switch_state2 !=0:
+                self.switch_state2 = 0
+
+
+
 
     # get_Controller is called to return a Controller object based on input
     # Parameters are track line name and block number
@@ -604,7 +682,8 @@ class MainWindow(QMainWindow):
                 self.displayUIOutput(self.RedController7)
 
     # Populates the Switch Outputs for the UI
-    def UISwitchOutput(self):
+    # Parameters are TrackControllerSW object
+    def UISwitchOutput(self, controller):
         if(self.ui.MainControllerBox.currentText() == "Choose"):
             self.ui.StemBox.setText("N/A")
             self.ui.BranchABox.setText("N/A")
@@ -694,7 +773,7 @@ class MainWindow(QMainWindow):
         print("PLC Scripts Imported")
         self.plc_imported = True
         plc_file.close()
-    
+
     # Delay for running the scripts
     def DelayRun(self,act_time,interval):
         if(act_time%5 == 0):
@@ -800,7 +879,6 @@ class MainWindow(QMainWindow):
                 self.get_SwitchController("Red",i+1).RunPLC("CRX")
                 self.get_SwitchController("Green",i+1).RunPLC("TRL")
                 self.get_SwitchController("Red",i+1).RunPLC("TRL")
-        
 
 
 if __name__ == "__main__":

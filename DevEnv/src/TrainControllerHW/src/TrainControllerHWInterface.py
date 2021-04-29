@@ -40,8 +40,6 @@ class TrainControllerHWInterface(QMainWindow):
 			self.arduino = serial.Serial(port='COM3', baudrate=115200,timeout=1)
 			self.arduino.setDTR(True)
 			time.sleep(.5)
-			self.arduino.setDTR(False)
-
 			self.run=True
 			self.utimer.start(500)
 			self.show()
@@ -89,12 +87,18 @@ class TrainControllerHWInterface(QMainWindow):
 				#print(status)
 				self.announcement = status
 				self.ui.AnnounceVal.setPlainText(status)
+				self.train_model.set_announcements(status)
 			elif(status ==4):
 				raw = self.arduino.readline()
 				status = raw.decode('ascii').strip('\r\n')
 				#print(status)
 				self.temperature = int(status)
 				self.ui.TemperatureVal.setPlainText(status + "°F")
+				self.train_model.temp_changed(status)
+			elif(status == 5):
+				raw = self.arduino.readline()
+				status = int(raw.decode('ascii').strip('\r\n'))
+				self.setFaults(status)
 
 
 	def serialWrite(self):
@@ -105,7 +109,14 @@ class TrainControllerHWInterface(QMainWindow):
 		self.arduino.write(str(self.encodedB).encode('utf-8')+ self.eol)
 		self.nFlag=0
 
-		
+	def setFaults(self,faults):
+		if(faults & 1):
+			self.train_model.train_detected_brake_failure()
+		if(faults >> 1 & 1):
+			self.train_model.train_detected_engine_failure()
+		if(faults >> 2 & 1):
+			self.train_model.train_detected_tc_failure()
+
 		
 	def set_track_circuit(self,TC):				
 		print("SETTING TC")
@@ -120,7 +131,7 @@ class TrainControllerHWInterface(QMainWindow):
 
 	
 	def set_current_speed(self,speed):
-		print("SETTING Current Speed" + str(speed))
+		#print("SETTING Current Speed" + str(speed))
 
 		self.curSpeed= speed
 		self.ui.CurSpeedVal.setPlainText(str(round(self.curSpeed,2)))
@@ -137,6 +148,9 @@ class TrainControllerHWInterface(QMainWindow):
 		transmit = kpInt + (kpFloat << 16) + (kiInt << 32) + (kiFloat << 48)
 		self.arduino.write(str(4).encode('utf-8')+ self.eol)
 		self.arduino.write(str(transmit).encode('utf-8')+ self.eol)
+
+	def set_passenger_brake(self):
+		self.arduino.write(str(5).encode('utf-8')+ self.eol)
 
 
 

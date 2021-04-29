@@ -1,5 +1,7 @@
 import xlrd
+from PySide6.QtCore import *
 from signals import signals
+import copy
 
 #Define Block class
 class Block:
@@ -12,7 +14,7 @@ class Block:
         self.length = block_length   #Meters
         self.speed_limit = block_speed_limit #Meters/Second
         self.occupancy = 0
-        self.status = False
+        self.status = True
 
         #Compute fastest traveral time in seconds
         self.min_traveral_time = round(block_length / block_speed_limit , 2)
@@ -39,10 +41,10 @@ class Switch:
 
     #Define method to toggle switch position
     def TogglePosition(self):
-        if self.curr_position == self.branch_1_num:
-            self.curr_position = self.branch_2_num
+        if self.curr_position == self.branch_1:
+            self.curr_position = self.branch_2
         else:
-            self.curr_position = self.branch_1_num
+            self.curr_position = self.branch_1
         #End if-else block
     #End method
 
@@ -67,29 +69,39 @@ class Station:
 class Train:
 
     #Constructor
-    def __init__(self, train_number, block_destination, TrackLineObj, train_arrival_time, train_departure_time):
+    def __init__(self, train_number, dest_block_list, TrackLineObj, dest_arrival_times, train_departure_time):
         #Initialize Block instance variables
         self.number = train_number
-        self.destination = block_destination #Block Number
-        self.track_line = TrackLineObj.color #String
-        self.arrival_time = train_arrival_time     #Seconds
+        self.destination_list = dest_block_list #Block Numbers
+        self.HostTrackLine = TrackLineObj #String
+        self.arrival_times = dest_arrival_times   #Seconds
+        for time in self.arrival_times:
+            print(str(time))
         self.departure_time = train_departure_time #Seconds
+        print("Departure time for train " + str(train_number) + " is " + str(self.departure_time))
         
         #Initialize route queue
         self.route_queue = []
-        if(self.track_line == "Green"):
+        if(self.HostTrackLine.color == "Green"):
             self.GenerateGreenRoute()
-            print("\nCTC- ROUTE QUEUE HAS BEEN GENERATED")
-        elif(self.track_line == "Red"):
+        elif(self.HostTrackLine.color == "Red"):
             self.GenerateRedRoute()
 
-        #Obtain occupancy from wayside controller
+        print("\nCTC- ROUTE QUEUE HAS BEEN GENERATED")
+
+        #Connect signal to obtain occupancy from wayside controller
         signals.CTC_occupancy.connect(self.UpdatePosition)
 
-        #Send destination (authority) to track controller TEMPORARY SETUP
-        signals.CTC_authority.emit(self.track_line, self.destination)
+        signals.time_signal.connect(self.UpdateTiming)
+
+        #Connect signal to send wayside controller upcoming 4 blocks
+        signals.CTC_next_four_request.connect(self.SendNextFour)
         
     #End contructor
+
+    #Method to update timing interval for dwell periods
+    def UpdateTiming(self, current_time, timer_interval):
+        self.timer_period = timer_interval
 
     #Method to populate queue structure that specifies train route for Green line
     def GenerateGreenRoute(self):
@@ -104,7 +116,7 @@ class Train:
         for block_num in range(85, 76, -1):
             self.route_queue.append(block_num)
 
-        #Specify blocks for track secionts R through Z
+        #Specify blocks for track sections R through Z
         for block_num in range(101, 151):
             self.route_queue.append(block_num)
 
@@ -166,15 +178,55 @@ class Train:
         print("ENTERED UPDATE TRAIN POSITION FUNCTION")
         print("COMPARING " + str(block_num) + " WITH " + str(self.route_queue[1]) + " ON QUEUE")
         #Determine if occupancy corresponds to movement of self
-        if(occupancy == True and block_num == self.route_queue[1] and track_line_name == self.track_line):
+        if(occupancy == True and block_num == self.route_queue[1] and self.HostTrackLine.color == track_line_name):
             #Dequeue from list
             self.route_queue.pop(0)
             print("\nCTC- QUEUE HAS BEEN POPPED\n")
-        #End if
+
+            #ATTENTION: Delete train if loop is complete
+
+            #Update suggested speed according to train position
+            if(self.destination_list[0] == self.route_queue[3]):
+                suggested_speed = int(.75*self.HostTrackLine.block_list[self.route_queue[0]-1].speed_limit)
+                signals.CTC_suggested_speed.emit(self.HostTrackLine.color, self.route_queue[0], suggested_speed*3.60)
+            elif(self.destination_list[0] == self.route_queue[2]):
+                suggested_speed = int(.50*self.HostTrackLine.block_list[self.route_queue[0]-1].speed_limit)
+                signals.CTC_suggested_speed.emit(self.HostTrackLine.color, self.route_queue[0], suggested_speed*3.60)
+            elif(self.destination_list[0] == self.route_queue[1]):
+                suggested_speed = int(.25*self.HostTrackLine.block_list[self.route_queue[0]-1].speed_limit)
+                signals.CTC_suggested_speed.emit(self.HostTrackLine.color, self.route_queue[0], suggested_speed*3.60)
+            elif(self.destination_list[0] == self.route_queue[0]):
+                suggested_speed = int(0*self.HostTrackLine.block_list[self.route_queue[0]-1].speed_limit)
+                signals.CTC_suggested_speed.emit(self.HostTrackLine.color, self.route_queue[0], suggested_speed*3.60)
+
+                #Send authority to track controller
+                signals.CTC_authority.emit(self.HostTrackLine.color, self.destination_list[0], False)  
+
+                #Start dwell timer
+                QTimer.singleShot(8*timer_interval, self.LeaveStation)
+            else:
+                suggested_speed = self.HostTrackLine.block_list[self.route_queue[0]-1].speed_limit
+                signals.CTC_suggested_speed.emit(self.HostTrackLine.color, self.route_queue[0], suggested_speed*3.60)   
     #End method
 
+    #Method to alert train to leave station after dwell period has expired
+    def LeaveStation(self):
+        #Pop destination list
+        self.destination_list.pop(0)
 
-    #MUST COMPLETE Each instance of train must respond to occupany conditions of track
+        #Send authority to track controller
+        signals.CTC_authority.emit(self.HostTrackLine.color, self.route_queue[0], True)
+        suggested_speed = self.HostTrackLine.block_list[self.route_queue[0]-1].speed_limit
+        signals.CTC_suggested_speed.emit(self.HostTrackLine.color, self.route_queue[0], suggested_speed*3.60)
+    #End method
+
+    #Method to send next four blocks to wayside controller
+    def SendNextFour(self, track_line_name, block_num):
+        if(len(self.route_queue) >= 4):
+            signals.CTC_next_four_fulfilled.emit(track_line_name, block_num, self.route_queue[1:5])
+        else:
+            signals.CTC_next_four_fulfilled.emit(track_line_name, block_num, self.route_queue)
+    #End method
     
 #End Train class definition
 
@@ -197,6 +249,9 @@ class TrackLine:
         #Obtain occupancy from wayside controller
         signals.CTC_occupancy.connect(self.UpdateOccupancy)
 
+        #Obtain switch position from wayside controller
+        signals.CTC_switch_position.connect(self.UpdateSwitchPos)
+
         #Initialize block composition of TrackLine
         self.TrackSetup(filepath, sheet_index)
 
@@ -205,6 +260,17 @@ class TrackLine:
 
         #Declare a list of closed blocks
         self.closed_blocks = []
+
+        """
+        print("INITIAL SWITCH LAYOUT FOR " + str(self.color) + "LINE")
+
+        for SwitchObj in self.switch_list:
+            print("Switch on Block " + str(SwitchObj.root) + " with Branches " + str(SwitchObj.branch_1) + " and " + str(SwitchObj.branch_2))
+        """
+
+        print("\n\nSTATION CONFIGURATION FOR GREENLINE")
+        for StationObj in self.station_list:
+            print("Station " + StationObj.name + " is on block " + str(StationObj.block_num))
 
     #End contructor
 
@@ -226,8 +292,8 @@ class TrackLine:
             #Initialize temporary variables to hold cell contents of current row
             track_section = exl_sheet.cell_value(i, 1) 
             block_num = int(exl_sheet.cell_value(i, 2))
-            block_length = int(exl_sheet.cell_value(i, 3))               #Meters
-            block_speed_limit = int(exl_sheet.cell_value(i, 5)) * .27778 #Converted to Meters/Second
+            block_length = int(exl_sheet.cell_value(i, 3))      #Meters
+            block_speed_limit = int(exl_sheet.cell_value(i, 5)) * .27778 #Kilometers/Hour
 
             #Create new block and append to list
             self.block_list.append( Block(block_num, track_section, block_length, block_speed_limit) )
@@ -276,7 +342,7 @@ class TrackLine:
                     if(temp_str != ''):
                         if(int(temp_str) in branch_block_nums): #Isolate root block
                             branch_block_nums.remove( int(temp_str) )
-                            root_block_num = temp_str
+                            root_block_num = int(temp_str)
                         else: #Store branch blocks in list
                             branch_block_nums.append( int(temp_str) )
                         #End if-else block
@@ -300,14 +366,12 @@ class TrackLine:
                 duplicate = False
 
                 #Determine if station has already been created
+                """
                 for stationObj in self.station_list:
                     if(stationObj.name == station_name):
-                        duplicate = True
+                        station_name = station_name + "2"
                         break
-
-                #Do not create duplicate station
-                if(duplicate == True):
-                    continue
+                """
 
                 #Create new station and append to list
                 self.station_list.append( Station(station_name, assoc_block_num) )
@@ -330,7 +394,7 @@ class TrackLine:
     #Method to compute throughput
     def ComputeThroughput(self, curr_time):
         #Recompute throughput
-        throughput = self.ticket_sales / curr_time
+        throughput = self.ticket_sales / (curr_time/3600)
 
         return throughput
     #End method
@@ -343,6 +407,21 @@ class TrackLine:
         #End if
     #End method
 
+    #Method to update switch position
+    def UpdateSwitchPos(self, track_line_name, root_block_num, branch_block_num):
+
+        print("Zack sends Switch on Block " + str(root_block_num) + " of " + track_line_name + " connected to block " + str(branch_block_num))
+
+        #Search switch list
+        for SwitchObj in self.switch_list:
+            if(self.color == track_line_name and SwitchObj.root == root_block_num):
+                print("Switch on Block " + str(root_block_num) + " was at position " + str(SwitchObj.curr_position))
+                SwitchObj.curr_position = branch_block_num
+                print("Switch on Block " + str(root_block_num) + " is now at position " + str(SwitchObj.curr_position))
+            #End if
+        #End for loop
+    #End method
+
 #End TrackLine class definition
 
 
@@ -351,178 +430,243 @@ class Schedule:
 
     #Constructor
     def __init__(self):
-        #Initialize operational mode to manual
-        self.mode = "manual"
-
         #Declare a list of trains
         self.train_list = []
     #End constructor
 
     #Define method for manual train dispatch
-    def ManualSchedule(self, block_destination, train_arrival_time, TrackLineObj, curr_time):
+    def ManualSchedule(self, dest_block_list, train_arrival_time, TrackLineObj, curr_time):
         global gbl_seconds
         
         #Assign train number
         train_number = len(self.train_list) + 1
 
-        #Compute train travel time
-        travel_time = self.ComputeTravelTime(block_destination, train_arrival_time, TrackLineObj)
+        #Declare list to hold arrival times for all destinations
+        dest_arrival_times = []
 
-        print("TRAVEL TIME: " + str(travel_time))
+        #Ensure at least one destination has been specified
+        if(len(dest_block_list) == 0):
+            return dest_arrival_times
+
+        #Create temporary destination block list
+        temp_block_list = dest_block_list[:]
+
+        #Compute train travel time to first destination
+        dest_travel_times = self.ComputeTravelTimes(temp_block_list, TrackLineObj)
 
         #Compute train departure time
-        train_departure_time = train_arrival_time - travel_time
+        train_departure_time = train_arrival_time - dest_travel_times[0]
 
         #Determine if specified arrival time is valid
         if(train_departure_time < curr_time):
-            return False
+            return dest_arrival_times
 
         #Determine if computed depature time matches that of another train
         for trainObj in self.train_list:
             if(trainObj.departure_time == train_departure_time):
-                return False
+                return dest_arrival_times
+        #End for loop
 
-        """
-        #Determine if specified destination is valid
-        if(TrackLineObj.color == "Green"):
-            if(block_destination < 1 or block_destination > 150):
-                return False
-        elif(TrackLineObj.color == "Red"):
-            if(block_destination < 1 or block_destination > 76):
-                return False
-        """
+
+        #Compute remaining arrival times
+        for travel_time in dest_travel_times:
+            dest_arrival_times.append(train_departure_time + travel_time)
+        #End for loop
+
+        #Overwrite first element of arrival time list with time specified by dispatcher
+        dest_arrival_times[0] = train_arrival_time
         
         #If travel parameters have been verified, add train object to the schedule's train list
-        self.train_list.append( Train(train_number, block_destination, TrackLineObj, train_arrival_time, train_departure_time) )
+        self.train_list.append( Train(train_number, dest_block_list, TrackLineObj, dest_arrival_times, train_departure_time) )
 
-        return True
+        return dest_arrival_times
     #End method
 
-    #Define method to compute departure time for train
-    def ComputeTravelTime(self, block_destination, train_arrival_time, TrackLineObj):
-        #Initialize temporary accumulation variable for travel time
-        travel_time = 0
+    def AutoSchedule(self, filepath, sheet_index, TrackLineObj):
+        #Open excel file
+        exl_workbook = xlrd.open_workbook(filepath)
+        #Navigate to specified excel sheet within file
+        exl_sheet = exl_workbook.sheet_by_index(sheet_index)
+
+        #Declare destination list
+        dest_block_list = []
+        #Declare arrival time list
+        arrival_times = []
+
+        #Loop through first four trains
+        for col in range(31, 35):
+            #Loop through contents of column row-size
+            for row in range(1, exl_sheet.nrows):
+                if("STATION" in str(exl_sheet.cell_value(row, 6))):
+                    #Add block to destination list
+                    dest_block_list.append( int(exl_sheet.cell_value(row, 2)) )
+
+                    #Convert arrival time to seconds
+                    input_time = exl_sheet.cell_value(row, col)
+                    train_arrival_time = float(input_time)*86400
+
+                    #Add arrival times to list
+                    arrival_times.append(train_arrival_time)
+                #End if
+            #End row loop
+
+            #Create temporary destination block list
+            temp_block_list = copy.deepcopy(dest_block_list)
+
+            #Compute travel time to first destination
+            dest_travel_times = self.ComputeTravelTimes(temp_block_list, TrackLineObj)
+
+            #Compute train departure time
+            train_departure_time = arrival_times[0] - dest_travel_times[0]
+
+            #Perform deep copy of destination list
+            temp_block_list = copy.deepcopy(dest_block_list)
+
+            #Perform deep copy of arrival times
+            temp_arrival_times = copy.deepcopy(arrival_times)
+
+            #If travel parameters have been verified, add train object to the schedule's train list
+            self.train_list.append( Train(col-30, temp_block_list, TrackLineObj, temp_arrival_times, train_departure_time) )
+
+            #Clear destination list for next train
+            dest_block_list.clear()
+            #Clear arrival times for next train
+            arrival_times.clear()
+            
+        #End col loop
+    #End method
+
+
+    def ComputeTravelTimes(self, dest_block_list, TrackLineObj):
+        #Declare list to hold travel times for all destinations
+        dest_travel_times = []
+
+        #Initiailize accumulator variable for travel time as the track is traversed
+        total_travel_time = 0
 
         #Determine if the train is to dispatched on the Green or Red lines
         if(TrackLineObj.color == "Green"):
-            #Destination is located on sections K through Q
-            if(block_destination >= 63 and block_destination <= 100):
-                for i in range(63, block_destination):
-                    travel_time += TrackLineObj.block_list[i-1].min_traveral_time
+            route_list = self.GenerateGreenRoute()
 
-            #Destination is located on sections R though Z
-            elif(block_destination >= 101 and block_destination <= 150):
-                for i in range(63, 101):
-                    travel_time += TrackLineObj.block_list[i-1].min_traveral_time
-
-                #Section N is traversed twice
-                for i in range(77, 86):
-                    travel_time += TrackLineObj.block_list[i-1].min_traveral_time
-
-                for i in range(101, block_destination):
-                    travel_time += TrackLineObj.block_list[i-1].min_traveral_time
-            
-            #Destination is located on sections A through F
-            elif(block_destination >= 1 and block_destination <= 28):
-                for i in range(63, 151):
-                    travel_time += TrackLineObj.block_list[i-1].min_traveral_time
-
-                #Section N is traversed twice
-                for i in range(77, 86):
-                    travel_time += TrackLineObj.block_list[i-1].min_traveral_time
-
-                #Sections A through F are initially travelled in reverse
-                for i in range(28, block_destination, -1):
-                    travel_time += TrackLineObj.block_list[i-1].min_traveral_time
-
-            #Destination is located on sections G through J
-            elif(block_destination >= 29 and block_destination <= 62):
-                for i in range(63, 151):
-                    travel_time += TrackLineObj.block_list[i-1].min_traveral_time
-
-                #Section N is traversed twice
-                for i in range(77, 86):
-                    travel_time += TrackLineObj.block_list[i-1].min_traveral_time
-
-                for i in range(1, 29):
-                    travel_time += TrackLineObj.block_list[i-1].min_traveral_time
+            for curr_block in route_list:
+                #Determine if current block is a destination
+                if(dest_block_list[0] == curr_block):
+                    #Account for dwell and accel/deccel
+                    total_travel_time += 1.3*TrackLineObj.block_list[curr_block-1].min_traveral_time + 60
+                    #Add accumulated travel time to list
+                    dest_travel_times.append(total_travel_time)
+                    #Pop from block destinations list
+                    dest_block_list.pop(0)
+                else:
+                    total_travel_time += 1.3*TrackLineObj.block_list[curr_block-1].min_traveral_time
                 
-                #Sections D, E, and F are traversed twice
-                for i in range(13, 29):
-                    travel_time += TrackLineObj.block_list[i-1].min_traveral_time
+                #Break from loop if all destinations have been addressed
+                if(len(dest_block_list) == 0):
+                    break
+            #End for loop
 
-                for i in range(29, block_destination):
-                    travel_time += TrackLineObj.block_list[i-1].min_traveral_time
+        if(TrackLineObj.color == "Red"):
+            route_list = self.GenerateRedRoute()
 
-            #End if-elif block for Green line
+            for curr_block in route_list:
+                #Determine if current block is a destination
+                if(dest_block_list[0] == curr_block):
+                    #Account for dwell and accel/deccel
+                    total_travel_time += 1.3*TrackLineObj.block_list[curr_block-1].min_traveral_time + 60
+                    #Add accumulated travel time to list
+                    dest_travel_times.append(total_travel_time)
+                    #Pop from block destinations list
+                    dest_block_list.pop(0)
+                else:
+                    total_travel_time += 1.3*TrackLineObj.block_list[curr_block-1].min_traveral_time
+                
+                #Break from loop if all destinations have been addressed
+                if(len(dest_block_list) == 0):
+                    break
+            #End for loop
+        #End if-elif block
+    
+        return dest_travel_times
+    #End method
 
-        elif(TrackLineObj.color == "Red"):
-            #Destination is located on sections A through C
-            if(block_destination >= 1 and block_destination <= 9):
-                #Sections A through C are initially travelled in reverse
-                for i in range(9, block_destination, -1):
-                    travel_time += TrackLineObj.block_list[i-1].min_traveral_time
+    #Method to populate queue structure that specifies train route for Green line
+    def GenerateGreenRoute(self):
+        #Create a list to hold the series of block numbers encountered as Green line is traversed
+        train_route = []
 
-            #Destination is located on sections F though N
-            elif(block_destination >= 16 and block_destination <= 66):
-                for i in range(1, 10):
-                    travel_time += TrackLineObj.block_list[i-1].min_traveral_time
+        #Train always begins at yard
+        train_route.append(0)
 
-                for i in range(16, block_destination):
-                    travel_time += TrackLineObj.block_list[i-1].min_traveral_time
-            
-            #Destination is located on sections O through Q
-            elif(block_destination >= 67 and block_destination <= 71):
-                for i in range(1, 67):
-                    travel_time += TrackLineObj.block_list[i-1].min_traveral_time
+        #Specify blocks for track sections K through Q
+        for block_num in range(63, 101):
+            train_route.append(block_num)
 
-                #Section I and part of section J and H are traversed twice
-                for i in range(43, 53):
-                    travel_time += TrackLineObj.block_list[i-1].min_traveral_time
+        #Specify blocks for track section N in reverse
+        for block_num in range(85, 76, -1):
+            train_route.append(block_num)
 
-                for i in range(67, block_destination):
-                    travel_time += TrackLineObj.block_list[i-1].min_traveral_time
+        #Specify blocks for track secionts R through Z
+        for block_num in range(101, 151):
+            train_route.append(block_num)
 
-            #Destination is located on sections R through T
-            elif(block_destination >= 72 and block_destination <= 76):
-                for i in range(1, 71):
-                    travel_time += TrackLineObj.block_list[i-1].min_traveral_time
+        #Specify blocks for track sections A through F in reverse
+        for block_num in range(28, 0, -1):
+            train_route.append(block_num)
+        
+        #Specify blocks for track sections D through I
+        for block_num in range(13, 58):
+            train_route.append(block_num)
 
-                #Section I and part of section J and H are traversed twice
-                for i in range(43, 53):
-                    travel_time += TrackLineObj.block_list[i-1].min_traveral_time
+        #Train ends at yard by default
+        train_route.append(0)
 
-                #Part of section H is traversed twice
-                for i in range(43, 46):
-                    travel_time += TrackLineObj.block_list[i-1].min_traveral_time
+        return train_route
+    #End method
 
-                for i in range(72, block_destination):
-                    travel_time += TrackLineObj.block_list[i-1].min_traveral_time
+    #Method to populate queue structure that specifies train route for Red line
+    def GenerateRedRoute(self):
+        #Create a list to hold the series of block numbers encountered as Red line is traversed
+        train_route = []
 
-            #Destination is located on sections D or E
-            elif(block_destination >= 10 and block_destination <= 15):
-                for i in range(1, 77):
-                    travel_time += TrackLineObj.block_list[i-1].min_traveral_time
+        #Train always begins at yard
+        train_route.append(0)
 
-                #Section I and part of section J and H are traversed twice
-                for i in range(43, 53):
-                    travel_time += TrackLineObj.block_list[i-1].min_traveral_time
+        #Specify blocks for track sections A, B, C in reverse
+        for block_num in range(9, 0, -1):
+            train_route.append(block_num)
 
-                #Part of section H is traversed twice
-                for i in range(43, 46):
-                    travel_time += TrackLineObj.block_list[i-1].min_traveral_time
+        #Specify blocks for track sections F through N
+        for block_num in range(16, 67):
+            train_route.append(block_num)
 
-                #F, G, and part of section H are traversed twice
-                for i in range(16, 28):
-                    travel_time += TrackLineObj.block_list[i-1].min_traveral_time
+        #Specify blocks for part of H, I, and part of J in reverse
+        for block_num in range(52, 42, -1):
+            train_route.append(block_num)
 
-                for i in range(15, block_destination, -1):
-                    travel_time += TrackLineObj.block_list[i-1].min_traveral_time
+        #Specify blocks for track sections O through Q
+        for block_num in range(67, 72):
+            train_route.append(block_num)
 
-        #End if-elif block for Red line
+        #Specify blocks for part of H in reverse
+        for block_num in range(38, 31, -1):
+            train_route.append(block_num)
 
-        #Return travel time back to calling environment
-        return travel_time
+        #Specify blocks for track sections R through T
+        for block_num in range(72, 77):
+            train_route.append(block_num)
+
+        #Specify blocks for F, G, and part of H in reverse
+        for block_num in range(27, 15, -1):
+            train_route.append(block_num)
+
+        #Specify blocks for track sections D and E in reverse
+        for block_num in range(15, 9, -1):
+            train_route.append(block_num)
+
+        #Train ends always ends at yard
+        train_route.append(0)
+
+        return train_route
     #End method
 
     #Define method to check if a scheduled train needs to be dispatched
@@ -531,7 +675,8 @@ class Schedule:
         for trainObj in self.train_list:
             if(int(trainObj.departure_time) == curr_time):
                 #MUST COMPELTE: Inform Train Deployer of newly created train object
-                signals.train_creation.emit(trainObj.track_line, trainObj.number)
+                print("YOU ARE DISPATCHING A TRAIN")
+                signals.train_creation.emit(trainObj.HostTrackLine.color, trainObj.number)
                 break
 
         

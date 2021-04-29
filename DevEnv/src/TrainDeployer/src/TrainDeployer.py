@@ -23,7 +23,6 @@ class TrainDeployer:
         signals.num_passengers_changed.connect(self.change_passengers)
         # self.CreateTrains(1, 2, 3, True)
         # self.CreateTrains(3, 2, 1, False)
-        print("fick")
 
         #self.CreateTrains(1, 2, 3, True)
         #self.CreateTrains(3, 2, 1, False)        
@@ -47,7 +46,7 @@ class TrainDeployer:
     def sendBlockInfo(self, blockNum, blockLen, blockSlope, trainID):
        # print("Deployer Block Num is :" + str(blockNum))
       #  print("Deployer Block Len is :" + str(blockLen))
-      #  print("Deployer Block Id is :" + str(trainID))
+        print("Deployer Train Id is :" + str(trainID))
        # print("Deployer Block Slope is :" + str(blockSlope))
 
         self.trains[trainID].set_block_info(blockNum, blockLen, blockSlope)
@@ -73,9 +72,10 @@ class TrainDeployer:
     def SendBeacon(self,Beacon, TrainID):
         self.trains[TrainID].set_beacon(Beacon)
 
-    def PropogateTime(self,time):
-        for i in range(1 , self.number_of_trains):
-            self.trains[i].set_time(time)
+    def PropogateTime(self,time,peroid):
+        for i in range(1 , self.number_of_trains+1):
+            #print('inPropTime')
+            self.trains[i].set_time(time,peroid)
 
 
     def CreateTrains(self,line, id):

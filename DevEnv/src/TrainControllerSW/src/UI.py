@@ -68,16 +68,9 @@ class Ui_TrainControllerSW(object):
         self.textBrowser_4 = QTextBrowser(self.trainStatus)
         self.textBrowser_4.setObjectName(u"textBrowser_4")
         self.textBrowser_4.setGeometry(QRect(10, 130, 221, 61))
-        self.intercom = QPushButton(self.trainStatus)
-        self.intercom.setObjectName(u"intercom")
-        self.intercom.setGeometry(QRect(80, 200, 240, 81))
-        font3 = QFont()
-        font3.setPointSize(12)
-        font3.setBold(True)
-        self.intercom.setFont(font3)
         self.announcementDisplay = QTextBrowser(self.trainStatus)
         self.announcementDisplay.setObjectName(u"announcementDisplay")
-        self.announcementDisplay.setGeometry(QRect(0, 290, 390, 51))
+        self.announcementDisplay.setGeometry(QRect(0, 200, 390, 141))
         self.leftDoorsStatus = QTextBrowser(self.trainStatus)
         self.leftDoorsStatus.setObjectName(u"leftDoorsStatus")
         self.leftDoorsStatus.setGeometry(QRect(170, 0, 111, 31))
@@ -95,6 +88,9 @@ class Ui_TrainControllerSW(object):
         self.speedDownButton = QPushButton(self.speedSettings)
         self.speedDownButton.setObjectName(u"speedDownButton")
         self.speedDownButton.setGeometry(QRect(10, 170, 190, 111))
+        font3 = QFont()
+        font3.setPointSize(12)
+        font3.setBold(True)
         self.speedDownButton.setFont(font3)
         self.speedDownButton.setAutoRepeat(True)
         self.textBrowser = QTextBrowser(self.speedSettings)
@@ -268,7 +264,11 @@ class Ui_TrainControllerSW(object):
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt; font-weight:600;\">Temperature (F)</span></p></body></html>", None))
-        self.intercom.setText(QCoreApplication.translate("TrainControllerSW", u"Intercom", None))
+        self.announcementDisplay.setHtml(QCoreApplication.translate("TrainControllerSW", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:14pt; font-weight:600;\">Intercom Message</span></p></body></html>", None))
         self.textBrowser_3.setHtml(QCoreApplication.translate("TrainControllerSW", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
@@ -327,7 +327,7 @@ class Ui_TrainControllerSW(object):
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt; font-weight:600;\">Authority (feet)</span></p></body></html>", None))
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt; font-weight:600;\">Authority (blocks)</span></p></body></html>", None))
         self.textBrowser_6.setHtml(QCoreApplication.translate("TrainControllerSW", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
