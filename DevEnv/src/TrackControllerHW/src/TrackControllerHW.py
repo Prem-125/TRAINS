@@ -1,4 +1,4 @@
-import sys
+mport sys
 from signals import signals
 
 # Describes the function of a Track Controller in the system
@@ -13,22 +13,52 @@ class TrackController:
 
         # Adjacent Controllers
         self.adj_controller_list = [""]
-        
+
         # Block Status Variables
         self.block_open = [True for i in range(150)]
         self.occupancy = [False for i in range(150)]
         self.authority = [True for i in range(150)]
         self.suggested_speed = [0 for i in range(150)]
         self.commanded_speed = [0 for i in range(150)]
-        self.direction = [True for i in range(150)]
 
         # Instantiate a switch
         self.switch = SwitchObj(-1,-1,-1,line)
         # Instantiate a crossing
         self.crossing = Crossing(-1)
+        # Instantiate a PLC script
+        self.plc_script = [PLCLine()]
+        # Instantiate a block list
+        self.block_list = []
+        # Instantiate a list of upcoming route
+        self.upcoming_blocks = [[] for i in range(150)]
 
         #UI used variables
         self.ui_block = 0
+
+    # Initialize adjacent controllers
+    # Parameter is a list of adjacent controllers
+    def set_AdjacentControllers(self,adj_list):
+        self.adj_controller_list.clear()
+        self.adj_controller_list = adj_list
+
+    # Add blocks to the list of blocks
+    # Parameter is a block number
+    def set_BlockList(self,block_num):
+        self.block_list.append(block_num)
+        
+    # Sets upcoming blocks
+    # Parameter is a list of the next four
+    def set_UpcomingBlocks(self,block_num,next_four):
+        if(block_num < len(self.upcoming_blocks)):
+            self.upcoming_blocks[block_num] = next_four
+    
+    # Gets Upcoming Blocks
+    # Parameter is a block number
+    def get_UpcomingBlocks(self, block_num):
+        if(block_num < len(self.upcoming_blocks)):
+            return self.upcoming_blocks[block_num]
+        else:
+            return [0,0,0,0]
 
     # Initializes the switch values, calling the switch function
     # Parameters are block number, branch a, branch b, and track line name
@@ -63,6 +93,9 @@ class TrackController:
     def get_Authority(self, block_num, authority):
         # Uses block offset to set the correct block
         self.authority[block_num-self.block_offset] = authority
+        if(self.occupancy[block_num-self.block_offset+1] == True or self.occupancy[block_num-self.block_offset-1] == True):
+            self.authority[block_num-self.block_offset] = False
+        self.set_TrackStats(block_num)
 
     # Gets the suggested speed from the CTC office
     # Calls the commanded speed function
@@ -125,52 +158,123 @@ class TrackController:
             self.UpdateTMOpenings(line,block_num)
             self.occupancy[block_num - self.block_offset] = False
 
-    # Crossing Handler
-    # Parameter is block number
-    def CrossingHandler(self, block_num, direction):
-        # Forwards activation and deactivation
-        if(direction == True):
-            distance = self.crossing.block-block_num
-            if(distance <4 and distance >= 0):
-                self.crossing.ActivateCrossing(distance)
-            else:
-                self.crossing.DeactivateCrossing()
-        # Backwards activation and deactivation
-        else:
-            distance = block_num-self.crossing.block
-            if(distance <4 and distance >= 0):
-                self.crossing.ActivateCrossing(distance)
-            else:
-                self.crossing.DeactivateCrossing()
+    # Set PLC Script
+    # Parameter is a list of PLC script
+    def set_PLCScript(self, plc_script):
+        self.plc_script.clear()
+        for i in range (len(plc_script)):
+            self.plc_script.append(plc_script[i])
+    
+    # RUN PLC
+    def RunPLC(self, sent_tag):
+        
+        # Collision Instruction
+        if(sent_tag == "COL"):
+            output = True
+            # Loops through all of the blocks on the block list
+            for block_num in self.block_list:
+                if(self.occupancy[block_num - self.block_offset] == True):
+                    # Request the next four
+                    signals.CTC_next_four_request.emit(self.line, block_num)
+                    next_four = self.get_UpcomingBlocks(block_num)
+                    for next_block in next_four:
+                        # Checks current controller
+                        if(self.occupancy[next_block - self.block_offset] == True):
+                            output = False
+                        # Checks adjacent track controllers
+                        """for controller in self.adj_controller_list:
+                            if(controller.occupancy[next_block - controller.block_offset] == True):
+                                output = False"""
+                    self.get_Authority(block_num, output)
 
-    # Switch Handler
-    # Parameter is block number
-    def SwitchHandler(self, block_num, direction):
-        if(block_num == self.switch.block):
-            if(direction == True):
-                if(self.switch.cur_branch == self.switch.branch_b):
-                    self.switch.ToggleBranch()
-            elif(direction == False):
-                if(self.switch.cur_branch == self.switch.branch_a):
-                    self.switch.ToggleBranch()
-        elif(block_num == self.switch.branch_a and self.authority[block_num-self.block_offset] == True):
-            if(self.switch.branch_b == self.switch.cur_branch):
-                self.switch.ToggleBranch()
-        elif(blokc_num == self.switch.branch_a and self.authority[block_num-self.block_offset] == True):
-            if(self.switch.branch_a == self.switch.cur_branch):
-                self.switch.ToggleBranch()
 
-    # Collision Detection
-    # Parameter is block number
-    def CheckCollision(self, block_num, direction):
-        if(direction == True):
-            if(self.occupancy(block_num-self.block_offset+1) == True):
-                self.authority[block_num-self.block_offset] = False
-                #send signal
-        if(direction == False):
-            if(self.occupancy(block_num-self.block_offset-1) == True):
-                self.authority[block_num-self.block_offset] = False
-                #send signal
+        # Crossing Instruction
+        elif(sent_tag == "CRX"):
+            if(self.crossing.block != -1):
+                # Loop through the lines of the PLC
+                for i in range(len(self.plc_script)):
+                    if(self.plc_script[i].elements[0] == "CRX"):
+                        # Crossing Lights
+                        if(self.plc_script[i+1].elements[0] == "LIT"):
+                            light_dist = int(self.plc_script[i+1].elements[2])
+                        # Crossing Gate
+                        elif(self.plc_script[i+1].elements[0] == "GAT"):
+                            gate_dist = int(self.plc_script[i+1].elements[2])
+                        # Crossing Lights
+                        if(self.plc_script[i+2].elements[0] == "LIT"):
+                            light_dist = int(self.plc_script[i+2].elements[2])
+                        # Crossing Gates
+                        elif(self.plc_script[i+2].elements[0] == "GAT"):
+                            gate_dist = int(self.plc_script[i+2].elements[2])
+                        # Check Lights distance
+                        for blocks in range(light_dist+1):
+                            if(self.occupancy[self.crossing.block+blocks] == True):
+                                signals.crossing_light_activation.emit(self.line, self.crossing.block, True)
+                            elif(self.occupancy[self.crossing.block-blocks] == True):
+                                signals.crossing_light_activation.emit(self.line, self.crossing.block, True)
+                            else:
+                                signals.crossing_light_activation.emit(self.line, self.crossing.block, False)
+                        # Gate Activation/Deactivation
+                        for blocks in range(gate_dist+1):
+                            if(self.occupancy[self.crossing.block+blocks] == True):
+                                signals.crossing_gate_activation.emit(self.line, self.crossing.block, True)
+                            elif(self.occupancy[self.crossing.block-blocks] == True):
+                                signals.crossing_gate_activation.emit(self.line, self.crossing.block, True)
+                            else:
+                                signals.crossing_gate_activation.emit(self.line, self.crossing.block, False)
+
+        # Traffic Light Instruction
+        elif(sent_tag == "TRL"):
+            red_flag = False
+            yel_flag = False
+            # Loops through all of the blocks on the block list
+            for block_num in self.block_list:    
+                # Loop through the lines of the PLC
+                for i in range(len(self.plc_script)):
+                    if(self.plc_script[i].elements[0] == "TRL"):
+                        
+                        # Yellow Instruction
+                        if(self.plc_script[i+1].elements[0] == "YEL"):
+                            if(self.plc_script[i+1].elements[2] == "SW"):
+                                sw_dist = self.plc_script[i+1].elements[3]
+                                signals.CTC_next_four_request.emit(self.line, block_num)
+                                next_four = self.get_UpcomingBlocks(block_num)
+                                #if(sw_dist > 4):
+                                    #for blk in range(4):
+
+                            
+                        # Red Instruction
+                        elif(self.plc_script[i+1].elements[0] == "RED"):
+                            if(self.plc_script[i+1].elements[2] == "NOT"):
+                                if(self.plc_script[i+1].elements[3] == "AUT"):
+                                    if(self.authority[block_num - self.block_offset] == False):
+                                        red_flag = True
+
+                        # Yellow Instruction
+                        if(self.plc_script[i+2].elements[0] == "YEL"):
+                            if(self.plc_script[i+2].elements[2] == "SW"):
+                                sw_dist = int(self.plc_script[i+2].elements[3])
+                                
+                                
+                        # Red Instruction
+                        elif(self.plc_script[i+2].elements[0] == "RED"):
+                            if(self.plc_script[i+2].elements[2] == "NOT"):
+                                if(self.plc_script[i+2].elements[3] == "AUT"):        
+                                    if(self.authority[block_num - self.block_offset] == False):
+                                        red_flag = True
+
+                # Logic for the switches
+                if(red_flag == False):
+                    if(yel_flag == False):
+                        signals.wayside_signal_light.emit(self.line, block_num, 1)
+                        # Send the yellow light signal
+                    else:
+                        signals.wayside_signal_light.emit(self.line, block_num, 0)
+                        # Send the green light signal
+                else:
+                    signals.wayside_signal_light.emit(self.line, block_num, 2)
+                    # Send the red light signal
+
 
 # Describes the function of a Switch under jurisdiction of a Track Controller
 class SwitchObj:
