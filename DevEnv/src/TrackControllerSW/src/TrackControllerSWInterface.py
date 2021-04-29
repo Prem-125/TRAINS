@@ -26,7 +26,7 @@ class MainWindow(QMainWindow):
         # Instantiate the switches for the Green Controllers
         # Parameters are the block stem number, branch a number, branch b number, and line
         self.GreenController1.set_Switch(13, 12, 1, "Green")
-        self.GreenController2.set_Switch(29, 30, 150, "Green")
+        self.GreenController2.set_Switch(28, 29, 150, "Green")
         self.GreenController3.set_Switch(57, 58, 151, "Green")
         self.GreenController4.set_Switch(63, 151, 62, "Green")
         self.GreenController5.set_Switch(77, 101, 76, "Green")
@@ -60,7 +60,7 @@ class MainWindow(QMainWindow):
         # ui_block and ui_switch indicate the number for the referenced object
         self.ui_block = 0
         self.ui_switch = 0
-        self.plc_name = ""
+        self.plc_name = [PLCLine()]
 
         # UI Functions
         # currentTextChanged method indicates a change in a combo box
@@ -159,6 +159,44 @@ class MainWindow(QMainWindow):
             elif(switch == 7):
                 return self.RedController7
 
+    # get_Tag gets the tag of the PLC function call controller to run for the system
+    # Parameters are either line name, block number
+    def get_Tag(self, line, block_num):
+        
+        # Green line controllers
+        if(line == "Green"):
+            if(block_num <21):
+                return "G1"
+            elif(block_num <33 or block_num >146):
+                return "G2"
+            elif(block_num <61):
+                return "G3"
+            elif(block_num <74):
+                return "G4"
+            elif(block_num <82 or (block_num > 100 and block_num <105)):
+                return "G5"
+            elif(block_num <101):
+                return "G6"
+            elif(block_num < 147):
+                return "G7"
+        
+        # Red line controllers
+        if(line == "Red"):
+            if(block_num <7 or (block_num >12 and block_num <21)):
+                return "R1"
+            elif(block_num <13):
+                return "R2"
+            elif(block_num <30 or block_num > 74):
+                return "R3"
+            elif(block_num <35 or (block_num > 71 and block_num <75)):
+                return "R4"
+            elif(block_num <40 or (block_num > 68 and block_num <72)):
+                return "R5"
+            elif(block_num <49 or (block_num > 66 and block_num <69)):
+                return "R6"
+            elif(block_num > 48):
+                return "R7"
+    
     # set_Occupancy is called to set the occupancy recieved from the Track Model
     # Calls set_Occupancy function in the proper TrackController object
     # Parameters are block number, and boolean occupied status
@@ -166,6 +204,7 @@ class MainWindow(QMainWindow):
         # Asks for controller object, calls controller function
         self.get_Controller("Green", block_num).set_Occupancy(block_num, occupied)
         self.UIBlockOutput()
+        self.RunPLC(self.get_Tag("Green", block_num))
 
     # get_Authority is called to return the Authority of the block
     # Calls get_Authority function in the proper TrackController object
@@ -213,6 +252,7 @@ class MainWindow(QMainWindow):
         
         # Asks for controller object, calls controller function
         self.get_Controller(line, block_num).get_SugSpeed(block_num, sug_speed, limit)
+        self.UIBlockOutput()
 
     # set_BlockClosure is called from Signal
     # Calls the closure function in the proper TrackController object
@@ -586,7 +626,11 @@ class MainWindow(QMainWindow):
     # Prints validity output
     def ImportPLC(self):
         
+        # Clears the PLC array
+        self.plc_name.clear()
         inputFileName = self.ui.ImportLine.text()
+
+        # Error checking
         try:
             plc_name = open(inputFileName,'r')
 
@@ -595,19 +639,60 @@ class MainWindow(QMainWindow):
 
         with plc_name:
             self.ui.SuccessFailLine.setText("Valid File")
-
+            
+            # CSV reader implementation
+            csv_reader = csv.reader(plc_name, delimiter=' ')
+            num_lines = 0
+            for row in csv_reader:
+                if(num_lines == 0):
+                    print("Importing PLC Scripts")
+                
+                line_length = len(row)
+                
+                # Adds a PLC Line object and adds the elements
+                self.plc_name.append(PLCLine())
+                for i in range(line_length):
+                    self.plc_name[num_lines].set_element(i,row[i])
+                
+                num_lines+=1
 
         plc_name.close()
     
-    # Parses through the PLC file as
-    # Parameter is tag for the PLC function call 
-    """
-    def PLCParser(self, tag):
-        plc_line = ["" for i in range(7)]
+    # Runs the PLC script for the designated tag
+    # Outputs the proper boolean value of the 
+    def RunPLC(self, tag):
 
-        if(plc_line == tag):
-            
-        """
+        # Loops through all of the lines instructions
+        for i in range(len(self.plc_name)):
+
+            # Checks the first instruction
+            if(self.plc_name[i].element[0] == tag):
+                
+                # Switch Instruction
+                if(tag(0) == "G" or tag(0) == "R"):
+                    if(tag(0) == "G"):
+                        controller = self.get_SwitchController("Green", int(tag(1)))
+                    elif(tag(0) == "R"):
+                        controller = self.get_SwitchController("Red", int(tag(1)))
+
+                        block_a = self.plc_name[i+1].element[2]
+                
+                # Collision Instruction
+                elif(tag == "COL"):
+                    continue
+                
+                # Authority Instruction
+                elif(tag == "AUT"):
+                    continue
+                
+                # Crossing Instruction
+                elif(tag == "CRX"):
+                    continue
+
+
+
+
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
