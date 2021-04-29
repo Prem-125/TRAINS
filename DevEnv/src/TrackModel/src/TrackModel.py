@@ -37,7 +37,7 @@ for block_num in range(28, 0, -1):
 for block_num in range(13, 58):
 	self.route_queue_green.append(block_num)
 
-#Train ends at yard by default
+#Train ends at yard by defaulti
 self.route_queue_green.append(0)
 '''
 
@@ -267,11 +267,13 @@ class Track:
 		self.occupied=in_occupied
 		
 		if(self.get_authority() == 1):
-			signals.track_model_occupancy.emit(self.block, self.occupied)
+			signals.track_model_occupancy.emit(self.line, self.block, self.occupied)
 	
 		#if the block is becomming occupied, send signal to train model
 		if(in_occupied == True and self.rail_condition == True):
 			self.encode_track_circuit_signal()
+			print("sned tc at 275, id is" + str(id) )
+			
 			signals.TC_signal.emit(self.encoded_TC, id)
 			#send beacon
 			#if(self.block == 4):
@@ -818,14 +820,18 @@ class MainWindow(QMainWindow):
 		print("just left block " + str(block) + " next is " + str(self.route_queue_green[self.id_list[id]]))
 		self.track_list_green[self.route_queue_green[self.id_list[id]]].set_occupied(True, id)
 
+		#send the beacon if there is a station or tunnel ahead 
 		if(self.track_list_green[self.route_queue_green[self.id_list[id]+1]].is_station == True or self.track_list_green[self.route_queue_green[self.id_list[id]+1]].is_underground == True):
 			
 			self.track_list_green[self.route_queue_green[self.id_list[id]+1]].encode_beacon()
 			signals.Beacon_signal.emit(self.track_list_green[self.route_queue_green[self.id_list[id]+1]].encodedBeacon, id) # ACTUALLY CALCULATE THE BEACON VAL AND BLOCK NUM
 		
 		self.update_track_info_green(self.current_block_green)
-	
-	
+	'''	if(self.track_list_green[self.route_queue_green[self.id_list[id]-1]].is_station == True or self.track_list_green[self.route_queue_green[self.id_list[id]-1]].is_underground == True):
+
+			self.track_list_green[self.route_queue_green[self.id_list[id]-1]].encode_beacon()
+			signals.Beacon_signal.emit(self.track_list_green[self.route_queue_green[self.id_list[id]-1]].encodedBeacon, id) # ACTUALLY CALCULATE THE BEACON VAL AND BLOCK NUM'''
+		
 
 	#function for inital train spawn
 	def set_occupied_initial(self, track_line, id):
@@ -841,7 +847,7 @@ class MainWindow(QMainWindow):
 
 		
 	#function to update from wayside
-	def get_wayside_info(self, block_in, authority_in, commanded_speed_in): #NEED LINE ARGUMENT!!!!!!!
+	def get_wayside_info(self, line_in, block_in, authority_in, commanded_speed_in): 
 		self.track_list_green[block_in].set_authority(authority_in)
 		self.track_list_green[block_in].set_commanded_speed(commanded_speed_in*(5.0/18.0))
 		#self.track_list[block_in].set_occupied(1)
@@ -849,11 +855,12 @@ class MainWindow(QMainWindow):
 		for i in range(0, len(self.id_list)):
 			if(self.id_list[i] == block_in):
 				self.track_list_green[block_in].encode_track_circuit_signal()
+				print("tc emit at 856")
 				signals.TC_signal.emit(self.track_list_green[block_in].encoded_TC, i)
 		
 		print("Sending occupancy to wayside")
 
-	def get_open_block(self, line_in, in_block): #CHANGE TO GREEN LINE
+	def get_open_block(self, line_in, in_block): 
 		if(line_in == "Green"):
 			self.track_list_green[in_block].set_rail_condition(True)
 			self.track_list_green[in_block].set_circuit_condition(True)

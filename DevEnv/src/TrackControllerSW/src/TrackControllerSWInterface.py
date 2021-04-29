@@ -32,6 +32,10 @@ class MainWindow(QMainWindow):
         self.GreenController5.set_Switch(77, 101, 76, "Green")
         self.GreenController6.set_Switch(85, 86, 100, "Green")
 
+        # Instantiate the crossing for Green Controller
+        # Parameter is block number
+        self.GreenController1.set_Crossing(19)
+
         # Instantiate Red Track Controllers for the system
         # Parameters are block offset value for the controller, and the line the Track Controller is on
         self.RedController1 = TrackController(7, "Red", "R1")
@@ -204,7 +208,7 @@ class MainWindow(QMainWindow):
         # Asks for controller object, calls controller function
         self.get_Controller(line, block_num).set_Occupancy(block_num, occupied)
         self.UIBlockOutput()
-        self.RunPLC(self.get_Tag(line, block_num))
+        #self.RunPLC(self.get_Tag(line, block_num))
 
     # get_Authority is called to return the Authority of the block
     # Calls get_Authority function in the proper TrackController object
@@ -646,6 +650,7 @@ class MainWindow(QMainWindow):
             for row in csv_reader:
                 if(num_lines == 0):
                     print("Importing PLC Scripts")
+                print(row)
                 
                 line_length = len(row)
                 
@@ -656,6 +661,7 @@ class MainWindow(QMainWindow):
                 
                 num_lines+=1
 
+        print("PLC Scripts Imported")
         plc_file.close()
     
     # Runs the PLC script for the designated tag
@@ -676,6 +682,8 @@ class MainWindow(QMainWindow):
                         controller = self.get_SwitchController("Red", int(tag(1)))
 
                         block_a = self.plc_name[i+1].element[2]
+                        
+                        #op_1 = self.plc_name[i+1].element[3]
                 
                 # Collision Instruction
                 elif(tag == "COL"):

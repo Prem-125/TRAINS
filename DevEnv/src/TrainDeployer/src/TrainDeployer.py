@@ -46,7 +46,7 @@ class TrainDeployer:
     def sendBlockInfo(self, blockNum, blockLen, blockSlope, trainID):
        # print("Deployer Block Num is :" + str(blockNum))
       #  print("Deployer Block Len is :" + str(blockLen))
-      #  print("Deployer Block Id is :" + str(trainID))
+        print("Deployer Train Id is :" + str(trainID))
        # print("Deployer Block Slope is :" + str(blockSlope))
 
         self.trains[trainID].set_block_info(blockNum, blockLen, blockSlope)
