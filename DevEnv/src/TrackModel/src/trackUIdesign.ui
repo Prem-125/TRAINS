@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>2</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -1314,7 +1314,7 @@
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:9pt; text-decoration: underline;&quot;&gt;Input Ambient Temp&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
-     <widget class="QLabel" name="tempSelectorValid_6">
+     <widget class="QLabel" name="tempSelectorValid_red">
       <property name="geometry">
        <rect>
         <x>220</x>
@@ -2043,7 +2043,7 @@
        <string>Get Track</string>
       </property>
      </widget>
-     <widget class="QLabel" name="trackSelectorValid_6">
+     <widget class="QLabel" name="trackSelectorValid_red">
       <property name="geometry">
        <rect>
         <x>210</x>
@@ -2072,7 +2072,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Type Rail Document Name&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Input Rail Document Name&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="lineEdit">
@@ -2085,7 +2085,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>GreenLine.txt</string>
+      <string>RedLine.txt</string>
      </property>
     </widget>
     <widget class="QPushButton" name="getTrackFileBTN">
@@ -2136,10 +2136,10 @@
        </rect>
       </property>
       <property name="text">
-       <string>Red Line Line</string>
+       <string>Red Line</string>
       </property>
       <property name="checked">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
      </widget>
      <widget class="QRadioButton" name="upTrackGreen">
@@ -2155,7 +2155,7 @@
        <string>Green Line</string>
       </property>
       <property name="checked">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
      </widget>
     </widget>

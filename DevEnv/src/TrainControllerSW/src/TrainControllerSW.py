@@ -162,8 +162,9 @@ class TrainController:
         print("Temp commanded Float" + str(tempCmdFloat))
         if(tempCheckSum != tempCmdInt+ tempCmdFloat + tempAuthInt + tempAuthFloat):
             print("Signal Pickup Failure")
+            self.TrainModel.train_detected_tc_failure()
             self.UI.ui.textBrowser_15.setStyleSheet(u"background-color: rgb(255, 0, 0);")
-            self.TrainModel.circuit_failure_on()
+            #self.TrainModel.circuit_failure_on()
             self.signal_pickup_failure = True
             self.SR.VitalFault()
         else:
