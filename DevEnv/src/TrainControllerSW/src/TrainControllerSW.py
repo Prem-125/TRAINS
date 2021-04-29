@@ -410,6 +410,12 @@ class SpeedRegulator():
             self.OnSBrakeOff()
             self.braking_because_too_fast = False
 
+        if(self.TrainController.atDestination and self.TrainController.is_auto and not (self.commanded_speed==0) and not (self.authority==0)):
+            self.TrainController.UI.ui.rightDoors.setChecked(False)
+            self.TrainController.UI.ui.leftDoors.setChecked(False)
+            self.OnSBrakeOff()
+            self.TrainController.atDestination=False
+
         #If in Auto Mode, go off the commanded speed
         if(self.TrainController.is_auto and (self.current_speed > (self.commanded_speed+5))):
             print("Braking because too fast")
@@ -418,17 +424,18 @@ class SpeedRegulator():
             self.power = 0
             self.OnSBrakeOn()
 
+        
         elif(self.TrainController.is_auto and ((not self.service_brake ) and (not self.emergency_brake))):
 
-            #Closing the doors if we are leaving a destination
-            if(self.TrainController.atDestination):
-                if(self.TrainController.right_doors):
-                    #self.TrainController.toggle_right_doors
-                    self.TrainController.UI.ui.rightDoors.setChecked(True)
-                if(self.TrainController.left_doors):
-                    #self.TrainController.toggle_left_doors
-                    self.TrainController.UI.ui.rightDoors.setChecked(False)
-                self.atDestination = False
+            #Closing the doors if we are leaving a destination MODIFIED
+            #if(self.TrainController.atDestination):
+            #    if(self.TrainController.right_doors):
+            #        #self.TrainController.toggle_right_doors
+            #        self.TrainController.UI.ui.rightDoors.setChecked(True)
+            #    if(self.TrainController.left_doors):
+            #        #self.TrainController.toggle_left_doors
+            #        self.TrainController.UI.ui.rightDoors.setChecked(False)
+            #    self.atDestination = False
 
             #updating setpoint
             self.pid.setpoint = .9*(self.commanded_speed)
@@ -456,6 +463,12 @@ class SpeedRegulator():
             print("Turning off brake because braking because too fast was true")
             #self.OnSBrakeOff()
             self.backup_braking_because_too_fast = False
+
+        if(self.TrainController.atDestination and self.TrainController.is_auto and not (self.commanded_speed==0) and not (self.authority==0)):
+            pas
+            #self.TrainController.UI.ui.rightDoors.setChecked(False)
+            #self.TrainController.UI.ui.leftDoors.setChecked(False)
+            #self.OnSBrakeOff()
 
         #If in Auto Mode, go off the commanded speed
         if(self.TrainController.is_auto and (self.current_speed > (self.commanded_speed+5))):

@@ -38,7 +38,7 @@ double CalcPower(){
   pow_loop.Compute();
   pow_loop_2.run();
   if((power/power2 > safety_margin|| power/power2 < 1.0/safety_margin) && !get_s_brake() ){ // safety critical portion makes sure the two loops dont differ too much
-    set_e_brake(true);
+    //set_e_brake(true);
   }
   
   if(pe_brake || e_brake || s_brake){// cuts power on brake pull

@@ -312,7 +312,6 @@ class MainWindow(QMainWindow):
     # Parameters are line name, block number, upcoming blocks
     def set_UpcomingBlocks(self, line, block_num, next_four):
         self.get_Controller(line, block_num).set_UpcomingBlocks(block_num, next_four)
-        print("Upcoming blocks set")
 
     # ToggleSwitchBranch is called by the UI push button
     # Checks the UI combobox text and toggles the proper switch

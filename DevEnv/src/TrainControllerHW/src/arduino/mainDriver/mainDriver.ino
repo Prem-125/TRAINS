@@ -151,8 +151,8 @@ void UpdateToggleStates(){
     
 }
 void AutoOps(){
-  toggle_states &=~(1 << 3); // Override Right Door 
-  toggle_states &=~( 1 << 4); // Override Left Door
+  //toggle_states &=~(1 << 3); // Override Right Door 
+  //toggle_states &=~( 1 << 4); // Override Left Door
   if(ext_lights_on)  
   toggle_states |=(3); // Force lights on if needed
   if(stop_at_station && get_cur_vel() == 0){
