@@ -85,12 +85,7 @@
       </attribute>
       <column>
        <property name="text">
-        <string>Arrival Time</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Destination</string>
+        <string>Train ID</string>
        </property>
       </column>
       <column>
@@ -100,12 +95,17 @@
       </column>
       <column>
        <property name="text">
-        <string>Train ID</string>
+        <string>Current Position</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>Current Position</string>
+        <string>Destination</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Arrival Time</string>
        </property>
       </column>
      </widget>
@@ -5651,6 +5651,36 @@ Simulation</string>
          <set>Qt::AlignCenter</set>
         </property>
        </widget>
+       <widget class="QLabel" name="label_969">
+        <property name="geometry">
+         <rect>
+          <x>170</x>
+          <y>20</y>
+          <width>141</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: rgb(206, 206, 206);</string>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::Box</enum>
+        </property>
+        <property name="lineWidth">
+         <number>1</number>
+        </property>
+        <property name="text">
+         <string>Luigi's Mansion</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
        <zorder>label_904</zorder>
        <zorder>label_805</zorder>
        <zorder>label_827</zorder>
@@ -5824,6 +5854,7 @@ Simulation</string>
        <zorder>label_968</zorder>
        <zorder>label_824</zorder>
        <zorder>label_784</zorder>
+       <zorder>label_969</zorder>
       </widget>
       <widget class="QWidget" name="page_5">
        <widget class="QLabel" name="label_1030">
@@ -9049,6 +9080,19 @@ Arrival Time</string>
          <pointsize>10</pointsize>
         </font>
        </property>
+       <property name="columnCount">
+        <number>1</number>
+       </property>
+       <attribute name="horizontalHeaderVisible">
+        <bool>false</bool>
+       </attribute>
+       <attribute name="horizontalHeaderDefaultSectionSize">
+        <number>200</number>
+       </attribute>
+       <attribute name="verticalHeaderHighlightSections">
+        <bool>true</bool>
+       </attribute>
+       <column/>
       </widget>
      </widget>
      <widget class="QGroupBox" name="AutoGroupBox_2">

@@ -68,21 +68,22 @@ class Station:
 class Train:
 
     #Constructor
-    def __init__(self, train_number, block_destination, TrackLineObj, train_arrival_time, train_departure_time):
+    def __init__(self, train_number, dest_block_list, TrackLineObj, dest_arrival_times, train_departure_time):
         #Initialize Block instance variables
         self.number = train_number
-        self.destination = block_destination #Block Number
+        self.destination_list = dest_block_list #Block Numbers
         self.HostTrackLine = TrackLineObj #String
-        self.arrival_time = train_arrival_time     #Seconds
+        self.arrival_times = dest_arrival_times   #Seconds
         self.departure_time = train_departure_time #Seconds
         
         #Initialize route queue
         self.route_queue = []
         if(self.HostTrackLine.color == "Green"):
             self.GenerateGreenRoute()
-            print("\nCTC- ROUTE QUEUE HAS BEEN GENERATED")
         elif(self.HostTrackLine.color == "Red"):
             self.GenerateRedRoute()
+
+        print("\nCTC- ROUTE QUEUE HAS BEEN GENERATED")
 
         #Connect signal to obtain occupancy from wayside controller
         signals.CTC_occupancy.connect(self.UpdatePosition)
@@ -195,21 +196,21 @@ class Train:
             #ATTENTION: Delete train if loop is complete
 
             #Update suggested speed according to train position
-            if(self.destination == self.route_queue[3]):
+            if(self.destination_list[0] == self.route_queue[3]):
                 suggested_speed = int(.75*self.HostTrackLine.block_list[self.route_queue[0]-1].speed_limit)
                 signals.CTC_suggested_speed.emit(self.HostTrackLine.color, self.route_queue[0], suggested_speed*3.60)
-            elif(self.destination == self.route_queue[2]):
+            elif(self.destination_list[0] == self.route_queue[2]):
                 suggested_speed = int(.50*self.HostTrackLine.block_list[self.route_queue[0]-1].speed_limit)
                 signals.CTC_suggested_speed.emit(self.HostTrackLine.color, self.route_queue[0], suggested_speed*3.60)
-            elif(self.destination == self.route_queue[1]):
+            elif(self.destination_list[0] == self.route_queue[1]):
                 suggested_speed = int(.25*self.HostTrackLine.block_list[self.route_queue[0]-1].speed_limit)
                 signals.CTC_suggested_speed.emit(self.HostTrackLine.color, self.route_queue[0], suggested_speed*3.60)
-            elif(self.destination == self.route_queue[0]):
+            elif(self.destination_list[0] == self.route_queue[0]):
                 suggested_speed = int(0*self.HostTrackLine.block_list[self.route_queue[0]-1].speed_limit)
-                signals.CTC_suggested_speed.emit(self.HostTrackLine.color, self.route_queue[0], suggested_speed*3.60) 
+                signals.CTC_suggested_speed.emit(self.HostTrackLine.color, self.route_queue[0], suggested_speed*3.60)
 
                 #Send authority to track controller
-                signals.CTC_authority.emit(self.HostTrackLine.color, self.destination, False)  
+                signals.CTC_authority.emit(self.HostTrackLine.color, self.destination_list[0], False)  
 
                 #Start dwell timer
                 QTimer.singleShot(6000, self.LeaveStation)
@@ -221,8 +222,11 @@ class Train:
 
     #Method to alert train to leave station after dwell period has expired
     def LeaveStation(self):
+        #Pop destination list
+        self.destination_list.pop(0)
+
         #Send authority to track controller
-        signals.CTC_authority.emit(self.HostTrackLine.color, self.destination, True)
+        signals.CTC_authority.emit(self.HostTrackLine.color, self.route_queue[0], True)
         print("\nHIT1\n")
         suggested_speed = self.HostTrackLine.block_list[self.route_queue[0]-1].speed_limit
         print("\nHIT2\n")
@@ -370,15 +374,8 @@ class TrackLine:
                 #Determine if station has already been created
                 for stationObj in self.station_list:
                     if(stationObj.name == station_name):
-                        duplicate = True
+                        station_name = station_name + "2"
                         break
-
-                #ATTENTION: Allow for creation of duplicate station
-                
-                #Do not create duplicate station
-                if(duplicate == True):
-                    continue
-                
 
                 #Create new station and append to list
                 self.station_list.append( Station(station_name, assoc_block_num) )
@@ -445,43 +442,50 @@ class Schedule:
     #End constructor
 
     #Define method for manual train dispatch
-    def ManualSchedule(self, block_destination, train_arrival_time, TrackLineObj, curr_time):
+    def ManualSchedule(self, dest_block_list, train_arrival_time, TrackLineObj, curr_time):
         global gbl_seconds
         
         #Assign train number
         train_number = len(self.train_list) + 1
 
-        #Compute train travel time
-        travel_time = self.ComputeTravelTime(block_destination, train_arrival_time, TrackLineObj)
+        #Declare list to hold arrival times for all destinations
+        dest_arrival_times = []
+
+        #Ensure at least one destination has been specified
+        if(len(dest_block_list) == 0):
+            return dest_arrival_times
+
+        #Compute train travel time to first destination
+        travel_time = self.ComputeTravelTime(dest_block_list[0], train_arrival_time, TrackLineObj)
 
         print("TRAVEL TIME: " + str(travel_time))
 
         #Compute train departure time
-        train_departure_time = train_arrival_time - travel_time
+        train_departure_time = train_arrival_time - travel_time - 60
 
         #Determine if specified arrival time is valid
         if(train_departure_time < curr_time):
-            return False
+            return dest_arrival_times
 
         #Determine if computed depature time matches that of another train
         for trainObj in self.train_list:
             if(trainObj.departure_time == train_departure_time):
-                return False
+                return dest_arrival_times
+        #End for loop
 
-        """
-        #Determine if specified destination is valid
-        if(TrackLineObj.color == "Green"):
-            if(block_destination < 1 or block_destination > 150):
-                return False
-        elif(TrackLineObj.color == "Red"):
-            if(block_destination < 1 or block_destination > 76):
-                return False
-        """
+        #Compute remaining arrival times
+        for block_num in dest_block_list:
+            if(dest_block_list.index(block_num) == 0):
+                dest_arrival_times.append(train_arrival_time)
+            else:
+                travel_time = self.ComputeTravelTime(block_num, train_arrival_time, TrackLineObj) + (dest_block_list.index(block_num)+1)*20
+                dest_arrival_times.append(travel_time + train_departure_time)
+        #End for loop
         
         #If travel parameters have been verified, add train object to the schedule's train list
-        self.train_list.append( Train(train_number, block_destination, TrackLineObj, train_arrival_time, train_departure_time) )
+        self.train_list.append( Train(train_number, dest_block_list, TrackLineObj, dest_arrival_times, train_departure_time) )
 
-        return True
+        return dest_arrival_times
     #End method
 
     #Define method to compute departure time for train

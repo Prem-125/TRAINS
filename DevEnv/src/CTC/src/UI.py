@@ -1540,6 +1540,14 @@ class Ui_CTCOffice(object):
         self.label_784.setFrameShape(QFrame.Box)
         self.label_784.setLineWidth(1)
         self.label_784.setAlignment(Qt.AlignCenter)
+        self.label_969 = QLabel(self.page_4)
+        self.label_969.setObjectName(u"label_969")
+        self.label_969.setGeometry(QRect(170, 20, 141, 21))
+        self.label_969.setFont(font)
+        self.label_969.setStyleSheet(u"background-color: rgb(206, 206, 206);")
+        self.label_969.setFrameShape(QFrame.Box)
+        self.label_969.setLineWidth(1)
+        self.label_969.setAlignment(Qt.AlignCenter)
         self.StackedWidget2.addWidget(self.page_4)
         self.label_904.raise_()
         self.label_805.raise_()
@@ -1714,6 +1722,7 @@ class Ui_CTCOffice(object):
         self.label_968.raise_()
         self.label_824.raise_()
         self.label_784.raise_()
+        self.label_969.raise_()
         self.page_5 = QWidget()
         self.page_5.setObjectName(u"page_5")
         self.label_1030 = QLabel(self.page_5)
@@ -2555,9 +2564,15 @@ class Ui_CTCOffice(object):
         self.DestListLabel.setFrameShape(QFrame.Box)
         self.DestListLabel.setAlignment(Qt.AlignCenter)
         self.DestTable = QTableWidget(self.ManGroupBox_2)
+        if (self.DestTable.columnCount() < 1):
+            self.DestTable.setColumnCount(1)
         self.DestTable.setObjectName(u"DestTable")
         self.DestTable.setGeometry(QRect(170, 200, 201, 241))
         self.DestTable.setFont(font)
+        self.DestTable.setColumnCount(1)
+        self.DestTable.horizontalHeader().setVisible(False)
+        self.DestTable.horizontalHeader().setDefaultSectionSize(200)
+        self.DestTable.verticalHeader().setHighlightSections(True)
         self.AutoGroupBox_2 = QGroupBox(self.page_2)
         self.AutoGroupBox_2.setObjectName(u"AutoGroupBox_2")
         self.AutoGroupBox_2.setGeometry(QRect(20, 240, 391, 131))
@@ -5144,7 +5159,7 @@ class Ui_CTCOffice(object):
         self.retranslateUi(CTCOffice)
 
         self.StackedWidget1.setCurrentIndex(0)
-        self.StackedWidget2.setCurrentIndex(0)
+        self.StackedWidget2.setCurrentIndex(1)
         self.TrackComboBox1.setCurrentIndex(-1)
         self.BlockStatusTab.setCurrentIndex(0)
         self.TrackComboBox2.setCurrentIndex(-1)
@@ -5160,15 +5175,15 @@ class Ui_CTCOffice(object):
         CTCOffice.setWindowTitle(QCoreApplication.translate("CTCOffice", u"CTC Office GUI", None))
         self.actionExternal_Module_Interface.setText(QCoreApplication.translate("CTCOffice", u"External Module Interface", None))
         ___qtablewidgetitem = self.SchedTable.horizontalHeaderItem(0)
-        ___qtablewidgetitem.setText(QCoreApplication.translate("CTCOffice", u"Arrival Time", None));
+        ___qtablewidgetitem.setText(QCoreApplication.translate("CTCOffice", u"Train ID", None));
         ___qtablewidgetitem1 = self.SchedTable.horizontalHeaderItem(1)
-        ___qtablewidgetitem1.setText(QCoreApplication.translate("CTCOffice", u"Destination", None));
+        ___qtablewidgetitem1.setText(QCoreApplication.translate("CTCOffice", u"Track Line", None));
         ___qtablewidgetitem2 = self.SchedTable.horizontalHeaderItem(2)
-        ___qtablewidgetitem2.setText(QCoreApplication.translate("CTCOffice", u"Track Line", None));
+        ___qtablewidgetitem2.setText(QCoreApplication.translate("CTCOffice", u"Current Position", None));
         ___qtablewidgetitem3 = self.SchedTable.horizontalHeaderItem(3)
-        ___qtablewidgetitem3.setText(QCoreApplication.translate("CTCOffice", u"Train ID", None));
+        ___qtablewidgetitem3.setText(QCoreApplication.translate("CTCOffice", u"Destination", None));
         ___qtablewidgetitem4 = self.SchedTable.horizontalHeaderItem(4)
-        ___qtablewidgetitem4.setText(QCoreApplication.translate("CTCOffice", u"Current Position", None));
+        ___qtablewidgetitem4.setText(QCoreApplication.translate("CTCOffice", u"Arrival Time", None));
         self.ThroughputTitleLabel2.setText(QCoreApplication.translate("CTCOffice", u"Green", None))
         self.ThroughputTitleLabel1.setText(QCoreApplication.translate("CTCOffice", u"Throughput (Tickets/Hour)", None))
         self.ThroughputLabel1.setText(QCoreApplication.translate("CTCOffice", u"--", None))
@@ -5355,6 +5370,7 @@ class Ui_CTCOffice(object):
         self.label_968.setText("")
         self.label_824.setText("")
         self.label_784.setText("")
+        self.label_969.setText(QCoreApplication.translate("CTCOffice", u"Luigi's Mansion", None))
         self.label_1030.setText(QCoreApplication.translate("CTCOffice", u"N", None))
         self.label_1031.setText(QCoreApplication.translate("CTCOffice", u"A", None))
         self.label_1032.setText(QCoreApplication.translate("CTCOffice", u"E", None))
