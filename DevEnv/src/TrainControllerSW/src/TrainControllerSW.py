@@ -537,7 +537,7 @@ class SpeedRegulator():
             self.engine_failure = True
             self.TrainController.UI.ui.textBrowser_13.setStyleSheet(u"background-color: rgb(255, 0, 0);")
             self.VitalFault()
-            self.TrainController.TrainModel.engine_failure_on()
+            self.TrainController.TrainModel.train_detected_engine_failure()
 
     def DetectBrakeFailure(self):
         if(self.service_brake and (self.current_speed >= (self.previous_speed+.5)) and not(self.current_speed == 0)):

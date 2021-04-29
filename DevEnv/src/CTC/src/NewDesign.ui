@@ -85,12 +85,7 @@
       </attribute>
       <column>
        <property name="text">
-        <string>Arrival Time</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Destination</string>
+        <string>Train ID</string>
        </property>
       </column>
       <column>
@@ -100,12 +95,17 @@
       </column>
       <column>
        <property name="text">
-        <string>Train ID</string>
+        <string>Current Position</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>Current Position</string>
+        <string>Destination</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Arrival Time</string>
        </property>
       </column>
      </widget>
@@ -8748,7 +8748,7 @@ Simulation</string>
        </property>
       </widget>
      </widget>
-     <widget class="QGroupBox" name="ManGroupBox_2">
+     <widget class="QGroupBox" name="ManGroupBox">
       <property name="geometry">
        <rect>
         <x>20</x>
@@ -9049,9 +9049,22 @@ Arrival Time</string>
          <pointsize>10</pointsize>
         </font>
        </property>
+       <property name="columnCount">
+        <number>1</number>
+       </property>
+       <attribute name="horizontalHeaderVisible">
+        <bool>false</bool>
+       </attribute>
+       <attribute name="horizontalHeaderDefaultSectionSize">
+        <number>200</number>
+       </attribute>
+       <attribute name="verticalHeaderHighlightSections">
+        <bool>true</bool>
+       </attribute>
+       <column/>
       </widget>
      </widget>
-     <widget class="QGroupBox" name="AutoGroupBox_2">
+     <widget class="QGroupBox" name="AutoGroupBox">
       <property name="geometry">
        <rect>
         <x>20</x>
@@ -9080,7 +9093,7 @@ Arrival Time</string>
        <bool>true</bool>
       </property>
       <property name="checked">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <widget class="QLabel" name="ImportSchedLabel">
        <property name="geometry">
