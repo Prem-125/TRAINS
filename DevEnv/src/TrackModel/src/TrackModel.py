@@ -471,7 +471,7 @@ class Track:
 					#set the flag
 					station_done = True
 					#print(atrib)
-					#self.generate_boarding()
+				
 					#print(self.get_beacon())
 					#print("Station is" ,self.get_station_name())
 				elif station_done == False:
@@ -802,22 +802,15 @@ class MainWindow(QMainWindow):
 
 		#Train ends always ends at yard
 		self.route_queue_red.append(0)
-		
 
-
-		
-		
 		#initialize the table
 		self.ui.green_line_table.setColumnCount(2)
 		self.ui.green_line_table.setRowCount(len(self.track_list_green))
 		
 		self.ui.red_line_table.setColumnCount(2)
 		self.ui.red_line_table.setRowCount(len(self.track_list_red))
-		
-		#for i in range(0, len(self.track_list)+1):
-			#self.ui.green_line_table.insertRow(i)
-		
-		#default load block 63 on the geen line
+				
+		#default load block 63 on the geen line and 9 on the red line
 		if self.ui.upTrackGreen.isChecked() == True:
 			self.update_track_info_green(63)
 		else:	
@@ -874,7 +867,7 @@ class MainWindow(QMainWindow):
 			self.update_track_info_red(self.current_block_red)
 
 		
-	#function to update from wayside
+	#function to update from wayside commanded speed and authroity
 	def get_wayside_info(self, line_in, block_in, authority_in, commanded_speed_in): 
 		
 		
@@ -902,6 +895,7 @@ class MainWindow(QMainWindow):
 		
 		print("Sending occupancy to wayside")
 
+	#signal for getting the track lights from the wayside
 	def get_wayside_signals(self, line_in, block_in, signal_in):
 		if(signal_in == 0):
 			temp = 'Go'
@@ -929,6 +923,7 @@ class MainWindow(QMainWindow):
 			if(len(self.track_list_red)!= 1):
 				self.track_list_red[block_in].set_crossing_status(status_in)
 				self.update_track_info_red(self.current_block_red)
+
 		
 	def get_wayside_crossing_light(self, line_in, block_in, status_in):
 		if(line_in == "Green"):
@@ -941,7 +936,7 @@ class MainWindow(QMainWindow):
 				self.update_track_info_red(self.current_block_red)
 
 
-
+	#signal from the ctc that reopens a block
 	def get_open_block(self, line_in, in_block): 
 		if(line_in == "Green"):
 			self.track_list_green[in_block].set_rail_condition(True)
@@ -976,7 +971,7 @@ class MainWindow(QMainWindow):
 		self.current_block_green=inputTrackBlock
 		self.update_track_info_green(inputTrackBlock)
 	
-	
+	#
 	def cause_rail_fail_green(self):
 		#toggle status
 		temp = not self.track_list_green[self.current_block_green].get_rail_condition()
@@ -995,7 +990,8 @@ class MainWindow(QMainWindow):
 			self.track_list_green[self.current_block_green].set_occupied(False)
 			self.update_track_info_green(self.current_block_green)
 			print("RAIL Fixed on BLOCK ", self.current_block_green) 
-
+	
+	#function to cuase a circuit failure
 	def cause_circuit_fail_green(self):
 		#toggle status
 		temp = not self.track_list_green[self.current_block_green].get_circuit_condition()
@@ -1030,7 +1026,7 @@ class MainWindow(QMainWindow):
 			self.update_track_info_green(self.current_block_green)
 			print("POWER Fixed on BLOCK ", self.current_block_green) 
 			
-	
+	#function to toggle the track heater 
 	def toggle_heater_green(self):
 		temp = not self.track_list_green[self.current_block_green].get_heater_status()
 		for i in range(1, len(self.track_list_green)):	
@@ -1067,9 +1063,6 @@ class MainWindow(QMainWindow):
 		
 	
 	def swap_switch(self, line_in, stem_in, branch_in): 
-		'''if(self.track_list[self.current_block_green].get_is_switch() == True):
-			temp = not self.track_list[self.current_block_green].switch_list[Track.switch_num].get_switch_position()
-			self.track_list[self.current_block_green].switch_list[Track.switch_num].set_switch_position(temp)'''
 		print("swapping switch")
 		
 		if line_in == "Green":
@@ -1107,15 +1100,7 @@ class MainWindow(QMainWindow):
 			#print(self.track_list[i].get_block())
 			if self.track_list_green[i].get_is_switch()==False and  self.track_list_green[i].get_is_switch_leg()==False :						
 				#print("block " + str(i) + " is not a switch")
-				'''if i == 1:
-					print("first block not a switch")
-					self.track_list[i].set_connection_track_a(None)
-					self.track_list[i].set_connection_track_b(self.track_list[i+1])
-				
-				if i == self.num_lines or self.track_list[i].get_is_station()==True:
-					self.track_list[i].set_connection_track_a(self.track_list[i-1])
-					self.track_list[i].set_connection_track_b(None)
-				else:'''
+			
 				self.track_list_green[i].set_connection_track_a(self.track_list_green[i-1])
 				self.track_list_green[i].set_connection_track_b(self.track_list_green[i+1])
 							
@@ -1130,17 +1115,10 @@ class MainWindow(QMainWindow):
 					else:	
 						self.track_list_green[i].set_connection_track_a(self.track_list_green[i-1])
 						self.track_list_green[i].set_connection_track_b(self.track_list_green[Track.switch_list[self.track_list_green[i].get_switch_index()].get_y_zero()])
-					
-					#self.track_list[i].set_connection_track_a(self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_stem()])
-					#self.track_list[i].set_connection_track_b(self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_zero()])
-					#self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_one()].set_connection_track_a(None)
+				
 				
 				if self.track_list_green[i].switch_list[self.track_list_green[i].get_switch_index()].get_switch_position() == True:
 
-					'''self.track_list[i].set_connection_track_a(self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_stem()])
-					self.track_list[i].set_connection_track_b(self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_one()])
-					self.track_list[Track.switch_list[self.track_list[i].get_switch_index()].get_y_zero()].set_connection_track_a(None)	'''
-				
 					if (self.track_list_green[i].switch_list[self.track_list_green[i].get_switch_index()].get_y_zero() < self.track_list_green[i].get_block()) or (self.track_list_green[i].switch_list[self.track_list_green[i].get_switch_index()].get_y_one() < self.track_list_green[i].get_block()):
 						self.track_list_green[i].set_connection_track_b(self.track_list_green[i+1])
 						self.track_list_green[i].set_connection_track_a(self.track_list_green[Track.switch_list[self.track_list_green[i].get_switch_index()].get_y_one()])
@@ -1172,13 +1150,6 @@ class MainWindow(QMainWindow):
 				#CURRENTLY DO NOT SET NULL FOR LEGS
 			
 			i+=1
-		
-		'''for j in range (1,len(self.track_list_green)):
-			#this prints all the connections for debug
-			try:
-				print(self.track_list_green[j].get_block()," Con A = ", self.track_list_green[j].get_connection_track_a().get_block(), " Con B = ",self.track_list_green[j].get_connection_track_b().get_block())
-			except:
-				print(self.track_list_green[j].get_block())'''
 
 		#update every label with relevant information
 		self.ui.selTrackSection.setText(str(self.track_list_green[blckNum].get_line()))
@@ -1218,10 +1189,14 @@ class MainWindow(QMainWindow):
 		if(self.track_list_green[blckNum].get_is_crossing() == True):
 			self.ui.sigCrossBarrier.setChecked(self.track_list_green[blckNum].get_crossing_status())
 			self.ui.sigCrossLights.setChecked(self.track_list_green[blckNum].get_crossing_light())
-		else:
-			self.ui.selTrackCross.setText('Not a crossing')
 		
 		if(self.track_list_green[blckNum].get_is_crossing() == True):
+			self.ui.selTrackCross.setText('Yes')
+		else:
+			self.ui.selTrackCross.setText('No')	
+
+
+		if(self.track_list_green[blckNum].get_is_branch() == True):
 			self.ui.selTrackBranch.setText('Yes')
 		else:
 			self.ui.selTrackBranch.setText('No')	
@@ -1249,8 +1224,6 @@ class MainWindow(QMainWindow):
 		self.ui.selTrackCircStat.setText(str(self.track_list_green[blckNum].get_circuit_condition()))
 		self.ui.selTrackPowerStat.setText(str(self.track_list_green[blckNum].get_power_condition()))
 		
-		if(self.track_list_green[blckNum].get_is_crossing()):
-			self.track_list_green[blckNum].set_signal_light == 'Slow'
 		
 		#railSignal
 		if(self.track_list_green[blckNum].get_signal_light() == 'Go'):
@@ -1423,9 +1396,9 @@ class MainWindow(QMainWindow):
 		if(self.track_list_red[blckNum].get_is_crossing() == True):
 			self.ui.sigCrossBarrier_red.setChecked(self.track_list_red[blckNum].get_crossing_status())
 			self.ui.sigCrossLights_red.setChecked(self.track_list_red[blckNum].get_crossing_light())
-			
+			self.ui.selTrackCross_red.setText('Yes')
 		else:
-			self.ui.selTrackCross_red.setText('Not a crossing')
+			self.ui.selTrackCross_red.setText('No')
 		
 		if(self.track_list_red[blckNum].get_is_branch() == True):
 			self.ui.selTrackBranch_red.setText('Yes')
