@@ -164,6 +164,7 @@ class Track:
 		#crossing Variables
 		self.is_crossing = 0
 		self.crossing_status = 0
+		self.crossing_light = 0
 
 		#branch variable
 		self.is_branch = 0
@@ -385,6 +386,11 @@ class Track:
 		return self.crossing_status
 	def set_crossing_status(self, in_condition):
 		self.crossing_status = in_condition
+
+	def get_crossing_light(self):
+		return self.crossing_light
+	def set_crossing_light(self, in_condition):
+		self.crossing_light = in_condition
 
 	def get_is_branch(self):
 		return self.is_branch
@@ -727,8 +733,8 @@ class MainWindow(QMainWindow):
 		signals.wayside_block_open.connect(self.get_open_block)
 		signals.track_switch_position.connect(self.swap_switch)
 		signals.wayside_signal_light.connect(self.get_wayside_signals)
-		signals.crossing_activation.connect(self.get_wayside_crossing)
-
+		signals.crossing_gate_activation.connect(self.get_wayside_crossing_barrier)
+		signals.crossing_light_activation.connect(self.get_wayside_crossing_light)
 
 		#if green line 
 		#Code to generate Green route		
@@ -905,19 +911,32 @@ class MainWindow(QMainWindow):
 			temp = 'Stop'
 
 		if(line_in == "Green"):
-			self.track_list_green[in_block].set_signal_light(temp)
+			if(len(self.track_list_green)!= 1):
+				self.track_list_green[block_in].set_signal_light(temp)
+				self.update_track_info_green(self.current_block_green)
+		else:
+			#print('_________________________________' + str(len(self.track_list_red)))
+			if(len(self.track_list_red)!= 1):
+				self.track_list_red[block_in].set_signal_light(temp)
+				self.update_track_info_red(self.current_block_red)
+
+	def get_wayside_crossing_barrier(self, line_in, block_in, status_in):		
+		if(line_in == "Green"):
+			self.track_list_green[block_in].set_crossing_status(status_in)
 			self.update_track_info_green(self.current_block_green)
 		else:
-			self.track_list_red[in_block].set_signal_light(temp)
+			self.track_list_red[block_in].set_crossing_status(status_in)
+			self.update_track_info_red(self.current_block_red)
+	
+	def get_wayside_crossing_light(self, line_in, block_in, status_in):
+		if(line_in == "Green"):
+			self.track_list_green[block_in].set_crossing_light(status_in)
+			self.update_track_info_green(self.current_block_green)
+		else:
+			self.track_list_red[block_in].set_crossing_light(status_in)
 			self.update_track_info_red(self.current_block_red)
 
-	def get_wayside_crossing(self, line_in, block_in, status_in):		
-		if(line_in == "Green"):
-			self.track_list_green[in_block].set_crossing_status(status_in)
-			self.update_track_info_green(current_block_green)
-		else:
-			self.track_list_red[in_block].set_crossing_status(status_in)
-			self.update_track_info_red(current_block_red)
+
 
 	def get_open_block(self, line_in, in_block): 
 		if(line_in == "Green"):
@@ -1061,7 +1080,7 @@ class MainWindow(QMainWindow):
 	def update_track_info_green(self,blckNum):
 		
 		#update the table with current occupied blocks
-		print("track model updating green line")
+		#print("track model updating green line")
 		self.ui.green_line_table.setItem(0,0, QTableWidgetItem("Block Number"))
 		self.ui.green_line_table.setItem(0,1, QTableWidgetItem("Status"))	
 		
@@ -1191,10 +1210,8 @@ class MainWindow(QMainWindow):
 			self.ui.train_people_boarding.display(0)
 			
 		if(self.track_list_green[blckNum].get_is_crossing() == True):
-			if(self.track_list_green[blckNum].get_crossing_status() == False):
-				self.ui.selTrackCross.setText('Barrier Up')
-			else:
-				self.ui.selTrackCross.setText('Barrier Down')
+			self.ui.sigCrossBarrier.setChecked(self.track_list_green[blckNum].get_crossing_status())
+			self.ui.sigCrossLights.setChecked(self.track_list_green[blckNum].get_crossing_light())
 		else:
 			self.ui.selTrackCross.setText('Not a crossing')
 		
@@ -1268,7 +1285,7 @@ class MainWindow(QMainWindow):
 	def update_track_info_red(self,blckNum):
 		
 		#update the table with current occupied blocks
-		print("track model updating red line")
+		#print("track model updating red line")
 		self.ui.red_line_table.setItem(0,0, QTableWidgetItem("Block Number"))
 		self.ui.red_line_table.setItem(0,1, QTableWidgetItem("Status"))	
 		
@@ -1398,12 +1415,11 @@ class MainWindow(QMainWindow):
 			self.ui.train_people_boarding_red.display(0)
 			
 		if(self.track_list_red[blckNum].get_is_crossing() == True):
-			if(self.track_list_red[blckNum].get_crossing_status() == False):
-				self.ui.selTrackCross_red.setText('Barrier Up')
-			else:
-				self.ui.selTrackCross_red.setText('Barrier Down')
+			self.ui.sigCrossBarrier_red.setChecked(self.track_list_red[blckNum].get_crossing_status())
+			self.ui.sigCrossLights_red.setChecked(self.track_list_red[blckNum].get_crossing_light())
+			
 		else:
-			self.ui.selTrackCross.setText('Not a crossing')
+			self.ui.selTrackCross_red.setText('Not a crossing')
 		
 		if(self.track_list_red[blckNum].get_is_branch() == True):
 			self.ui.selTrackBranch_red.setText('Yes')
