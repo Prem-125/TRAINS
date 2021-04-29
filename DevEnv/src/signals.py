@@ -32,7 +32,7 @@ class SignalsClass(QObject):
 
 
     #Signals exchanged between wayside and track model
-    track_model_occupancy = Signal(int, bool)
+    track_model_occupancy = Signal(str, int, bool) # Parameters are line name, block number, occupancy status
     wayside_to_track = Signal(int, int, float) # Block Num, Auth, Cmd Speed
     #functions to send to wayside telling the line, block number, and failure type 
     #0=rail failure, 1=circuit failure, 2=power_failure
