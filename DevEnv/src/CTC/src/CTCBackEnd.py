@@ -72,6 +72,7 @@ class Train:
         #Initialize Block instance variables
         self.number = train_number
         self.destination_list = dest_block_list #Block Numbers
+        print("Number of destinations within train is " + str(len(self.destination_list)))
         self.HostTrackLine = TrackLineObj #String
         self.arrival_times = dest_arrival_times   #Seconds
         self.departure_time = train_departure_time #Seconds
@@ -522,18 +523,19 @@ class Schedule:
         arrival_times = []
 
         #Loop through first four trains
-        for col in range(32, 35):
+        for col in range(31, 34):
             #Loop through contents of column row-size
             for row in range(1, exl_sheet.nrows):
-                print("\n" + str(exl_sheet.cell_value(row, col-26)))
-                if("STATION" in str(exl_sheet.cell_value(row, col-26))):
+                print("\n" + str(exl_sheet.cell_value(row, 6)))
+                if("STATION" in str(exl_sheet.cell_value(row, 6))):
                     #Add block to destination list
-                    dest_block_list.append( int(exl_sheet.cell_value(row, col-2)) )
+                    dest_block_list.append( int(exl_sheet.cell_value(row, 2)) )
+                    print("\n" + str(exl_sheet.cell_value(row, 2)))
 
                     #Convert arrival time to seconds
                     input_time = exl_sheet.cell_value(row, col)
-                    parsed_input_time = input_time.split(":")
-                    train_arrival_time = int(parsed_input_time[0])*3600 + int(parsed_input_time[1])*60
+                    print("\n" + str( repr(exl_sheet.cell_value(row, col)) ))
+                    train_arrival_time = float(input_time)*86400
 
                     #Add arrival times to list
                     arrival_times.append(train_arrival_time)
@@ -549,9 +551,19 @@ class Schedule:
             #Compute train departure time
             train_departure_time = train_arrival_time - dest_travel_times[0]
 
+            print("Number of backend destinations is " + str(len(dest_block_list)))
+
+            #Perform deep copy of destination list
+            temp_dest_list = dest_block_list[:]
+
             #If travel parameters have been verified, add train object to the schedule's train list
-            self.train_list.append( Train(col-30, dest_block_list, TrackLineObj, arrival_times, train_departure_time) )
+            self.train_list.append( Train(col-30, temp_dest_list, TrackLineObj, arrival_times, train_departure_time) )
+
+            #Clear destination list for next train
+            dest_block_list.clear()
+            
         #End col loop
+
     #End method
 
 
