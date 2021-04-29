@@ -101,11 +101,8 @@ class TrainController:
         self.SR.previous_speed = self.SR.current_speed
         self.SR.current_speed = current_speed
         self.SR.DetectEngineFailure(current_speed)
-
         self.SR.DetectBrakeFailure()
 
-
-        
         #If we reach a station and our current speed is 0, open doors and all that jazz
         if(self.upcoming_station and self.SR.current_speed == 0):
             
@@ -328,6 +325,7 @@ class TrainController:
             #self.set_service_brake(True)
             #edited just now
            # print("one true in authority handler")
+        
 
         else:
             self.SendAdvertisement()
@@ -377,6 +375,7 @@ class SpeedRegulator():
         self.emergency_brake = False
         self.train_ID = train_ID
         self.TrainController = TrainController
+        self.safety_margin = 4
 
 
         #variables for main PID loop
@@ -508,7 +507,7 @@ class SpeedRegulator():
         if(self.power == 0):
             return self.power
         elif(not(self.power == 0 or self.power_backup == 0)):
-            if(self.TrainController.is_auto and (self.power / self.power_backup > 4)):
+            if(self.TrainController.is_auto and (self.power / self.power_backup > self.safety_margin)):
                 print("TOO MUCH POWER DIFFERENCE")
                 return 0
                 self.VitalFault()
