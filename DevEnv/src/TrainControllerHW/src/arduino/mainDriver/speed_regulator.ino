@@ -9,7 +9,7 @@ double power = 0.0;
 double power2 = 0.0;
 double setpoint = 0.0;
 float kp = 25000.0;
-float ki = 1000.0;
+float ki = 750.0;
 float SafetyMargin = 4.0;
 int auth = 1;
 AutoPID powLoop2(&curVel, &setpoint, &power2, 0, 120000, kp, ki/1.7, 0);
@@ -53,7 +53,7 @@ double calcPower(){
     SBrakeReg = false;
   }
 
-  if(auth ==0){
+  if(auth ==0 || cmdVel == 0.0){
     power =0;
     power2 = 0;
     set_SBrake(true); 

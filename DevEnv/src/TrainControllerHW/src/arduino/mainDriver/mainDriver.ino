@@ -1,4 +1,6 @@
 
+  
+
 #include <PID_v1.h>
 #include "pinMaps.h"
 #include <Wire.h> 
@@ -47,6 +49,7 @@ bool OnPowLCD = false;
 const String  Stations[] = {"Shadyside","Herron Ave","Swissville","Penn Station","Steel Plaza","First Ave","Station Square","South Hills Junction", 
                             "Pioneer","Edgebrook","Whited","South Bank","Central","Inglewood","Overbrook","Glenburry","Dormont","Mt Lebanon", "Poplar","Castle Shannon"};
 String announcement = "No Announcement at this Time";
+String StationAnnouncement = "";
 String Ads[] = {"Choose Duquesne Light for all your home power needs", "Universtiy of Pittsburgh, a quality education", "Save money Today at Walmart!", "Thank you for riding the North Shore Expansion" };
 int timeCount = 0;
 int adIndex = 0;
@@ -369,16 +372,16 @@ void decodeBeacon(){
   ExtLightsOn = (beaconEnc >> 3) & 1;
   String station = Stations[((beaconEnc >> 4) & 31)];
   if(UpcomingStation){
-  announcement = "Arriving at " + station + " Station. The doors will open on the ";
+  StationAnnouncement = "Arriving at " + station + " Station. The doors will open on the ";
   if(BLDoorsOpen && BRDoorsOpen){
     announcement += "Left and Right.\n";
   }else if (BLDoorsOpen){
-    announcement += "Left.\n";
+    StationAnnouncement += "Left.\n";
   }else{
-    announcement += "Right.\n";
+    StationAnnouncement += "Right.\n";
   }
   } else {
-    announcement = "No upcoming Station at this time";
+    StationAnnouncement = "No upcoming Station at this time";
   }
 }
 

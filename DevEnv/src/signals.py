@@ -22,7 +22,7 @@ class SignalsClass(QObject):
 
 
     #Signals exchanged between CTC and wayside
-    CTC_occupancy = Signal(str, int, bool) #Paramter is block number
+    CTC_occupancy = Signal(str, int, bool) #Paramters are line name, block number, occupancy
     CTC_authority = Signal(str, int, bool) #Paramters are track line, block number, and authority
     CTC_failure = Signal(str, int, int) #Paramters are track line, track block, and failure mode
     CTC_suggested_speed = Signal(str, int, int)  #Parameters are track line, track block, and suggested speed
@@ -32,14 +32,15 @@ class SignalsClass(QObject):
 
 
     #Signals exchanged between wayside and track model
-    track_model_occupancy = Signal(int, bool)
-    wayside_to_track = Signal(int, int, float) # Block Num, Auth, Cmd Speed
+    track_model_occupancy = Signal(str, int, bool) # Parameters are line name, block number, occupancy status
+    wayside_to_track = Signal(str, int, int, float) # Parameters are line name, Block Num, Auth, Cmd Speed
     #functions to send to wayside telling the line, block number, and failure type 
     #0=rail failure, 1=circuit failure, 2=power_failure
-    track_break = Signal(str, int, int)
-    wayside_block_open = Signal(str, int)
+    track_break = Signal(str, int, int) # Parameters are line name, block number, block closure
+    wayside_block_open = Signal(str, int) # Parameters are line name, block number
     track_switch_position = Signal(str, int, int) # Parameters are Line Name, switch stem, current branch
-
+    crossing_activation = Signal(str, int, bool) # Parameters are line name, block num, activate/deactivate bool
+    wayside_signal_light = Signal(str, int, int) #parameters are line name, block num, and signal light status
 
     need_new_block = Signal(int,int) #block num and trainID train model sends to track model
     new_block = Signal(int, int, float, int) #block number, block length, block slope and trainID ---Track model sends to train model
