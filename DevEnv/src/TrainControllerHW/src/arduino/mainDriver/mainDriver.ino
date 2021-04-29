@@ -7,10 +7,10 @@
 #include <string.h>
 #include <LiquidCrystal_I2C.h>
 LiquidCrystal_I2C lcd(0x27,20,4);  // set the LCD address to 0x27 for a 20 chars and 4 line display
-unsigned int ToggleBtnStates = 0;
-unsigned int ToggleStates = 32;
-unsigned int CntrlBtnStates = 0; 
-int LCDViewIndex = 6;
+unsigned int toggle_btn_states = 0;
+unsigned int toggle_states = 32;
+unsigned int cntrl_btn_states = 0; 
+int lcd_view_index = 6;
 
 void LCDSpeed();
 void LCDBeacon();
@@ -23,7 +23,7 @@ void TempDown();
 void SpeedUp();
 void SpeedDown();
 
-void (*funcSel[10])() = { SpeedDown , SpeedUp, SendAnnounce,  TempUp, LCDBeacon, LCDTemp, 
+void (*func_sel[10])() = { SpeedDown , SpeedUp, SendAnnounce,  TempUp, LCDBeacon, LCDTemp, // array of functions to call depending on what buttons are pressed. 
                         LCDSpeed, LCDAuth, LCDPower, TempDown };
 
 
@@ -32,180 +32,182 @@ char readbuff[70];
 
 
 bool refresh = true;
-long long TCEnc;
-int beaconEnc;
-long long kpkienc;
+long long tc_enc;
+int beacon_enc;
+long long kpki_enc;
 
 int temperature = 72;
 int flags; 
-bool BLDoorsOpen;
-bool BRDoorsOpen;
-bool ExtLightsOn;
-bool StopAtStation = false;
-bool LDoorsOpen;
-bool RDoorsOpen;
-bool UpcomingStation = false;
-bool OnPowLCD = false;
-const String  Stations[] = {"Shadyside","Herron Ave","Swissville","Penn Station","Steel Plaza","First Ave","Station Square","South Hills Junction", 
+bool b_l_doors_open;
+bool b_r_doors_open;
+bool ext_lights_on;
+bool stop_at_station = false;
+bool l_doors_open;
+bool r_doors_open;
+bool upcoming_station = false;
+bool on_pow_lcd = false;
+const String  stations[] = {"Shadyside","Herron Ave","Swissville","Penn Station","Steel Plaza","First Ave","Station Square","South Hills Junction", 
                             "Pioneer","Edgebrook","Whited","South Bank","Central","Inglewood","Overbrook","Glenburry","Dormont","Mt Lebanon", "Poplar","Castle Shannon"};
 String announcement = "No Announcement at this Time";
-String StationAnnouncement = "";
-String Ads[] = {"Choose Duquesne Light for all your home power needs", "Universtiy of Pittsburgh, a quality education", "Save money Today at Walmart!", "Thank you for riding the North Shore Expansion" };
-int timeCount = 0;
-int adIndex = 0;
+String station_announcement = "";
+String ads[] = {"Choose Duquesne Light for all your home power needs", "Universtiy of Pittsburgh, a quality education", "Save money Today at Walmart!", "Thank you for riding the North Shore Expansion" };
+int time_count = 0;
+int ad_index = 0;
 void setup() {
   Serial.begin(115200);
   Serial.setTimeout(1);
-  pinSetup();
+  PinSetup();
   for (int i = 0; i < NUMLED; i++)
-  digitalWrite(LEDs[i],LOW);
+  digitalWrite(leds[i],LOW);
   lcd.init();  //initialize the lcd
   lcd.backlight();  //open the backlight
-  initPID();
+  InitPID();
 
 
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  readToggleBtns();
-  updateToggleStates();
-  readCntrlBtns();
-  processCntrlBtns();
+  // button handling functions 
+  ReadToggleBtns();
+  UpdateToggleStates();
+  ReadCntrlBtns();
+  ProcessCntrlBtns();
 
-  serialRead();
+  SerialRead();
   
-  if(refresh || OnPowLCD){
-  (*funcSel[LCDViewIndex])(); // Refreshes LCD incase data changed from serial comms 
+  if(refresh || on_pow_lcd){
+  (*func_sel[lcd_view_index])(); // Refreshes LCD incase data changed from serial comms 
   refresh = false;
   };
   
-  if (get_AutoMode()){
-  autoOps();
+  if (get_auto_mode()){
+  AutoOps(); // override doors and force beacon lights
   }
+
+  //update UI
+  UpdateToggleLEDs();
   
-  updateToggleLEDs();
   SendToggleStates();
   SendTemperature();
-  if(timeCount %10 == 0){
-    sendAds();
+  if(time_count %20 == 0){//sends an add every 4 seconds 
+    SendAds();
   }
 
 //  lcd.clear();
 //  lcd.setCursor(0,0);
-//  lcd.print(ToggleBtnStates);
+//  lcd.print(toggle_btn_states);
 //  lcd.setCursor(0,1);
-//  lcd.print(CntrlBtnStates);
-  timeCount++;
+//  lcd.print(cntrl_btn_states);
+  time_count++;
   delay(200);
 }
 
-void sendAds(){
-  if(!StopAtStation){
-    announcement = Ads[adIndex % 4];
-    adIndex++;
+void SendAds(){
+  if(!stop_at_station){
+    announcement = ads[ad_index % 4];
+    ad_index++;
     SendAnnouncement();
   }
 }
 
-void pinSetup(){
+void PinSetup(){
 
-// buttons  all use the internal pullup, inverted logic
-for (int i =0; i < NUMBTN; i++)
-  pinMode(Buttons[i],INPUT_PULLUP);
+  // buttons  all use the internal pullup, inverted logic
+  for (int i =0; i < NUMBTN; i++)
+    pinMode(buttons[i],INPUT_PULLUP);
+  
+  //Leds 
+  for (int i = 0; i < NUMLED; i++)
+    pinMode(leds[i],OUTPUT);
+  
+  }
 
-//Leds 
-for (int i = 0; i < NUMLED; i++)
-  pinMode(LEDs[i],OUTPUT);
-
-}
-
-void readToggleBtns(){
-  ToggleBtnStates = 0;
+void ReadToggleBtns(){
+  toggle_btn_states = 0;
   int temp = 0;
   for (int i =0; i < NUMTOGGLE; i++){
-      //Serial.println((!(digitalRead(Buttons[i])& 1)));
-      ToggleBtnStates += long(!(digitalRead(Buttons[i])& 1)) << i;
+      //Serial.println((!(digitalRead(buttons[i])& 1)));
+      toggle_btn_states += long(!(digitalRead(buttons[i])& 1)) << i;
   }
 }
 
-void readCntrlBtns(){
-  CntrlBtnStates = 0;
+void ReadCntrlBtns(){
+  cntrl_btn_states = 0;
   int temp = 0;
   for (int i =NUMTOGGLE; i < NUMBTN; i++){
-      //Serial.println((!(digitalRead(Buttons[i])& 1)));
-      CntrlBtnStates += long(!(digitalRead(Buttons[i])& 1)) << i-NUMTOGGLE;
+      //Serial.println((!(digitalRead(buttons[i])& 1)));
+      cntrl_btn_states += long(!(digitalRead(buttons[i])& 1)) << i-NUMTOGGLE;
   }
 }
 
-void updateToggleStates(){
-    ToggleStates ^= (ToggleBtnStates & int(pow(2,NUMTOGGLE)- 1));
-    set_AutoMode((ToggleStates >> 5) & 1);
-    set_SBrake((ToggleStates >> 2) & 1);
-    LDoorsOpen = (ToggleStates >> 4) & 1;
-    RDoorsOpen = (ToggleStates >> 3) & 1;
-    set_EBrake((ToggleStates >> 7) & 1);
-    set_PEBrake((ToggleStates >> 6) & 1);
+void UpdateToggleStates(){
+    toggle_states ^= (toggle_btn_states & int(pow(2,NUMTOGGLE)- 1));
+    set_auto_mode((toggle_states >> 5) & 1);
+    set_s_brake((toggle_states >> 2) & 1);
+    l_doors_open = (toggle_states >> 4) & 1;
+    r_doors_open = (toggle_states >> 3) & 1;
+    set_e_brake((toggle_states >> 7) & 1);
+    set_pe_brake((toggle_states >> 6) & 1);
     
 }
-void autoOps(){
-ToggleStates &=~(1 << 3); // Override Right Door 
-ToggleStates &=~( 1 << 4); // Override Left Door
-if(ExtLightsOn)  
-ToggleStates |=(3); // Force lights on if needed
-if(StopAtStation && get_curVel() == 0){
-  stationSequence();
-}
-}
-
-
-
-
-
-
-
-void stationSequence(){// rework
-if(BRDoorsOpen)
-ToggleStates |= 1 << 3; // Open Right Door if needed
-if(BLDoorsOpen)
-ToggleStates |= 1 << 4; // Open Left Door if needed
-updateToggleLEDs ();
-SendToggleStates();
-delay(5000);
-ToggleStates &=~(1 << 3); // Close Right Door 
-ToggleStates &=~( 1 << 4); // Close Left Door 
-set_SBrake(false);
-
-updateToggleLEDs ();
-SendToggleStates();
-UpcomingStation=false;
-StopAtStation = false;
-
+void AutoOps(){
+  toggle_states &=~(1 << 3); // Override Right Door 
+  toggle_states &=~( 1 << 4); // Override Left Door
+  if(ext_lights_on)  
+  toggle_states |=(3); // Force lights on if needed
+  if(stop_at_station && get_cur_vel() == 0){
+    StationSequence();
+  }
 }
 
-void updateToggleLEDs() {
+
+
+
+
+
+
+void StationSequence(){
+  if(b_r_doors_open)
+    toggle_states |= 1 << 3; // Open Right Door if needed
+  if(b_l_doors_open)
+    toggle_states |= 1 << 4; // Open Left Door if needed
+  UpdateToggleLEDs ();
+  SendToggleStates();
+  //delay(5000);
+ // toggle_states &=~(1 << 3); // Close Right Door 
+ // toggle_states &=~( 1 << 4); // Close Left Door 
+  //set_s_brake(false);
+  
+  UpdateToggleLEDs ();
+  SendToggleStates();
+  upcoming_station=false;
+  stop_at_station = false;
+
+}
+
+void UpdateToggleLEDs() {
 
   for (int i = 0; i < NUMTOGGLE; i++){
-    digitalWrite(LEDs[i],(ToggleStates >> i) & 1);
+    digitalWrite(leds[i],(toggle_states >> i) & 1);
   }
-  if((LDoorsOpen || RDoorsOpen) & get_curVel() != 0){
-    digitalWrite(LEDs[3],LOW);
-    digitalWrite(LEDs[4],LOW);
+  if((l_doors_open || r_doors_open) & get_cur_vel() != 0){
+    digitalWrite(leds[3],LOW);
+    digitalWrite(leds[4],LOW);
     lcd.clear();
     lcd.print("Cant open doors while moving");
-    ToggleStates &=~(1 << 3); // Close Right Door 
-    ToggleStates &=~( 1 << 4); // Close Left Door 
+    toggle_states &=~(1 << 3); // Close Right Door 
+    toggle_states &=~( 1 << 4); // Close Left Door 
     delay(1000);
     refresh = true;
 
   }
 }
 
-void processCntrlBtns(){
+void ProcessCntrlBtns(){
   for (int i = 0; i < NUMBTN - NUMTOGGLE; i++){
-    if(((CntrlBtnStates >> i) & 1) == 1){
-      LCDViewIndex = i;
-      (*funcSel[i])();
+    if(((cntrl_btn_states >> i) & 1) == 1){
+      lcd_view_index = i;
+      (*func_sel[i])();
       
       break;
     }
@@ -219,22 +221,22 @@ void LCDSpeed(){
    lcd.setCursor ( 0, 0 );          
   lcd.print("Cmd Vel: "); 
   lcd.setCursor ( 9, 0 );            
-  lcd.print(get_cmdVel() * 2.23);
+  lcd.print(get_cmd_vel() * 2.23);
   lcd.setCursor ( 15, 0 );            
   lcd.print("MPH");
   lcd.setCursor(0,1);
   lcd.print("Set Vel: ");
   lcd.setCursor(9,1);
-  lcd.print(get_setpointVel() * 2.23 ); 
+  lcd.print(get_setpoint_vel() * 2.23 ); 
   lcd.setCursor ( 15, 1 );            
   lcd.print("MPH");
   lcd.setCursor(0,2);
   lcd.print("Cur Vel: ");
   lcd.setCursor(9,2);
-  lcd.print(get_curVel()* 2.23);
+  lcd.print(get_cur_vel()* 2.23);
   lcd.setCursor ( 15, 2 );            
   lcd.print("MPH");  
-      OnPowLCD = false;
+      on_pow_lcd = false;
 
 }
 void LCDBeacon(){
@@ -263,31 +265,31 @@ void LCDBeacon(){
   }
   }
   
-      OnPowLCD = false;
+      on_pow_lcd = false;
 
 }
 void LCDTemp(){
-   lcd.clear();
+  lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("Set Temp is:");
-    lcd.setCursor(0,1);
+  lcd.setCursor(0,1);
   lcd.print(temperature);
-    lcd.setCursor(3,1);
+  lcd.setCursor(3,1);
   lcd.print("F");
-      OnPowLCD = false;
+  on_pow_lcd = false;
 
 }
 void LCDPower(){
-   lcd.clear();
+  lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("Power Output: ");
-    lcd.setCursor(0,1);
+  lcd.setCursor(0,1);
   lcd.print(get_power()/1000.0);
-   lcd.setCursor(7,1);
+  lcd.setCursor(7,1);
   lcd.print("kW");
-      lcd.setCursor(10,1);
+  lcd.setCursor(10,1);
   lcd.print(get_power2()/1000.0);
-   lcd.setCursor(15,1);
+  lcd.setCursor(15,1);
   lcd.print("kW");
   lcd.setCursor(0,2);
   lcd.print("Kp:");
@@ -297,19 +299,19 @@ void LCDPower(){
   lcd.print("Ki:");
   lcd.setCursor(4,3);
   lcd.print(get_ki());
-  LCDViewIndex = 8;
+  lcd_view_index = 8;
   refresh = true;
-  OnPowLCD = true;
+  on_pow_lcd = true;
 }
 void LCDAuth(){
-   lcd.clear();
+  lcd.clear();
   lcd.setCursor(0,1);
   lcd.print("Authourity: ");
   lcd.setCursor(0,2);
   lcd.print(get_auth() );
-    lcd.setCursor(8,2);
+  lcd.setCursor(8,2);
   lcd.print("block");
-    OnPowLCD = false;
+  on_pow_lcd = false;
 
 }
 void SendAnnounce(){
@@ -321,7 +323,7 @@ void TempUp(){
   }else {
     temperature = 80;
   }
-   LCDViewIndex = 5;
+   lcd_view_index = 5;
   refresh = true;
 }
 void TempDown(){
@@ -330,31 +332,31 @@ void TempDown(){
   }else {
     temperature = 60;
   }
-   LCDViewIndex = 5;
+   lcd_view_index = 5;
   refresh = true;
 }
 void SpeedUp(){
-  if (get_setpointVel() < get_cmdVel() - .45){
-    set_setpointVel(get_setpointVel()+.45);
+  if (get_setpoint_vel() < get_cmd_vel() - .45){ // checks bounds 1 mph incements 
+    set_setpoint_vel(get_setpoint_vel()+.45);
   }else {
-    set_setpointVel(get_cmdVel());
+    set_setpoint_vel(get_cmd_vel());
   }
-  LCDViewIndex = 6;
+  lcd_view_index = 6;
   refresh = true;
 
  
 }
 void SpeedDown(){
-    if (get_setpointVel() >.45){
-    set_setpointVel(get_setpointVel()-.45);
+    if (get_setpoint_vel() >.45){ // checks bounds 1 mph incements
+    set_setpoint_vel(get_setpoint_vel()-.45);
   }else {
-    set_setpointVel(0);
+    set_setpoint_vel(0);
   }
-  LCDViewIndex = 6;
+  lcd_view_index = 6;
   refresh = true;
 }
 
-long long atoll(const char* ptr) {
+long long atoll(const char* ptr) { //convert string to long
   long long result = 0;
   while (*ptr && isdigit(*ptr)) {
     result *= 10;
@@ -365,35 +367,35 @@ long long atoll(const char* ptr) {
 
 
 
-void decodeBeacon(){
-  UpcomingStation = beaconEnc & 1;
-  BLDoorsOpen = (beaconEnc >> 1) & 1;
-  BRDoorsOpen = (beaconEnc >> 2) & 1;
-  ExtLightsOn = (beaconEnc >> 3) & 1;
-  String station = Stations[((beaconEnc >> 4) & 31)];
-  if(UpcomingStation){
-  StationAnnouncement = "Arriving at " + station + " Station. The doors will open on the ";
-  if(BLDoorsOpen && BRDoorsOpen){
+void DecodeBeacon(){
+  upcoming_station = beacon_enc & 1;
+  b_l_doors_open = (beacon_enc >> 1) & 1;
+  b_r_doors_open = (beacon_enc >> 2) & 1;
+  ext_lights_on = (beacon_enc >> 3) & 1;
+  String station = stations[((beacon_enc >> 4) & 31)];
+  if(upcoming_station){
+    station_announcement = "Arriving at " + station + " Station. The doors will open on the ";
+  if(b_l_doors_open && b_r_doors_open){
     announcement += "Left and Right.\n";
-  }else if (BLDoorsOpen){
-    StationAnnouncement += "Left.\n";
+  }else if (b_l_doors_open){
+    station_announcement += "Left.\n";
   }else{
-    StationAnnouncement += "Right.\n";
+    station_announcement += "Right.\n";
   }
   } else {
-    StationAnnouncement = "No upcoming Station at this time";
+    station_announcement = "No upcoming Station at this time";
   }
 }
 
-void decodeKpKi(){
-float  kp = float(kpkienc & 0xFFFF) + float((kpkienc >> 16) & 0xFFFF)/1000.0 ;
-  float ki = float((kpkienc >> 32) & 0xFFFF) + float((kpkienc >> 48) & 0xFFFF)/1000.0 ;
+void DecodeKpKi(){
+  float  kp = float(kpki_enc & 0xFFFF) + float((kpki_enc >> 16) & 0xFFFF)/1000.0 ;
+  float ki = float((kpki_enc >> 32) & 0xFFFF) + float((kpki_enc >> 48) & 0xFFFF)/1000.0 ;
   set_kp(kp);
   set_ki(ki);
 }
 
-void serialRead(){
-  while(Serial.available() > 0){
+void SerialRead(){
+  while(Serial.available() > 0){// each communication is one line with the sel value then another with the actual data 
     int numRead = Serial.readBytesUntil('\n',readbuff,20);
     int sel = atoi(readbuff);
     memset(readbuff,0,sizeof readbuff); // clear buffer
@@ -403,24 +405,24 @@ void serialRead(){
     numRead = Serial.readBytesUntil('\n',readbuff,70);
     switch(sel){
       case 1: // Got CurVel
-              set_curVel(atof(readbuff));
-              SendPower(calcPower());
+              set_cur_vel(atof(readbuff));
+              SendPower(CalcPower());
               
               break;
       case 2: // Got TC
-              TCEnc = atoll(readbuff);
-              decodeTC(TCEnc);
+              tc_enc = atoll(readbuff);
+              DecodeTC(tc_enc);
               break;
       case 3:// Got Beacon
-              beaconEnc = atoi(readbuff);
-              decodeBeacon();
+              beacon_enc = atoi(readbuff);
+              DecodeBeacon();
               break;
       case 4: // got Kp and Ki
-              kpkienc = atoll(readbuff);
-              decodeKpKi();
+              kpki_enc = atoll(readbuff);
+              DecodeKpKi();
               break;
       case 5:
-              set_PEBrake(true);
+              set_pe_brake(true);
               break;
   }
       memset(readbuff,0,sizeof readbuff); // clear buffer
@@ -430,7 +432,7 @@ void serialRead(){
 
 void SendToggleStates(){
   Serial.println("1");
-  Serial.println(ToggleStates);
+  Serial.println(toggle_states);
 }
 
 void SendPower(double power){
@@ -451,9 +453,9 @@ void SendTemperature(){
 void SendFaults(){
   Serial.println("5");
   int faults = 0;
-  faults += int(get_BrakeFault());
-  faults += int(get_EngineFault()) << 1;
-  faults += int(get_TCFault()) << 2;
+  faults += int(get_brake_fault());
+  faults += int(get_engine_fault()) << 1;
+  faults += int(get_tc_fault()) << 2;
   Serial.println(faults);
   
 }

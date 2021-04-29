@@ -87,6 +87,7 @@ class TrainControllerHWInterface(QMainWindow):
 				#print(status)
 				self.announcement = status
 				self.ui.AnnounceVal.setPlainText(status)
+				self.train_model.set_announcements(status)
 			elif(status ==4):
 				raw = self.arduino.readline()
 				status = raw.decode('ascii').strip('\r\n')
