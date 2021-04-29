@@ -124,13 +124,12 @@ class MainWindow(QMainWindow):
 		self.train.circuitFailure = True
 		#self.set_command_speed(None)
 		#self.set_authority(None)
-		self.ui.circuitFailureOutput.setText("Yes")
 		self.ui.circuitFailureOutput_4.setText("Yes")
-	
+		#self.ui.circuitFailureOutput_4.setText("Yes")
 	def circuit_failure_off(self):
 		self.train.circuitFailure = False
-		self.set_command_speed(str(self.train.cmdSpeed))
-		self.set_authority(str(self.train.authority))
+		#self.set_command_speed(str(self.train.cmdSpeed))
+		#self.set_authority(str(self.train.authority))
 		self.ui.circuitFailureOutput.setText("No")
 		self.ui.circuitFailureOutput_4.setText("No") 
 	
@@ -258,12 +257,16 @@ class MainWindow(QMainWindow):
 
 
 	def	set_track_circuit(self,TrackInt):
+		print("Track circuit Int being sent to Controller: " + str(TrackInt))
 		if(self.train.circuitFailure):
-			print("Track circuit Int being sent to Controller: " + str(TrackInt + 4))
-			self.train_controller.set_track_circuit(TrackInt + 4)
+			self.train_controller.set_track_circuit(TrackInt+4)
 		else:
-			print("Track circuit Int being sent to Controller: " + str(TrackInt))
 			self.train_controller.set_track_circuit(TrackInt)
+			
+
+	def train_detected_tc_failure(self):
+		self.ui.circuitFailureOutput.setText("Yes")
+		
 
 	def	set_beacon(self,BeaconInt):
 		self.train_controller.set_beacon(BeaconInt)	
