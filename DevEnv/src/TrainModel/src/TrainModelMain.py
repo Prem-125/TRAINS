@@ -31,24 +31,24 @@ class MainWindow(QMainWindow):
 			self.train_controller = TrainControllerHW(self,trainID = trainID)
 			time.sleep(1)
 
-		self.ui.pwrInput.textChanged.connect(self.get_power)
-		self.ui.speedLimit.textChanged.connect(self.set_speed_limit)
+		#from ui self.ui.pwrInput.textChanged.connect(self.get_power)
+# from ui		self.ui.speedLimit.textChanged.connect(self.set_speed_limit)
 		#self.ui.speedLimit.textChanged.connect(self.set_velocity)
-		self.ui.leftDoorOpen.clicked.connect(self.open_left_doors)
-		self.ui.leftDoorsClose.clicked.connect(self.close_left_doors)
-		self.ui.rightDoorsOpen.clicked.connect(self.open_right_doors)
-		self.ui.rightDoorClose.clicked.connect(self.close_right_doors)
-		self.ui.cLightsOn.clicked.connect(self.c_lights_on)
-		self.ui.cLightsOff.clicked.connect(self.c_lights_off)
-		self.ui.tLightsOn.clicked.connect(self.t_lights_on)
-		self.ui.tLightsOff.clicked.connect(self.t_lights_off)
+# from ui		self.ui.leftDoorOpen.clicked.connect(self.open_left_doors)
+# from ui		self.ui.leftDoorsClose.clicked.connect(self.close_left_doors)
+# from ui		self.ui.rightDoorsOpen.clicked.connect(self.open_right_doors)
+# from ui		self.ui.rightDoorClose.clicked.connect(self.close_right_doors)
+# from ui		self.ui.cLightsOn.clicked.connect(self.c_lights_on)
+# from ui		self.ui.cLightsOff.clicked.connect(self.c_lights_off)
+# from ui		self.ui.tLightsOn.clicked.connect(self.t_lights_on)
+# from ui		self.ui.tLightsOff.clicked.connect(self.t_lights_off)
 		self.ui.brakeFailureOn.clicked.connect(self.brake_failure_on)
 		self.ui.brakeFailureOff.clicked.connect(self.brake_failure_off)
-		self.ui.cmdSpeed.textChanged.connect(self.set_command_speed)
-		self.ui.announcmentsInput.textChanged.connect(self.set_announcements)
-		self.ui.beacInput.textChanged.connect(self.set_beacon)
-		self.ui.routeInput.textChanged.connect(self.set_route)
-		#self.ui.pushButton.clicked.connect(self.emergency_brake)
+# from ui		self.ui.cmdSpeed.textChanged.connect(self.set_command_speed)
+# from ui		self.ui.announcmentsInput.textChanged.connect(self.set_announcements)
+# from ui		self.ui.beacInput.textChanged.connect(self.set_beacon)
+# from ui		self.ui.routeInput.textChanged.connect(self.set_route)
+		self.ui.pushButton.clicked.connect(self.passenger_emergency_brake_on)
 		self.ui.circuitFailureOn.clicked.connect(self.circuit_failure_on)
 		self.ui.circuitFailureOff.clicked.connect(self.circuit_failure_off)
 		self.ui.engine1.clicked.connect(self.engine1_failure)
@@ -56,10 +56,10 @@ class MainWindow(QMainWindow):
 		self.ui.engine3.clicked.connect(self.engine3_failure)
 		self.ui.engine4.clicked.connect(self.engine4_failure)
 		self.ui.engine5.clicked.connect(self.engine5_failure)
-		self.ui.authInput.textChanged.connect(self.set_authority)
-		self.ui.spinBox.valueChanged.connect(self.temp_changed)
-		self.ui.serviceBreakOn.clicked.connect(self.s_brake_on)
-		self.ui.serviceBreakOff.clicked.connect(self.s_brake_off)
+		#from ui self.ui.authInput.textChanged.connect(self.set_authority)
+		#from ui self.ui.spinBox.valueChanged.connect(self.temp_changed)
+# from ui		self.ui.serviceBreakOn.clicked.connect(self.s_brake_on)
+# from ui		self.ui.serviceBreakOff.clicked.connect(self.s_brake_off)
 
 		#self.powerTimer = QTimer()
 		#self.powerTimer.timeout.connect(self.get_power)
@@ -74,7 +74,6 @@ class MainWindow(QMainWindow):
 			self.blockLen = 75
 			self.blockNum = 9
 			self.blockSlope = 0.0
-
 
 
 	def set_time(self, time, period):
@@ -114,7 +113,7 @@ class MainWindow(QMainWindow):
 		self.train.tLightsOn = False
 	def brake_failure_on(self):
 		self.train.brakeFailure = True
-		self.ui.brakeFailureOutput.setText("Yes")
+		#self.ui.brakeFailureOutput.setText("Yes")
 		self.ui.brakeFailureOutput_4.setText("Yes")
 	def brake_failure_off(self):
 		self.train.brakeFailure = False
@@ -133,12 +132,13 @@ class MainWindow(QMainWindow):
 		self.ui.circuitFailureOutput.setText("No")
 		self.ui.circuitFailureOutput_4.setText("No") 
 	
-	def set_command_speed(self,text):
-		if(self.train.circuitFailure):
-			self.ui.cmdSpeed.setText("???") #changed from cmdSpeedOutput to cmdSpeed
-		else:	
-			self.train.cmdSpeed = float(text)
-			self.ui.cmdSpeed.setText(text + " mph")
+# from ui	# def set_command_speed(self,text):
+	# 	if(self.train.circuitFailure):
+	# 		self.ui.cmdSpeed.setText("???") #changed from cmdSpeedOutput to cmdSpeed
+	# 	else:	
+	# 		self.train.cmdSpeed = float(text)
+	# 		self.ui.cmdSpeed.setText(text + " mph")
+
 	def set_route(self, text):
 		self.ui.routeOutput.setText(text)
 	def set_beacon(self, text):
@@ -161,7 +161,13 @@ class MainWindow(QMainWindow):
 
 	def emergency_brake_on(self):
 		self.train.EmergencyBrake = True
+	#	self.train_controller.set_passenger_brake()
 		self.ui.emergencyBreakOuput.setText("On")
+	
+	def passenger_emergency_brake_on(self):
+	#	self.train.EmergencyBrake = True
+		self.train_controller.set_passenger_brake()
+	#	self.ui.emergencyBreakOuput.setText("On")
 		#self.ui.pushButton.setText("Turn Off Emergency Brake")
 		
 		#self.set_velocity()
@@ -178,7 +184,7 @@ class MainWindow(QMainWindow):
 			self.train.engineFailure= self.train.engineFailure + 1
 			self.ui.engineFailureOutput.setText("Yes")
 			self.ui.engineFailureOutput_4.setText("Yes")
-			#self.train_controller.set_current_speed(666)
+			self.train_controller.set_current_speed(666)
 			
 		else:
 			self.train.engineFailure = self.train.engineFailure - 1
@@ -191,7 +197,7 @@ class MainWindow(QMainWindow):
 			self.train.engineFailure= self.train.engineFailure + 1
 			self.ui.engineFailureOutput.setText("Yes")
 			self.ui.engineFailureOutput_4.setText("Yes")
-			#self.train_controller.set_current_speed(666)
+			self.train_controller.set_current_speed(666)
 		else:
 			self.train.engineFailure = self.train.engineFailure - 1
 			if(self.train.engineFailure == 0):
@@ -242,8 +248,8 @@ class MainWindow(QMainWindow):
 			self.train.authority = float(text)
 			self.ui.authOutput.setText(text + " meters") 
 	
-	def temp_changed(self):
-   		self.ui.tempOuput.setText(str(self.ui.spinBox.value())+" °F")
+	#from ui def temp_changed(self):
+   	#from ui 	self.ui.tempOuput.setText(str(self.ui.spinBox.value())+" °F")
 		   
 	def s_brake_on(self):
    		self.train.serviceBrake=True
@@ -266,13 +272,16 @@ class MainWindow(QMainWindow):
 
 	def train_detected_tc_failure(self):
 		self.ui.circuitFailureOutput.setText("Yes")
+
+	def train_detected_brake_failure(self):
+		self.ui.brakeFailureOutput.setText("Yes")
 		
 
 	def	set_beacon(self,BeaconInt):
 		self.train_controller.set_beacon(BeaconInt)	
 
-	def set_acceleration_limit(self, accLimit):
-		self.train.accLimit = accLimit
+# from ui	def set_acceleration_limit(self, accLimit):
+# from ui		self.train.accLimit = accLimit
 
 
 
@@ -305,7 +314,7 @@ class MainWindow(QMainWindow):
 		self.train.acceleration = force/self.train.mass
 		if(self.train.acceleration > self.train.accLimit):
 			self.train.acceleration = self.train.accLimit
-		elif(self.train.EmergencyBrake and not self.train.brakeFailure):
+		elif(self.train.EmergencyBrake):# and not self.train.brakeFailure):
 			self.train.acceleration = self.train.decLimitE
 		elif(self.train.serviceBrake and not self.train.brakeFailure):
 			self.train.acceleration = self.train.decLimitS

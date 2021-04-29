@@ -86,7 +86,11 @@ class TrainController:
     def set_passenger_brake(self):
         self.passenger_brake_detected = True
         self.UI.ui.textBrowser_16.setStyleSheet(u"background-color: rgb(255, 0, 0);")
-        self.VitalFault()
+        self.SendEmergencyBrakeOn()
+        self.SR.OnEBrakeOn()
+        #3self.SR.On
+        self.DisplayUpdate()
+        self.SR.VitalFault()
 
     def set_current_speed(self, current_speed):
         self.SR.pidLoop()
@@ -98,6 +102,7 @@ class TrainController:
         self.SR.DetectEngineFailure(current_speed)
 
         self.SR.DetectBrakeFailure()
+
 
         
         #If we reach a station and our current speed is 0, open doors and all that jazz
@@ -131,6 +136,7 @@ class TrainController:
 
         else:
             self.SendAdvertisement()
+
     
     def set_commanded_speed(self, commanded_speed):
         self.SR.commanded_speed = commanded_speed
@@ -337,6 +343,7 @@ class TrainController:
     def set_service_brake(self, s_brake):
         if(s_brake):
             self.SR.OnSBrakeOn()
+
         else:
             self.SR.OnSBrakeOff()
    
@@ -496,6 +503,7 @@ class SpeedRegulator():
     def OnSBrakeOn(self):
         self.service_brake = True
         self.TrainController.SendServiceBrakeOn()
+        self.BrakeFailureTest()
         self.TrainController.DisplayUpdate()
 
     def OnSBrakeOff(self):
@@ -535,11 +543,24 @@ class SpeedRegulator():
             print("Service brake: " + str(self.service_brake))
             print("Current Speed: " + str(self.current_speed))
             print("Previous speed: " + str(self.previous_speed))
+
+
+    #testing brake failure
+    def BrakeFailureTest(self):
+        if(self.TrainController.TrainModel.train.brakeFailure):
+            self.brake_failure = True
+            self.TrainController.UI.ui.textBrowser_14.setStyleSheet(u"background-color: rgb(255, 0, 0);")
+            self.VitalFault()
+            self.TrainController.TrainModel.brake_failure_on()
+           # print("Service brake: " + str(self.service_brake))
+           # print("Current Speed: " + str(self.current_speed))
+           # print("Previous speed: " + str(self.previous_speed))
     
     def VitalFault(self):
         self.TrainController.any_failure = True
         print("********************************************************* VITAL FAULT DETECTED *********************************************************")
-        self.OnEBrakeOn()
+        if(not(self.TrainController.passenger_brake_detected)):
+            self.OnEBrakeOn()
 
         
 #MainWindow class - interfaces with TrainController UI
