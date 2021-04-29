@@ -1,10 +1,9 @@
 import sys
 import time
-from signals import signals, TrackLine
+from signals import signals
 from CTC.src.UI import *
 from CTC.src.CTCBackEnd import *
 from PySide6.QtWidgets import *
-from PySide6.QtCore import *
 from PySide6.QtGui import *
 
 #Load in track layout
@@ -83,9 +82,6 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         #Connect signal to obtain block closures from wayside controller
         signals.CTC_failure.connect(self.WaysideCloseBlock)
 
-        #Connect signal to obtain occupancy from wayside controller
-        signals.CTC_occupancy.connect(self.UpdateTrainParameters)
-
         #Define functionality of toggle switch when in maintenance mode
         self.ui.ToggleSwitchButton.clicked.connect(self.UpdateSwitchPos)
 
@@ -93,6 +89,9 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         self.timer_interval = 1000
         #Define functionality for simulation speed slider
         self.ui.SimSpeedSlider.valueChanged.connect(self.GUISetSimSpeed)
+
+        #Define button interaction to pause timer
+        self.ui.PlayPauseButton.clicked.connect(self.PlayPauseSim)
 
         #Set global clock
         self.utimer = QTimer()
@@ -245,7 +244,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         else:
             self.ui.SchedTable.setItem(numRows, 1, QTableWidgetItem("Block " + str(block_destination)))
 
-        self.ui.SchedTable.setItem(numRows, 2, QTableWidgetItem(trainObj.track_line))
+        self.ui.SchedTable.setItem(numRows, 2, QTableWidgetItem(trainObj.HostTrackLine.color))
         self.ui.SchedTable.setItem(numRows, 3, QTableWidgetItem(str(trainObj.number)))
         self.ui.SchedTable.setItem(numRows, 3, QTableWidgetItem(str(trainObj.number)))
         self.ui.SchedTable.setItem(numRows, 4, QTableWidgetItem("Block " + str(trainObj.route_queue[0])))
@@ -254,7 +253,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
         print("Train Number " + str(CTCSchedule.train_list[-1].number) )
         print("Train Destination: Block " + str(CTCSchedule.train_list[-1].destination))
-        print("Track Line: " + CTCSchedule.train_list[-1].track_line)
+        print("Track Line: " + CTCSchedule.train_list[-1].HostTrackLine.color)
         print("Arrival Time: " + str(CTCSchedule.train_list[-1].arrival_time))
         print("Departure Time: " + str(CTCSchedule.train_list[-1].departure_time))
     #End method
@@ -419,6 +418,9 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
         #Update block information in block status group of maintenance mode
         self.UpdateBlockInfo()
+
+        #Update switch information in switch status group of maintenance mode
+        self.UpdateSwitchInfo()
 
         #Restart timout period
         self.utimer.start(self.timer_interval)
@@ -1144,7 +1146,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
     #Method to update block information when specified track block changes
     def UpdateBlockInfo(self):
-        #Leave function is a block has not been specified
+        #Leave function if block has not been specified
         if(str(self.ui.SectionComboBox4.currentText()) == ''):
             return
 
@@ -1157,7 +1159,6 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
             #Convert speed limit from meters/second to miles/hour
             block_speed_limit = round(blockObj.speed_limit * 2.23694, 2)
 
-            self.ui.BlockSectionLabel.setText("Section: " + blockObj.section)
             self.ui.BlockLengthLabel.setText("Block Length: " + str(blockObj.length) + " m")
             self.ui.SpeedLimitLabel.setText("Speed Limit: " + str(block_speed_limit) + " mph")
             self.ui.OccupancyLabel.setText("Occupancy: " + str(blockObj.occupancy))
@@ -1172,7 +1173,6 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
             #Convert speed limit from meters/second to miles/hour
             block_speed_limit = round(blockObj.speed_limit * 2.23694, 2)
 
-            self.ui.BlockSectionLabel.setText("Section: " + blockObj.section)
             self.ui.BlockLengthLabel.setText("Block Length: " + str(blockObj.length) + " m")
             self.ui.SpeedLimitLabel.setText("Speed Limit: " + str(block_speed_limit) + " mph")
             self.ui.OccupancyLabel.setText("Occupancy: " + str(blockObj.occupancy))
@@ -1195,6 +1195,32 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
             for i in range(1, 8):
                 self.ui.SwitchComboBox1.addItem(str(i))
         #End if-elif block
+    #End method
+
+    #Method to update switch information when the specified track switch changes
+    def UpdateSwitchInfo(self):
+        #Leave function if switch has not been specified
+        if(str(self.ui.SwitchComboBox1.currentText()) == ''):
+            return
+
+        if(str(self.ui.TrackComboBox5.currentText()) == "Green"):
+            #Obtain switch ID
+            switch_ID = int(self.ui.SwitchComboBox1.currentText())
+            #Retrieve switch object
+            switchObj = GreenLine.switch_list[switch_ID-1]
+
+            self.ui.StemBlockLabel.setText("Stem Block ID: " + str(switchObj.root))
+            self.ui.BranchBlockLabel.setText("Branch Block ID: " + str(switchObj.curr_position))
+
+        elif(str(self.ui.TrackComboBox5.currentText()) == "Red"):
+            #Obtain switch ID
+            switch_ID = int(self.ui.SwitchComboBox1.currentText())
+            #Retrieve switch object
+            switchObj = RedLine.switch_list[switch_ID-1]
+
+            self.ui.StemBlockLabel.setText("Stem Block ID: " + str(switchObj.root))
+            self.ui.BranchBlockLabel.setText("Branch Block ID: " + str(switchObj.curr_position))
+        #End if
     #End method
 
     #Method to determine and display updated throughput
@@ -1446,7 +1472,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
             currPosition = "Block " + str(trainObj.route_queue[0])
 
             #Append to string if current position is a station
-            if(trainObj.track_line == "Green"):
+            if(trainObj.HostTrackLine.color == "Green"):
                 #Loop over all stations of Green line
                 for stationObj in GreenLine.station_list:
                     if(stationObj.block_num == trainObj.route_queue[0]):
@@ -1455,7 +1481,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                 #End for loop
             #End if
 
-            if(trainObj.track_line == "Red"):
+            if(trainObj.HostTrackLine.color == "Red"):
                 #Loop over all stations of Green line
                 for stationObj in RedLine.station_list:
                     if(stationObj.block_num == trainObj.route_queue[0]):
@@ -1463,6 +1489,10 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                     #End if
                 #End for loop
             #End if
+
+            #Display block 0 as yard
+            if(trainObj.route_queue[0] == 0):
+                currPosition = currPosition + " (YARD)"
 
             self.ui.SchedTable.setItem(trainObj.number-1, 4, QTableWidgetItem(currPosition))
         #End for loop
@@ -1477,28 +1507,15 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         self.timer_interval = 1000/(slider_position + 1)
     #End method
 
-    #Method to invoke backend functions for train position and suggested speed
-    def UpdateTrainParameters(self, track_line_name, block_num, occupancy):
-        #Send occupancy information to each train
-        if(track_line_name == "Green"):
-            for TrainObj in CTCSchedule.train_list:
-                TrainObj.UpdatePosition(GreenLine, block_num, occupancy)
-            #End for loop
-        elif(track_line_name == "Red"):
-            for TrainObj in CTCSchedule.train_list:
-                TrainObj.UpdatePosition(RedLine, block_num, occupancy)
-            #End for loop
-        #End if-elif block
-    #End method
-
+    #Method to update switch positions at request of dispatcher
     def UpdateSwitchPos(self):
         #Initialize temporary variables to hold details of switch to be toggled
         track_line = str(self.ui.TrackComboBox5.currentText())
         switch_ID = int(self.ui.SwitchComboBox1.currentText())
         
         #Recover switch and block objects
-        if(track_line_name == "Green"):
-            SwitchObj = GreenLine.switch_list[switch_ID]
+        if(track_line == "Green"):
+            SwitchObj = GreenLine.switch_list[switch_ID-1]
             
             #Determine if switch is on a closed block
             if(SwitchObj.root not in GreenLine.closed_blocks):
@@ -1513,8 +1530,11 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                 return
             #End if
 
-        elif(track_line_name == "Red"):
-            SwitchObj = RedLine.switch_list[switch_ID]
+            #Update switch position
+            SwitchObj.TogglePosition()
+
+        elif(track_line == "Red"):
+            SwitchObj = RedLine.switch_list[switch_ID-1]
 
             #Determine if switch is on a closed block
             if(SwitchObj.root not in RedLine.closed_blocks):
@@ -1528,15 +1548,23 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
                 return
             #End if
+
+            #Update switch position
+            SwitchObj.TogglePosition()
+
         #End if-elif block
-
-        #Update switch position
-
     #End method
 
-
-
-
+    #Method to pause or continue simulation
+    def PlayPauseSim(self):
+        if(str(self.ui.PlayPauseButton.text()) == "Pause\nSimulation"):
+            self.utimer.stop()
+            self.ui.PlayPauseButton.setText("Continue\nSimulation")
+        elif(str(self.ui.PlayPauseButton.text()) == "Continue\nSimulation"):
+            self.utimer.start(self.timer_interval)
+            self.ui.PlayPauseButton.setText("Pause\nSimulation")
+        #End if-elif block
+    #End method
 
 
 #End MainWindow class definition

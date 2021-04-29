@@ -1,4 +1,5 @@
 import xlrd
+from PySide6.QtCore import *
 from signals import signals
 
 #Define Block class
@@ -39,10 +40,10 @@ class Switch:
 
     #Define method to toggle switch position
     def TogglePosition(self):
-        if self.curr_position == self.branch_1_num:
-            self.curr_position = self.branch_2_num
+        if self.curr_position == self.branch_1:
+            self.curr_position = self.branch_2
         else:
-            self.curr_position = self.branch_1_num
+            self.curr_position = self.branch_1
         #End if-else block
     #End method
 
@@ -71,20 +72,27 @@ class Train:
         #Initialize Block instance variables
         self.number = train_number
         self.destination = block_destination #Block Number
-        self.track_line = TrackLineObj.color #String
+        self.HostTrackLine = TrackLineObj #String
         self.arrival_time = train_arrival_time     #Seconds
         self.departure_time = train_departure_time #Seconds
         
         #Initialize route queue
         self.route_queue = []
-        if(self.track_line == "Green"):
+        if(self.HostTrackLine.color == "Green"):
             self.GenerateGreenRoute()
             print("\nCTC- ROUTE QUEUE HAS BEEN GENERATED")
-        elif(self.track_line == "Red"):
+        elif(self.HostTrackLine.color == "Red"):
             self.GenerateRedRoute()
 
-        #Send destination (authority) to track controller TEMPORARY SETUP
-        signals.CTC_authority.emit(self.track_line, self.destination)
+        #Connect signal to obtain occupancy from wayside controller
+        signals.CTC_occupancy.connect(self.UpdatePosition)
+
+        #Configure single shot timer for dwell period at destinations
+        """
+        self.dwell_timer = QTimer()
+        self.dwell_timer.setSingleShot(True)
+        self.dwell_timer.timeout.connect(self.LeaveStation)
+        """
         
     #End contructor
 
@@ -158,36 +166,69 @@ class Train:
         self.route_queue.append(0)
     #End method
 
+    """
+    #Method to invoke backend functions for train position and suggested speed
+    def UpdateTrainParameters(self, track_line_name, block_num, occupancy):
+        #Send occupancy information to each train
+        if(track_line_name == "Green"):
+            for TrainObj in CTCSchedule.train_list:
+                TrainObj.UpdatePosition(GreenLine, block_num, occupancy)
+            #End for loop
+        elif(track_line_name == "Red"):
+            for TrainObj in CTCSchedule.train_list:
+                TrainObj.UpdatePosition(RedLine, block_num, occupancy)
+            #End for loop
+        #End if-elif block
+    #End method
+    """
+
     #Method to update position of train
-    def UpdatePosition(self, TrackObj, block_num, occupancy):
+    def UpdatePosition(self, track_line_name, block_num, occupancy):
         print("ENTERED UPDATE TRAIN POSITION FUNCTION")
         print("COMPARING " + str(block_num) + " WITH " + str(self.route_queue[1]) + " ON QUEUE")
         #Determine if occupancy corresponds to movement of self
-        if(occupancy == True and block_num == self.route_queue[1] and TrackObj.color == self.track_line):
+        if(occupancy == True and block_num == self.route_queue[1] and self.HostTrackLine.color == track_line_name):
             #Dequeue from list
             self.route_queue.pop(0)
             print("\nCTC- QUEUE HAS BEEN POPPED\n")
 
+            #ATTENTION: Delete train if loop is complete
+
             #Update suggested speed according to train position
             if(self.destination == self.route_queue[3]):
-                suggested_speed = int(.75*TrackObj.block_list[self.route_queue[0]].speed_limit)
-                signals.CTC_suggested_speed.emit(self.track_line, self.route_queue[0], suggested_speed*3.60)
+                suggested_speed = int(.75*self.HostTrackLine.block_list[self.route_queue[0]-1].speed_limit)
+                signals.CTC_suggested_speed.emit(self.HostTrackLine.color, self.route_queue[0], suggested_speed*3.60)
             elif(self.destination == self.route_queue[2]):
-                suggested_speed = int(.50*TrackObj.block_list[self.route_queue[0]].speed_limit)
-                signals.CTC_suggested_speed.emit(self.track_line, self.route_queue[0], suggested_speed*3.60)
+                suggested_speed = int(.50*self.HostTrackLine.block_list[self.route_queue[0]-1].speed_limit)
+                signals.CTC_suggested_speed.emit(self.HostTrackLine.color, self.route_queue[0], suggested_speed*3.60)
             elif(self.destination == self.route_queue[1]):
-                suggested_speed = int(.25*TrackObj.block_list[self.route_queue[0]].speed_limit)
-                signals.CTC_suggested_speed.emit(self.track_line, self.route_queue[0], suggested_speed*3.60)
+                suggested_speed = int(.25*self.HostTrackLine.block_list[self.route_queue[0]-1].speed_limit)
+                signals.CTC_suggested_speed.emit(self.HostTrackLine.color, self.route_queue[0], suggested_speed*3.60)
             elif(self.destination == self.route_queue[0]):
-                suggested_speed = int(0*TrackObj.block_list[self.route_queue[0]].speed_limit)
-                signals.CTC_suggested_speed.emit(self.track_line, self.route_queue[0], suggested_speed*3.60)   
+                suggested_speed = int(0*self.HostTrackLine.block_list[self.route_queue[0]-1].speed_limit)
+                signals.CTC_suggested_speed.emit(self.HostTrackLine.color, self.route_queue[0], suggested_speed*3.60) 
+
+                #Send authority to track controller
+                signals.CTC_authority.emit(self.HostTrackLine.color, self.destination, False)  
+
+                #Start dwell timer
+                QTimer.singleShot(6000, self.LeaveStation)
+                print("\n\nTIMER HAS BEEN STARTED\n\n")
             else:
-                suggested_speed = TrackObj.block_list[self.route_queue[0]].speed_limit
-                signals.CTC_suggested_speed.emit(self.track_line, self.route_queue[0], suggested_speed*3.60)   
+                suggested_speed = self.HostTrackLine.block_list[self.route_queue[0]-1].speed_limit
+                signals.CTC_suggested_speed.emit(self.HostTrackLine.color, self.route_queue[0], suggested_speed*3.60)   
     #End method
 
-
-    #MUST COMPLETE Each instance of train must respond to occupany conditions of track
+    #Method to alert train to leave station after dwell period has expired
+    def LeaveStation(self):
+        #Send authority to track controller
+        signals.CTC_authority.emit(self.HostTrackLine.color, self.destination, True)
+        print("\nHIT1\n")
+        suggested_speed = self.HostTrackLine.block_list[self.route_queue[0]-1].speed_limit
+        print("\nHIT2\n")
+        signals.CTC_suggested_speed.emit(self.HostTrackLine.color, self.route_queue[0], suggested_speed*3.60)
+        print("\nHIT3\n")
+    #End method
     
 #End Train class definition
 
@@ -222,10 +263,16 @@ class TrackLine:
         #Declare a list of closed blocks
         self.closed_blocks = []
 
+        """
         print("INITIAL SWITCH LAYOUT FOR " + str(self.color) + "LINE")
 
         for SwitchObj in self.switch_list:
             print("Switch on Block " + str(SwitchObj.root) + " with Branches " + str(SwitchObj.branch_1) + " and " + str(SwitchObj.branch_2))
+        """
+
+        print("\n\nSTATION CONFIGURATION FOR GREENLINE")
+        for StationObj in self.station_list:
+            print("Station " + StationObj.name + " is on block " + str(StationObj.block_num))
 
     #End contructor
 
@@ -326,9 +373,12 @@ class TrackLine:
                         duplicate = True
                         break
 
+                #ATTENTION: Allow for creation of duplicate station
+                
                 #Do not create duplicate station
                 if(duplicate == True):
                     continue
+                
 
                 #Create new station and append to list
                 self.station_list.append( Station(station_name, assoc_block_num) )
@@ -567,7 +617,7 @@ class Schedule:
         for trainObj in self.train_list:
             if(int(trainObj.departure_time) == curr_time):
                 #MUST COMPELTE: Inform Train Deployer of newly created train object
-                signals.train_creation.emit(trainObj.track_line, trainObj.number)
+                signals.train_creation.emit(trainObj.HostTrackLine.color, trainObj.number)
                 break
 
         
