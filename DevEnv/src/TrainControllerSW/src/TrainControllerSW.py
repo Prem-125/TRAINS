@@ -101,11 +101,8 @@ class TrainController:
         self.SR.previous_speed = self.SR.current_speed
         self.SR.current_speed = current_speed
         self.SR.DetectEngineFailure(current_speed)
-
         self.SR.DetectBrakeFailure()
 
-
-        
         #If we reach a station and our current speed is 0, open doors and all that jazz
         if(self.upcoming_station and self.SR.current_speed == 0):
             
@@ -328,6 +325,7 @@ class TrainController:
             #self.set_service_brake(True)
             #edited just now
            # print("one true in authority handler")
+        
 
         else:
             self.SendAdvertisement()
@@ -377,6 +375,7 @@ class SpeedRegulator():
         self.emergency_brake = False
         self.train_ID = train_ID
         self.TrainController = TrainController
+        self.safety_margin = 4
 
 
         #variables for main PID loop
@@ -410,6 +409,12 @@ class SpeedRegulator():
             self.OnSBrakeOff()
             self.braking_because_too_fast = False
 
+        if(self.TrainController.atDestination and self.TrainController.is_auto and not (self.commanded_speed==0) and not (self.authority==0)):
+            self.TrainController.UI.ui.rightDoors.setChecked(False)
+            self.TrainController.UI.ui.leftDoors.setChecked(False)
+            self.OnSBrakeOff()
+            self.TrainController.atDestination=False
+
         #If in Auto Mode, go off the commanded speed
         if(self.TrainController.is_auto and (self.current_speed > (self.commanded_speed+5))):
             print("Braking because too fast")
@@ -418,17 +423,18 @@ class SpeedRegulator():
             self.power = 0
             self.OnSBrakeOn()
 
+        
         elif(self.TrainController.is_auto and ((not self.service_brake ) and (not self.emergency_brake))):
 
-            #Closing the doors if we are leaving a destination
-            if(self.TrainController.atDestination):
-                if(self.TrainController.right_doors):
-                    #self.TrainController.toggle_right_doors
-                    self.TrainController.UI.ui.rightDoors.setChecked(True)
-                if(self.TrainController.left_doors):
-                    #self.TrainController.toggle_left_doors
-                    self.TrainController.UI.ui.rightDoors.setChecked(False)
-                self.atDestination = False
+            #Closing the doors if we are leaving a destination MODIFIED
+            #if(self.TrainController.atDestination):
+            #    if(self.TrainController.right_doors):
+            #        #self.TrainController.toggle_right_doors
+            #        self.TrainController.UI.ui.rightDoors.setChecked(True)
+            #    if(self.TrainController.left_doors):
+            #        #self.TrainController.toggle_left_doors
+            #        self.TrainController.UI.ui.rightDoors.setChecked(False)
+            #    self.atDestination = False
 
             #updating setpoint
             self.pid.setpoint = .9*(self.commanded_speed)
@@ -456,6 +462,12 @@ class SpeedRegulator():
             print("Turning off brake because braking because too fast was true")
             #self.OnSBrakeOff()
             self.backup_braking_because_too_fast = False
+
+        if(self.TrainController.atDestination and self.TrainController.is_auto and not (self.commanded_speed==0) and not (self.authority==0)):
+            pas
+            #self.TrainController.UI.ui.rightDoors.setChecked(False)
+            #self.TrainController.UI.ui.leftDoors.setChecked(False)
+            #self.OnSBrakeOff()
 
         #If in Auto Mode, go off the commanded speed
         if(self.TrainController.is_auto and (self.current_speed > (self.commanded_speed+5))):
@@ -495,7 +507,7 @@ class SpeedRegulator():
         if(self.power == 0):
             return self.power
         elif(not(self.power == 0 or self.power_backup == 0)):
-            if(self.TrainController.is_auto and (self.power / self.power_backup > 4)):
+            if(self.TrainController.is_auto and (self.power / self.power_backup > self.safety_margin)):
                 print("TOO MUCH POWER DIFFERENCE")
                 return 0
                 self.VitalFault()

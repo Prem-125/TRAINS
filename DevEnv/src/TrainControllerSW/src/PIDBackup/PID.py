@@ -1,3 +1,4 @@
+#Credit to m-lundberg on Github for the code, with substantial edits and simplification by Aurimas Balciunas
 import time
 import warnings
 
@@ -87,12 +88,6 @@ class PID(object):
         return output
 
     def reset(self):
-        """
-        Reset the PID controller internals.
-
-        This sets each term to 0 as well as clearing the integral, the last output and the last
-        input (derivative calculation).
-        """
         self._proportional = 0
         self._integral = 0
         self._derivative = 0

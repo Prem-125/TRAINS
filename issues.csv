@@ -1,0 +1,19 @@
+48,OPEN,1.01 Incorrect ETAs,bug,,,,,Week,Bugs
+47,OPEN,5.01 Visual Issues in announcement,bug,,,,,1,1
+46,OPEN,2.03 Visual Artifacts,,,,,,2,0
+45,CLOSED,2.02 Sending Track Circuit to Restart,bug,,,,,3,2
+44,OPEN,2.01 Particular Parsing order,,,,,,4,2
+43,OPEN,7.06 Invalid Character in serial Parse,bug,,,,,5,3
+42,OPEN,6.05 Train cant have multiple stops,bug,,,,,6,4
+41,OPEN,7.05 Setpoint Speed does not update for new commanded speed,bug,,,,,7,5
+37,OPEN,7.04 Train Controller Hw cant run at 10x speed,bug, wontfix,,,,8,2
+36,OPEN,6.05: Station announcements don't work for train controller SW,bug,,,,,,
+35,OPEN,6.04: Cabin lights out of sync with cabin lights,bug,,,,,,
+31,CLOSED,7.01 S Brake Triggers Brake Fault,bug,,,,,,
+30,OPEN,3.02 Sending an occupancy at the startup,bug,,,,,,
+29,CLOSED,7.02 Train Controller needs to account for friction slowdown in brake failure,bug,,,,,,
+25,OPEN,3.1 Track Controller Drop-Down menu of Track Status Tab fails to clear previous selections before adding new values,bug,,,,,,
+24,CLOSED,6.03 Train Controller setpoint speed won't reduce once new, lower, commanded speed is put in.,bug,,,,
+23,CLOSED,7.01 CTC has no way of emergency stopping the train.,bug,,,,,,
+21,CLOSED,6.02 - Train Controller SW displays authority in feet, not blocks,bug,,,,,
+20,CLOSED,6.01. Brake failure detection goes off when brakes pressed and released multiply times,bug,,,,,,

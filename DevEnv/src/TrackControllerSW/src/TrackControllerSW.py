@@ -49,12 +49,16 @@ class TrackController:
     # Sets upcoming blocks
     # Parameter is a list of the next four
     def set_UpcomingBlocks(self,block_num,next_four):
+        if(block_num < len(self.upcoming_blocks)):
             self.upcoming_blocks[block_num] = next_four
     
     # Gets Upcoming Blocks
     # Parameter is a block number
     def get_UpcomingBlocks(self, block_num):
-        return self.upcoming_blocks[block_num]
+        if(block_num < len(self.upcoming_blocks)):
+            return self.upcoming_blocks[block_num]
+        else:
+            return [0,0,0,0]
 
     # Initializes the switch values, calling the switch function
     # Parameters are block number, branch a, branch b, and track line name
@@ -187,51 +191,44 @@ class TrackController:
                             if(controller.occupancy[next_block - controller.block_offset] == True):
                                 output = False
                                 print("\n\n\nAUTHORITY SHOULD BE SET TO FALSE")
-                    self.set_Authority[block_num] = output
+                    self.get_Authority[block_num] = output
                     print("Authority: " + str(self.authority[block_num - self.block_offset]))
 
 
         # Crossing Instruction
         elif(sent_tag == "CRX"):
-            # Loop through the lines of the PLC
-            for i in range(len(self.plc_script)):
-                if(self.plc_script[i].elements[0] == "CRX"):
-                    # Crossing Lights
-                    if(self.plc_script[i+1].elements[0] == "LIT"):
-                        light_dist = int(self.plc_script[i+1].elements[2])
-                    # Crossing Gate
-                    elif(self.plc_script[i+1].elements[0] == "GAT"):
-                        gate_dist = int(self.plc_script[i+1].elements[2])
-                    # Crossing Lights
-                    if(self.plc_script[i+2].elements[0] == "LIT"):
-                        light_dist = int(self.plc_script[i+2].elements[2])
-                    # Crossing Gates
-                    elif(self.plc_script[i+2].elements[0] == "GAT"):
-                        gate_dist = int(self.plc_script[i+2].elements[2])
-                    # Check Lights distance
-                    for blocks in range(light_dist+1):
-                        if(self.occupancy[self.crossing.block+blocks] == True):
-                            #send crossing lights signal##############################################
-                            ...
-                        elif(self.occupancy[self.crossing.block-blocks] == True):
-                            #send crossing lights signal##############################################
-                            ...
-                        else:
-                            #send deactivate signal
-                            ...
-                    for blocks in range(gate_dist+1):
-                        if(self.occupancy[self.crossing.block+blocks] == True):
-                            #send crossing gate signal################################################
-                            ...
-                        elif(self.occupancy[self.crossing.block-blocks] == True):
-                            #send crossing gate signal################################################
-                            ...
-                        else:
-                            #send deactivate signal
-                            ...
-                    
-                        
-
+            if(self.crossing.block != -1):
+                # Loop through the lines of the PLC
+                for i in range(len(self.plc_script)):
+                    if(self.plc_script[i].elements[0] == "CRX"):
+                        # Crossing Lights
+                        if(self.plc_script[i+1].elements[0] == "LIT"):
+                            light_dist = int(self.plc_script[i+1].elements[2])
+                        # Crossing Gate
+                        elif(self.plc_script[i+1].elements[0] == "GAT"):
+                            gate_dist = int(self.plc_script[i+1].elements[2])
+                        # Crossing Lights
+                        if(self.plc_script[i+2].elements[0] == "LIT"):
+                            light_dist = int(self.plc_script[i+2].elements[2])
+                        # Crossing Gates
+                        elif(self.plc_script[i+2].elements[0] == "GAT"):
+                            gate_dist = int(self.plc_script[i+2].elements[2])
+                        # Check Lights distance
+                        for blocks in range(light_dist+1):
+                            if(self.occupancy[self.crossing.block+blocks] == True):
+                                signals.crossing_light_activation.emit(self.line, self.crossing.block, True)
+                            elif(self.occupancy[self.crossing.block-blocks] == True):
+                                signals.crossing_light_activation.emit(self.line, self.crossing.block, True)
+                            else:
+                                signals.crossing_light_activation.emit(self.line, self.crossing.block, False)
+                        # Gate Activation/Deactivation
+                        for blocks in range(gate_dist+1):
+                            if(self.occupancy[self.crossing.block+blocks] == True):
+                                signals.crossing_gate_activation.emit(self.line, self.crossing.block, True)
+                            elif(self.occupancy[self.crossing.block-blocks] == True):
+                                signals.crossing_gate_activation.emit(self.line, self.crossing.block, True)
+                            else:
+                                signals.crossing_gate_activation.emit(self.line, self.crossing.block, False)
 
         # Traffic Light Instruction
         elif(sent_tag == "TRL"):
@@ -247,10 +244,10 @@ class TrackController:
                         if(self.plc_script[i+1].elements[0] == "YEL"):
                             if(self.plc_script[i+1].elements[2] == "SW"):
                                 sw_dist = self.plc_script[i+1].elements[3]
+                                signals.CTC_next_four_request.emit(self.line, block_num)
                                 next_four = self.get_UpcomingBlocks(block_num)
-                                if(sw_dist > 4):
-                                    for blk in range(4):
-
+                                #if(sw_dist > 4):
+                                    #for blk in range(4):
 
                             
                         # Red Instruction
@@ -276,20 +273,15 @@ class TrackController:
                 # Logic for the switches
                 if(red_flag == False):
                     if(yel_flag == False):
-                        ...
+                        signals.wayside_signal_light.emit(self.line, block_num, 1)
                         # Send the yellow light signal
                     else:
-                        ...
+                        signals.wayside_signal_light.emit(self.line, block_num, 0)
                         # Send the green light signal
                 else:
-                    ...
+                    signals.wayside_signal_light.emit(self.line, block_num, 2)
                     # Send the red light signal
 
-                                        
-                        
-
-
-                            
 
 # Describes the function of a Switch under jurisdiction of a Track Controller
 class SwitchObj:
