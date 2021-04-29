@@ -837,7 +837,22 @@ class MainWindow(QMainWindow):
 				signals.Beacon_signal.emit(self.track_list_green[self.route_queue_green[self.id_list[id]+1]].encodedBeacon, id) # ACTUALLY CALCULATE THE BEACON VAL AND BLOCK NUM
 			
 			self.update_track_info_green(self.current_block_green)
+		else:
+			print("block length: " + str(self.track_list_red[block+1].get_length()))
+			self.track_list_red[block].set_occupied(False)
+			#self.route_queue_green.pop(0)
+			self.id_list[id]+=1
 
+			print("just left block " + str(block) + " next is " + str(self.route_queue_red[self.id_list[id]]))
+			self.track_list_red[self.route_queue_red[self.id_list[id]]].set_occupied(True, id)
+
+			#send the beacon if there is a station or tunnel ahead 
+			if(self.track_list_red[self.route_queue_red[self.id_list[id]+1]].is_station == True or self.track_list_red[self.route_queue_red[self.id_list[id]+1]].is_underground == True):
+				
+				self.track_list_red[self.route_queue_red[self.id_list[id]+1]].encode_beacon()
+				signals.Beacon_signal.emit(self.track_list_red[self.route_queue_red[self.id_list[id]+1]].encodedBeacon, id) # ACTUALLY CALCULATE THE BEACON VAL AND BLOCK NUM
+			
+			self.update_track_info_red(self.current_block_red)
 	
 
 	#function for inital train spawn
@@ -870,7 +885,14 @@ class MainWindow(QMainWindow):
 					signals.TC_signal.emit(self.track_list_green[block_in].encoded_TC, i)
 			self.update_track_info_green(self.current_block_green)
 		else:
-			print("D")
+			for i in range(0, len(self.id_list)):
+				print("id_list[i] = " + str(self.route_queue_red[self.id_list[i]]))
+				print("block_in = " + str(block_in))
+				if(self.route_queue_red[self.id_list[i]] == block_in):
+					self.track_list_red[block_in].encode_track_circuit_signal()
+					print("tc emit at 856")
+					signals.TC_signal.emit(self.track_list_red[block_in].encoded_TC, i)
+			self.update_track_info_red(self.current_block_red)
 		
 		print("Sending occupancy to wayside")
 

@@ -88,6 +88,9 @@ class Train:
         #Connect signal to obtain occupancy from wayside controller
         signals.CTC_occupancy.connect(self.UpdatePosition)
 
+        #Connect signal to send wayside controller upcoming 4 blocks
+        signals.CTC_next_four_request.connect(self.SendNextFour)
+
         #Configure single shot timer for dwell period at destinations
         """
         self.dwell_timer = QTimer()
@@ -110,7 +113,7 @@ class Train:
         for block_num in range(85, 76, -1):
             self.route_queue.append(block_num)
 
-        #Specify blocks for track secionts R through Z
+        #Specify blocks for track sections R through Z
         for block_num in range(101, 151):
             self.route_queue.append(block_num)
 
@@ -232,6 +235,14 @@ class Train:
         print("\nHIT2\n")
         signals.CTC_suggested_speed.emit(self.HostTrackLine.color, self.route_queue[0], suggested_speed*3.60)
         print("\nHIT3\n")
+    #End method
+
+    #Method to send next four blocks to wayside controller
+    def SendNextFour(self, track_line_name, block_num):
+        if(len(self.route_queue) >= 4):
+            signals.CTC_next_four_fulfilled.emit(track_line_name, block_num, self.route_queue[1:5])
+        else:
+            signals.CTC_next_four_fulfilled.emit(track_line_name, block_num, self.route_queue)
     #End method
     
 #End Train class definition
@@ -459,7 +470,7 @@ class Schedule:
         if(len(dest_block_list) == 0):
             return dest_arrival_times
 
-        print("\n\nLenght of Destination List: " + str(len(dest_block_list)))
+        print("\n\nLength of Destination List: " + str(len(dest_block_list)))
 
         #Create temporary destination block list
         temp_block_list = dest_block_list[:]
@@ -490,13 +501,59 @@ class Schedule:
         #Overwrite first element of arrival time list with time specified by dispatcher
         dest_arrival_times[0] = train_arrival_time
 
-        print("\n\nLenght of Destination List: " + str(len(dest_block_list)))
+        print("\n\nLength of Destination List: " + str(len(dest_block_list)))
+        print("\n\nLength of arrival time List: " + str(len(dest_arrival_times)))
         
         #If travel parameters have been verified, add train object to the schedule's train list
         self.train_list.append( Train(train_number, dest_block_list, TrackLineObj, dest_arrival_times, train_departure_time) )
 
         return dest_arrival_times
     #End method
+
+    def AutoSchedule(self, filepath, sheet_index, TrackLineObj):
+        #Open excel file
+        exl_workbook = xlrd.open_workbook(filepath)
+        #Navigate to specified excel sheet within file
+        exl_sheet = exl_workbook.sheet_by_index(sheet_index)
+
+        #Declare destination list
+        dest_block_list = []
+        #Declare arrival time list
+        arrival_times = []
+
+        #Loop through first four trains
+        for col in range(32, 35):
+            #Loop through contents of column row-size
+            for row in range(1, exl_sheet.nrows):
+                print("\n" + str(exl_sheet.cell_value(row, col-26)))
+                if("STATION" in str(exl_sheet.cell_value(row, col-26))):
+                    #Add block to destination list
+                    dest_block_list.append( int(exl_sheet.cell_value(row, col-2)) )
+
+                    #Convert arrival time to seconds
+                    input_time = exl_sheet.cell_value(row, col)
+                    parsed_input_time = input_time.split(":")
+                    train_arrival_time = int(parsed_input_time[0])*3600 + int(parsed_input_time[1])*60
+
+                    #Add arrival times to list
+                    arrival_times.append(train_arrival_time)
+                #End if
+            #End row loop
+
+            #Create temporary destination block list
+            temp_block_list = dest_block_list[:]
+
+            #Compute travel time to first destination
+            dest_travel_times = self.ComputeTravelTimes(temp_block_list, TrackLineObj)
+
+            #Compute train departure time
+            train_departure_time = train_arrival_time - dest_travel_times[0]
+
+            #If travel parameters have been verified, add train object to the schedule's train list
+            self.train_list.append( Train(col-30, dest_block_list, TrackLineObj, arrival_times, train_departure_time) )
+        #End col loop
+    #End method
+
 
     def ComputeTravelTimes(self, dest_block_list, TrackLineObj):
         #Declare list to hold travel times for all destinations

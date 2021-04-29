@@ -88,6 +88,8 @@ class MainWindow(QMainWindow):
         # PLC Variables
         self.plc_script = [PLCLine()]
         self.tag_list = ["G1","G2","G3","G4","G5","G6","R1","R2","R3","R4","R5","R6","R7"]
+        self.plc_imported = False
+        self.FillBlockLists()
 
         # UI Functions
         # currentTextChanged method indicates a change in a combo box
@@ -109,6 +111,7 @@ class MainWindow(QMainWindow):
         signals.CTC_suggested_speed.connect(self.get_SugSpeed)
         signals.CTC_toggle_switch.connect(self.CTCToggleSwitch)
         signals.time_signal.connect(self.RunPLC)
+        signals.CTC_next_four_fulfilled.connect(self.set_UpcomingBlocks)
 
     # get_Controller is called to return a Controller object based on input
     # Parameters are track line name and block number
@@ -147,6 +150,13 @@ class MainWindow(QMainWindow):
                 return self.RedController6
             elif(block_num > 48):
                 return self.RedController7
+
+    # Fills the controllers with the proper block numbers
+    def FillBlockLists(self):
+        for block_green in range(1,151):
+            self.get_Controller("Green",block_green).set_BlockList(block_green)
+        for block_red in range(1,77):
+            self.get_Controller("Red",block_red).set_BlockList(block_red)
 
     # get_SwitchController is called to return a Controller object based on input
     # Parameters are track line name and switch number
@@ -298,6 +308,12 @@ class MainWindow(QMainWindow):
         self.get_Controller(line, block_num).UpdateBlockStatus(line, block_num, status)
         self.UIBlockOutput()
 
+    # Sets the upcoming blocks of the track controllers
+    # Parameters are line name, block number, upcoming blocks
+    def set_UpcomingBlocks(self, line, block_num, next_four):
+        self.get_Controller(line, block_num).set_UpcomingBlocks(block_num, next_four)
+        print("Upcoming blocks set")
+
     # ToggleSwitchBranch is called by the UI push button
     # Checks the UI combobox text and toggles the proper switch
     def ToggleSwitchBranch(self):
@@ -305,48 +321,35 @@ class MainWindow(QMainWindow):
         if(self.ui.MainLineBox.currentText() == "Green"):
             if(self.ui.MainControllerBox.currentText() == "1"):
                 self.GreenController1.switch.ToggleBranch()
-                self.UISwitchOutput(self.GreenController1)
             elif(self.ui.MainControllerBox.currentText() == "2"):
                 self.GreenController2.switch.ToggleBranch()
-                self.UISwitchOutput(self.GreenController2)
             elif(self.ui.MainControllerBox.currentText() == "3"):
                 self.GreenController3.switch.ToggleBranch()
-                self.UISwitchOutput(self.GreenController3)
             elif(self.ui.MainControllerBox.currentText() == "4"):
                 self.GreenController4.switch.ToggleBranch()
-                self.UISwitchOutput(self.GreenController4)
             elif(self.ui.MainControllerBox.currentText() == "5"):
                 self.GreenController5.switch.ToggleBranch()
-                self.UISwitchOutput(self.GreenController5)
             elif(self.ui.MainControllerBox.currentText() == "6"):
                 self.GreenController6.switch.ToggleBranch()
-                self.UISwitchOutput(self.GreenController6)
             elif(self.ui.MainControllerBox.currentText() == "7"):
                 self.GreenController7.switch.ToggleBranch()
-                self.UISwitchOutput(self.GreenController7)
         # Red Controllers
         elif(self.ui.MainLineBox.currentText() == "Red"):
             if(self.ui.MainControllerBox.currentText() == "1"):
                 self.RedController1.switch.ToggleBranch()
-                self.UISwitchOutput(self.RedController1)
             elif(self.ui.MainControllerBox.currentText() == "2"):
                 self.RedController2.switch.ToggleBranch()
-                self.UISwitchOutput(self.RedController2)
             elif(self.ui.MainControllerBox.currentText() == "3"):
                 self.RedController3.switch.ToggleBranch()
-                self.UISwitchOutput(self.RedController3)
             elif(self.ui.MainControllerBox.currentText() == "4"):
                 self.RedController4.switch.ToggleBranch()
-                self.UISwitchOutput(self.RedController4)
             elif(self.ui.MainControllerBox.currentText() == "5"):
                 self.RedController5.switch.ToggleBranch()
-                self.UISwitchOutput(self.RedController5)
             elif(self.ui.MainControllerBox.currentText() == "6"):
                 self.RedController6.switch.ToggleBranch()
-                self.UISwitchOutput(self.RedController6)
             elif(self.ui.MainControllerBox.currentText() == "7"):
                 self.RedController7.switch.ToggleBranch()
-                self.UISwitchOutput(self.RedController7)
+        self.UISwitchOutput()
 
     # CTCToggleSwitch is called when the CTC toggles a switch
     # Uses the proper Track Controller to toggle the switch
@@ -602,8 +605,7 @@ class MainWindow(QMainWindow):
                 self.displayUIOutput(self.RedController7)
 
     # Populates the Switch Outputs for the UI
-    # Parameters are TrackControllerSW object
-    def UISwitchOutput(self, controller):
+    def UISwitchOutput(self):
         if(self.ui.MainControllerBox.currentText() == "Choose"):
             self.ui.StemBox.setText("N/A")
             self.ui.BranchABox.setText("N/A")
@@ -687,100 +689,114 @@ class MainWindow(QMainWindow):
 
         # Controller Calls
         for i in range(7):
-            self.get_SwitchController("Green",i+1).set_PLC(self.plc_script)
-            self.get_SwitchController("Red",i+1).set_PLC(self.plc_script)
+            self.get_SwitchController("Green",i+1).set_PLCScript(self.plc_script)
+            self.get_SwitchController("Red",i+1).set_PLCScript(self.plc_script)
 
         print("PLC Scripts Imported")
+        self.plc_imported = True
         plc_file.close()
     
     # Runs the PLC script for the designated tag
     # Outputs the proper boolean value of the 
     def RunPLC(self,time_1,time_2):
-
-        # Switch Instructions
-        for i in range(len(self.tag_list)):
-            tag = self.tag_list[i]
-            # Loops through all of the lines instructions
-            for i in range(len(self.plc_script)):
-
-                # Checks the first instruction
-                if(self.plc_script[i].element[0] == tag):
-                    
-                    # Switch Instruction
-                    if(tag(0) == "G" or tag(0) == "R"):
-                        line
-                        if(tag(0) == "G"):
-                            s_controller = self.get_SwitchController("Green", int(tag(1)))
-                            line = "Green"
-                        elif(tag(0) == "R"):
-                            s_controller = self.get_SwitchController("Red", int(tag(1)))
-                            line = "Red"
+        if(self.plc_imported == True):
+            # Switch Instructions
+            for t in range(len(self.tag_list)):
+                tag = self.tag_list[t]
+                # Loops through all of the lines instructions
+                for i in range(len(self.plc_script)):
+                    # Checks the first instruction
+                    if(self.plc_script[i].elements[0] == tag):
                         
-                        s_offset = s_controller.block_offset
-                        block_1 = self.plc_script[i+1].elements[2]
-
-                        # More than one block
-                        if(len(self.plc_script[i+1].elements) > 3):
-                            op_1 = self.plc_script[i+1].elements[3]
-                            block_2 = self.plc_script[i+1].elements[5]
-                            block_end = self.plc_script[i+1].elements[7]
-
-                            # Check for occupancy in defined range
-                            rnge = block_end-block_2
-                            for i in range(rnge):
-                                b_controller = self.get_Controller(line, block_2+i)
-                                b_offset = b_controller.block_offset
-                                if(b_controller.occupancy[(block_2 + i) - b_offset] == True):
-                                    range_val == False
-                                    break
+                        # Switch Instruction
+                        if(tag[0] == "G" or tag[0] == "R"):
+                            if(tag[0] == "G"):
+                                s_controller = self.get_SwitchController("Green", int(tag[1]))
+                                line = "Green"
+                            elif(tag[0] == "R"):
+                                s_controller = self.get_SwitchController("Red", int(tag[1]))
+                                line = "Red"
                             
-                            # One block, a range, and additional block
-                            if(len(self.plc_script[i+1].elements)>8):
-                                block_4 = self.plc_script[i+1].elements[9]
-                                b_controller = self.get_Controller(line, block_4)
-                                b_offset = b_controller.block_offset
-                                b_4_bool = not(b_controller.occupancy[block_4-b_offset])
+                            s_offset = s_controller.block_offset
+                            if(self.plc_script[i+1].elements[2] != ""):
+                                block_1 = self.plc_script[i+1].elements[2]
 
-                                # Boolean True
-                                if(s_controller.occupancy[block_1 - s_offset] == True and range_val and b_4_bool):
-                                    if(s_controller.switch.cur_branch != block_1):
-                                        s_controller.switch.ToggleBranch()
-                                # Boolean False
+                                # More than one block
+                                if(self.plc_script[i+1].elements[3] != ""):
+                                    if(self.plc_script[i+1].elements[4]!= "YRD"):
+                                        op_1 = self.plc_script[i+1].elements[3]
+                                        block_2 = self.plc_script[i+1].elements[5]
+                                        block_end = self.plc_script[i+1].elements[7]
+
+                                        # Check for occupancy in defined range
+                                        rnge = int(block_end)-int(str(block_2))
+                                        range_val = True
+                                        for j in range(rnge):
+                                            b_controller = self.get_Controller(line, int(block_2)+j)
+                                            b_offset = b_controller.block_offset
+                                            if(b_controller.occupancy[(int(block_2) + j) - b_offset] == True):
+                                                range_val = False
+                                                break
+                                        
+                                        # One block, a range, and additional block
+                                        if(self.plc_script[i+1].elements[9] != ""):
+                                            #for the_elements in self.plc_script[i+1].elements:
+                                            #    print(str(the_elements))
+                                            block_4 = self.plc_script[13].elements[9]
+                                            b_controller = self.get_Controller(line, int(block_4))
+                                            b_offset = b_controller.block_offset
+                                            b_4_bool = not(b_controller.occupancy[int(block_4)-b_offset])
+
+                                            # Boolean True
+                                            if(s_controller.occupancy[int(block_1) - s_offset] == True and range_val and b_4_bool):
+                                                if(s_controller.switch.cur_branch != int(block_1)):
+                                                    print("\n\n\nSWITCHED BRANCH WOOOOOOOO\n\n\n")
+                                                    s_controller.switch.ToggleBranch()
+                                            # Boolean False
+                                            else:
+                                                if(s_controller.switch.cur_branch == int(block_1)):
+                                                    s_controller.switch.ToggleBranch()
+
+                                        # One block and Range
+                                        else:
+
+                                            # Boolean True
+                                            if(s_controller.occupancy[int(block_1) - s_offset] == True and range_val):
+                                                if(s_controller.switch.cur_branch != int(block_1)):
+                                                    print("\n\n\nSWITCHED BRANCH WOOOOOOOO\n\n\n")
+                                                    s_controller.switch.ToggleBranch()
+                                            # Boolean False
+                                            else:
+                                                if(s_controller.switch.cur_branch == int(block_1)):
+                                                    s_controller.switch.ToggleBranch()
+                                    # Yard Call
+                                    else:
+                                        ...
+                                        #if(s_controller.occupancy[int(block_1) - s_offset] == True):
+                                            
+                                # Only one block
                                 else:
-                                    if(s_controller.switch.cur_branch == block_1):
-                                        s_controller.switch.ToggleBranch()
-
-                            # One block and Range
-                            else:
-
-                                # Boolean True
-                                if(s_controller.occupancy[block_1 - s_offset] == True and range_val):
-                                    if(s_controller.switch.cur_branch != block_1):
-                                        s_controller.switch.ToggleBranch()
-                                # Boolean False
-                                else:
-                                    if(s_controller.switch.cur_branch == block_1):
-                                        s_controller.switch.ToggleBranch()
-
-                        # Only one block
-                        else:
-                            # Boolean True
-                            if(s_controller.occupancy[block_1 - s_offset] == True):
-                                if(s_controller.switch.cur_branch != block_1):
-                                    s_controller.switch.ToggleBranch()
-                            # Boolean False
-                            else:
-                                if(s_controller.switch.cur_branch == block_1):
-                                    s_controller.switch.ToggleBranch()
-                                
-        # Controller Calls
-        for i in range(7):
-            self.get_SwitchController("Green",i+1).RunPLC("COL")
-            self.get_SwitchController("Red",i+1).RunPLC("COL")
-            self.get_SwitchController("Green",i+1).RunPLC("CRX")
-            self.get_SwitchController("Red",i+1).RunPLC("CRX")
-            self.get_SwitchController("Green",i+1).RunPLC("TRL")
-            self.get_SwitchController("Red",i+1).RunPLC("TRL")
+                                    # Boolean True
+                                    if(s_controller.occupancy[int(block_1) - s_offset] == True):
+                                        if(s_controller.switch.cur_branch != int(block_1)):
+                                            print("\n\n\nSWITCHED BRANCH WOOOOOOOO\n\n\n")
+                                            s_controller.switch.ToggleBranch()
+                                    # Boolean False
+                                    else:
+                                        if(s_controller.switch.cur_branch == int(block_1)):
+                                            s_controller.switch.ToggleBranch()
+            
+            # Calls UI switch output
+            self.UISwitchOutput()
+            # Controller Calls
+            for i in range(7):
+                self.get_SwitchController("Green",i+1).RunPLC("COL")
+                self.get_SwitchController("Red",i+1).RunPLC("COL")
+                self.get_SwitchController("Green",i+1).RunPLC("CRX")
+                self.get_SwitchController("Red",i+1).RunPLC("CRX")
+                self.get_SwitchController("Green",i+1).RunPLC("TRL")
+                self.get_SwitchController("Red",i+1).RunPLC("TRL")
+        
 
 
 if __name__ == "__main__":

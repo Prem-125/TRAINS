@@ -57,6 +57,12 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
         #Define connection for manual dispatch button
         self.ui.ManDispButton.clicked.connect(self.GUIManualDispatch)
+        #Define connection for automatic dispatch button
+        self.ui.ImportSchedButton.clicked.connect(self.GUIAutoDispatch)
+
+        #Define high-level functionality of Automatic and Manual group boxes
+        self.ui.AutoGroupBox.clicked.connect(self.ExitAutoMode)
+        self.ui.ManGroupBox.clicked.connect(self.EnterManMode)
 
         #Declare destination list for manual dispatch procedures
         self.dest_list = []
@@ -116,6 +122,57 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
     def SetStack1Index2(self):
         self.ui.StackedWidget1.setCurrentIndex(2)
+
+    #Method to leave automatic mode
+    def ExitAutoMode(self):
+        #Display warning message box
+        AutoExitMsg = QMessageBox()
+        AutoExitMsg.setWindowTitle("Exiting Automatic Mode")
+        AutoExitMsg.setText("WARNING: Are you sure you would like to disable automatic mode?\nOnce disabled, automatic mode cannot be reenabled.")
+        AutoExitMsg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Yes)
+        AutoExitMsg.setIcon(QMessageBox.Warning)
+
+        AutoExitMsg.buttonClicked.connect(self.PopUpSelection)
+
+        MsgWin = AutoExitMsg.exec()
+    #End method
+
+    #Method to respond to user selection in pop-up window for leaving automatic mode
+    def PopUpSelection(self, response):
+        if(response.text() == "Cancel"):
+            self.ui.AutoGroupBox.setChecked(True)
+            return
+        else:
+            self.ui.AutoGroupBox.setDisabled(True)
+            self.ui.ManGroupBox.setChecked(True)
+        #End if-else block
+    #End method
+
+    #Method to responsd to attempted modification of manual dispatch group checkbox
+    def EnterManMode(self):
+        if(self.ui.AutoGroupBox.isChecked() == True):
+            #Display warning message box
+            AutoExitMsg = QMessageBox()
+            AutoExitMsg.setWindowTitle("Exiting Automatic Mode")
+            AutoExitMsg.setText("WARNING: Are you sure you would like to disable automatic mode and enter manual mode?\nOnce disabled, automatic mode cannot be reenabled.")
+            AutoExitMsg.setStandardButtons(QMessageBox.Cancel | QMessageBox.Yes)
+            AutoExitMsg.setIcon(QMessageBox.Warning)
+
+            AutoExitMsg.buttonClicked.connect(self.PopUpSelection)
+
+            MsgWin = AutoExitMsg.exec()
+        else:
+            #Display warning message box
+            ManExitMsg = QMessageBox()
+            ManExitMsg.setWindowTitle("Operational Mode Immutable")
+            ManExitMsg.setText("ERROR: Once entered, manual mode cannot be disabled.")
+            ManExitMsg.setIcon(QMessageBox.Critical)
+
+            MsgWin = ManExitMsg.exec()
+
+            self.ui.ManGroupBox.setChecked(True)
+        #End if-else block
+    #End method
 
     #Method to fill destination combo box with stations in manual scheduler
     def SetManDispStations(self):
@@ -208,7 +265,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         self.ui.DestTable.setRowCount(0)
 
         #Declare processed list to be returned to calling environment
-        proc_list = []
+        proc_block_list = []
 
         print("\n\nFULL DEST LIST")
         for dest_name in self.dest_list:
@@ -229,12 +286,41 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                 print("Length of destination ordered list: " + str(len(dest_order)))
                 for dest_order_elem in dest_order:
                     print(dest_order_elem)
+
                 if(destination_name in dest_order):
                     #Check if this is the second visitation of this station
                     if(destination_name in prev_stations):
-                        proc_list.append(destination_name)
+                        if(destination_name == "Dormont"):
+                            proc_block_list.append(105)
+                        elif(destination_name == "Glenbury"):
+                            proc_block_list.append(114)
+                        elif(destination_name == "Overbrook"):
+                            proc_block_list.append(57)
+                        elif(destination_name == "Inglewood"):
+                            proc_block_list.append(38)
+                        elif(destination_name == "Central"):
+                            proc_block_list.append(49)
+                        elif(destination_name == "Mt Lebanon"):
+                            proc_block_list.append(77)
+                        elif(destination_name == "Whited"):
+                            proc_block_list.append(22)
+                        #End if-elif block
                     else:
-                        proc_list.append(destination_name)
+                        if(destination_name == "Overbrook"):
+                            proc_block_list.append(123)
+                        elif(destination_name == "Inglewood"):
+                            proc_block_list.append(132)
+                        elif(destination_name == "Central"):
+                            proc_block_list.append(141)
+                        else:
+                            for StationObj in GreenLine.station_list:
+                                if(StationObj.name == destination_name.upper()):
+                                    proc_block_list.append(StationObj.block_num)
+                                    break
+                                #End if
+                            #End for loop
+                        #End if-elif block
+                    #End if-else block
 
                     #Determine position of station in ordered list
                     dest_pos = dest_order.index(destination_name) + 1
@@ -248,6 +334,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
                     #Remove all list elements up to and including this station
                     del dest_order[:dest_pos]
+
                 else:
                     #Create error message box
                     ClosureInfoMsg = QMessageBox()
@@ -260,6 +347,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                     return
                 #End if-else block
             #End for loop
+            
         elif(track_line_name == "Red" and self.ui.StationRadioButton.isChecked()):
             #Create list of all track stations in the order they appear beginning at the yard
             dest_order = ["Shadyside", "Herron Ave", "Swissville", "Penn Station", "Steel Plaza", "First Ave", "Station Square", "South Hills Junction",
@@ -270,9 +358,17 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
             #Ensure destination list abides by track layout
             for destination_name in self.dest_list:
+                print("Trying to find " + destination_name + " in dest_list")
+                print("Length of destination ordered list: " + str(len(dest_order)))
+                for dest_order_elem in dest_order:
+                    print(dest_order_elem)
                 if(destination_name in dest_order):
-                    #Append to destination list
-                    proc_list.append(destination_name)
+                    for StationObj in RedLine.station_list:
+                        if(StationObj.name == destination_name.upper()):
+                            proc_block_list.append(StationObj.block_num)
+                            break
+                        #End if
+                    #End for loop
 
                     #Determine position of station in ordered list
                     dest_pos = dest_order.index(destination_name) + 1
@@ -286,6 +382,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
                     #Remove all list elements up to and including this station
                     del dest_order[:dest_pos]
+
                 else:
                     #Create error message box
                     ClosureInfoMsg = QMessageBox()
@@ -298,15 +395,9 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                     return
                 #End if-else block
             #End for loop
-        #End if-elif block
-
-        print("\nLength of processed list: " + str( len(proc_list) ) + "\n")
-
-        for station_name in proc_list:
-            print("\n" + station_name + "\n")
-
-        #Clear destination list
-        self.dest_list.clear()
+        #End if-else block
+            
+        print("\nLength of processed list: " + str( len(proc_block_list) ) + "\n")
 
         #Obtain train arrival time
         input_time = str(self.ui.TimeLineEdit1.text())
@@ -315,69 +406,17 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         parsed_input_time = input_time.split(":")
         train_arrival_time = int(parsed_input_time[0])*3600 + int(parsed_input_time[1])*60 + int(parsed_input_time[2])
 
-        #Declare list to hold destinations as block numbers
-        dest_block_list = []
-
-        #If destination is expressed as a station, convert to corresponding block number
-        if(self.ui.StationRadioButton.isChecked()):
-            if(track_line_name == "Green"):
-                #Loop through destinations
-                for destination_name in proc_list:
-                    #Loop through stations
-                    for StationObj in GreenLine.station_list:
-                        #Address first and second visitations
-                        if(StationObj.name == destination_name.upper() and StationObj.block_num not in dest_block_list):
-                            #Swap block nums for Overbrook, Inglewood, and Central
-                            if(StationObj.name == "Overbrook".upper() and StationObj.block_num == 57):
-                                dest_block_list.append(123)
-                            elif(StationObj.name == "Overbrook".upper() and StationObj.block_num == 123):
-                                dest_block_list.append(57)
-                            #End if
-
-                            if(StationObj.name == "Inglewood".upper() and StationObj.block_num == 48):
-                                dest_block_list.append(132)
-                            elif(StationObj.name == "Inglewood".upper() and StationObj.block_num == 132):
-                                dest_block_list.append(48)
-                            #End if
-
-                            if(StationObj.name == "Central".upper() and StationObj.block_num == 39):
-                                dest_block_list.append(141)
-                            elif(StationObj.name == "Central".upper() and StationObj.block_num == 141):
-                                dest_block_list.append(39)
-                            #End if
-
-                            dest_block_list.append(StationObj.block_num)
-
-                            break
-                        elif(StationObj.name == destination_name.upper() and StationObj.block_num in dest_block_list):
-                            if(StationObj.name == "Whited".upper() or StationObj.name == "Mt Lebanon".upper()):
-                                dest_block_list.append(StationObj.block_num)
-                        #End if
-                    #End station loop
-                #End destination loop
-
-            elif(track_line_name == "Red"):
-                for destination_name in proc_list:
-                    for StationObj in RedLine.station_list:
-                        if(StationObj.name == destination_name.upper()):
-                            dest_block_list.append(StationObj.block_num)
-                        #End if
-                    #End station loop
-                #End destination loop
-            #End if-elif block
-
-        else:
-            dest_block_list.append( int(destination_name) )
-
         print("\nBLOCK LIST")
-        for dest_block in dest_block_list:
+        for dest_block in proc_block_list:
             print(str(dest_block))
 
         #Call back-end function for manual dispatch
         if(track_line_name == "Green"):
-            dest_arrival_times = CTCSchedule.ManualSchedule(dest_block_list, train_arrival_time, GreenLine, self.gbl_seconds)
+            dest_arrival_times = CTCSchedule.ManualSchedule(proc_block_list, train_arrival_time, GreenLine, self.gbl_seconds)
         if(track_line_name == "Red"):
-            dest_arrival_times = CTCSchedule.ManualSchedule(dest_block_list, train_arrival_time, RedLine, self.gbl_seconds)
+            dest_arrival_times = CTCSchedule.ManualSchedule(proc_block_list, train_arrival_time, RedLine, self.gbl_seconds)
+
+        print("\nLength of destination arrival times list is " + str(len(dest_arrival_times)))
 
         #If train could not be scheduled, display pop-up window and return to calling environment
         if(len(dest_arrival_times) == 0):
@@ -397,7 +436,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
         #Add train to scheduling table
         if(self.ui.StationRadioButton.isChecked()):
-            for destination_name in proc_list:
+            for destination_name in self.dest_list:
                 numRows = self.ui.SchedTable.rowCount()
                 self.ui.SchedTable.insertRow(numRows)
 
@@ -407,7 +446,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                 self.ui.SchedTable.setItem(numRows, 3, QTableWidgetItem(destination_name))
 
                 #Convert seconds to display time
-                backend_time = dest_arrival_times[proc_list.index(destination_name)]
+                backend_time = dest_arrival_times[self.dest_list.index(destination_name)]
                 arrival_hours = int(backend_time/3600)
                 arrival_minutes = int( (backend_time%3600)/60 )
                 arrival_seconds = int( (backend_time%60) )
@@ -416,7 +455,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
             #End for
 
         else:
-            for block_destination in proc_list:
+            for block_destination in self.dest_list:
                 numRows = self.ui.SchedTable.rowCount()
                 self.ui.SchedTable.insertRow(numRows)
 
@@ -426,7 +465,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                 self.ui.SchedTable.setItem(numRows, 3, QTableWidgetItem("Block " + str(block_destination)))
                 
                 #Convert seconds to display time
-                backend_time = dest_arrival_times[proc_list.index(destination_name)]
+                backend_time = dest_arrival_times[self.dest_list.index(destination_name)]
                 arrival_hours = int(backend_time/3600)
                 arrival_minutes = int( (backend_time%3600)/60 )
                 arrival_seconds = int( (backend_time%60) )
@@ -443,12 +482,57 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
 
         MsgWin = ManDispFailMsg.exec()
 
+        #Clear destination list
+        self.dest_list.clear()
+
         print("Train Number " + str(CTCSchedule.train_list[-1].number) )
         print("Train Destination: Block " + str(CTCSchedule.train_list[-1].destination_list[0]))
         print("Track Line: " + CTCSchedule.train_list[-1].HostTrackLine.color)
         print("Departure Time: " + str(CTCSchedule.train_list[-1].departure_time))
     #End method
-        
+    
+    #Method to initiate automatic dispatch and update scheduler accordingly
+    def GUIAutoDispatch(self):
+        #Get schedule file from user
+        #fileDialog will be of type tuple
+        file_dialog = QFileDialog.getOpenFileName()
+
+        #Access first fileDialog element to isolate schedule file path
+        filepath = file_dialog[0]
+
+        #Parse file name from file path
+        parsed_filepath = filepath.split('/')
+        file_name = parsed_filepath.pop()
+
+        #Update last loaded schedule label
+        self.ui.FileNameLabel.setText(file_name)
+
+        #Call back-end function for automatic dispatch
+        destination_names = CTCSchedule.AutoSchedule(file_name, 1, GreenLine)
+
+        for trainObj in CTCSchedule.trainList:
+            #Loop through destinations of each train
+            for destination_block in trainObj.destination_list:
+                numRows = self.ui.SchedTable.rowCount()
+                self.ui.SchedTable.insertRow(numRows)
+
+                self.ui.SchedTable.setItem(numRows, 0, QTableWidgetItem(str(trainObj.number)))
+                self.ui.SchedTable.setItem(numRows, 1, QTableWidgetItem(trainObj.HostTrackLine.color))
+                self.ui.SchedTable.setItem(numRows, 2, QTableWidgetItem("Block " + str(trainObj.route_queue[0])))
+                self.ui.SchedTable.setItem(numRows, 3, QTableWidgetItem(destination_name))
+
+                #Convert seconds to display time
+                backend_time = trainObj.arrival_times[trainObj.destination_list.index(destination_block)]
+                arrival_hours = int(backend_time/3600)
+                arrival_minutes = int( (backend_time%3600)/60 )
+                arrival_seconds = int( (backend_time%60) )
+                display_time = str(arrival_hours).zfill(2) + ":" + str(arrival_minutes).zfill(2) + ":" + str(arrival_seconds).zfill(2)
+                self.ui.SchedTable.setItem( numRows, 4, QTableWidgetItem(display_time) )
+            #End destination loop
+        #End train loop
+
+
+
 
     #Methods to modify map information
     def SetGreenMap(self):

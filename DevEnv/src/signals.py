@@ -29,6 +29,8 @@ class SignalsClass(QObject):
     wayside_block_status = Signal(str, int, bool) #Parameters are track line, block number, block status
     CTC_switch_position = Signal(str, int, int) #Parameters are track line, switch stem, current branch
     CTC_toggle_switch = Signal(str, int) #Parameters are track line, switch stem
+    CTC_next_four_request = Signal(str, int) #Parameters are track line, and block number
+    CTC_next_four_fulfilled = Signal(str, int, object) #Parameters are track line, block number, list of next four
 
 
     #Signals exchanged between wayside and track model

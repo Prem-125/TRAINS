@@ -8748,7 +8748,7 @@ Simulation</string>
        </property>
       </widget>
      </widget>
-     <widget class="QGroupBox" name="ManGroupBox_2">
+     <widget class="QGroupBox" name="ManGroupBox">
       <property name="geometry">
        <rect>
         <x>20</x>
@@ -9064,7 +9064,7 @@ Arrival Time</string>
        <column/>
       </widget>
      </widget>
-     <widget class="QGroupBox" name="AutoGroupBox_2">
+     <widget class="QGroupBox" name="AutoGroupBox">
       <property name="geometry">
        <rect>
         <x>20</x>
@@ -9093,7 +9093,7 @@ Arrival Time</string>
        <bool>true</bool>
       </property>
       <property name="checked">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <widget class="QLabel" name="ImportSchedLabel">
        <property name="geometry">
