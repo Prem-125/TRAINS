@@ -93,6 +93,11 @@ class TrainControllerHWInterface(QMainWindow):
 				#print(status)
 				self.temperature = int(status)
 				self.ui.TemperatureVal.setPlainText(status + "°F")
+				self.train_model.temp_changed(status)
+			elif(status == 5):
+				raw = self.arduino.readline()
+				status = int(raw.decode('ascii').strip('\r\n'))
+				self.setFaults(status)
 
 
 	def serialWrite(self):
@@ -103,7 +108,14 @@ class TrainControllerHWInterface(QMainWindow):
 		self.arduino.write(str(self.encodedB).encode('utf-8')+ self.eol)
 		self.nFlag=0
 
-		
+	def setFaults(self,faults):
+		if(faults & 1):
+			self.train_model.train_detected_brake_failure()
+		if(faults >> 1 & 1):
+			self.train_model.train_detected_engine_failure()
+		if(faults >> 2 & 1):
+			self.train_model.train_detected_tc_failure()
+
 		
 	def set_track_circuit(self,TC):				
 		print("SETTING TC")

@@ -20,12 +20,13 @@ void decodeTC(long long TCEnc){
   set_auth(authInt);
   if(UpcomingStation && get_auth()== 0){
     StopAtStation = true;
+    announcement = StationAnnouncement;
     SendAnnouncement();
   }
 }
 
 void detectFailures(){
-  if((get_curVel()-2 > get_oldVel() &&  (get_PEBrake() || get_EBrake() || get_SBrake()) && get_oldVel() != 666.0 && get_oldVel()!=0)||BrakeFault){
+  if((get_curVel()- 2 > get_oldVel() &&  (get_PEBrake() || get_EBrake() || get_SBrake()) && get_oldVel() != 666.0 && get_oldVel()!=0)||BrakeFault){
     digitalWrite(LEDs[10],HIGH);
     set_EBrake(true);
     BrakeFault = true;
@@ -42,7 +43,8 @@ void detectFailures(){
   
   if(TCFault){
     digitalWrite(LEDs[9],HIGH); // Apply Signal Fail Light
-   // set_EBrake(true);
+    set_EBrake(true);
+    TCFault = true;
 
 
   }

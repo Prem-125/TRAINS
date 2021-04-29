@@ -454,5 +454,6 @@ void SendFaults(){
   faults += int(get_BrakeFault());
   faults += int(get_EngineFault()) << 1;
   faults += int(get_TCFault()) << 2;
+  Serial.println(faults);
   
 }
