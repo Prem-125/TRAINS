@@ -248,8 +248,8 @@ class MainWindow(QMainWindow):
 			self.train.authority = float(text)
 			self.ui.authOutput.setText(text + " meters") 
 	
-	#from ui def temp_changed(self):
-   	#from ui 	self.ui.tempOuput.setText(str(self.ui.spinBox.value())+" °F")
+	def temp_changed(self, temptemp):
+   	 self.ui.tempOuput.setText(str(temptemp))
 		   
 	def s_brake_on(self):
    		self.train.serviceBrake=True

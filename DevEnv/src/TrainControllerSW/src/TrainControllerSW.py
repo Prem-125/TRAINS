@@ -40,6 +40,7 @@ class TrainController:
         self.announcement = ""
         self.ad_length = 0
         self.current_ad=0
+        self.temperature = 70
 
         #sending vital info to SpeedRegulator
         self.SR = SpeedRegulator(self, commanded_speed, current_speed, authority, self.train_ID)
@@ -354,6 +355,11 @@ class TrainController:
         self.SR.kp = kp
         self.SR.ki = ki
 
+    def on_temperature_change(self):
+        self.temperature = int(self.UI.ui.temperature.value())
+        self.TrainModel.temp_changed(self.temperature)
+        self.displayUpdate()
+
 
     
 
@@ -539,7 +545,8 @@ class SpeedRegulator():
             self.brake_failure = True
             self.TrainController.UI.ui.textBrowser_14.setStyleSheet(u"background-color: rgb(255, 0, 0);")
             self.VitalFault()
-            self.TrainController.TrainModel.brake_failure_on()
+            self.TrainController.TrainModel.train_detected_brake_failure()
+
             print("Service brake: " + str(self.service_brake))
             print("Current Speed: " + str(self.current_speed))
             print("Previous speed: " + str(self.previous_speed))
@@ -551,7 +558,7 @@ class SpeedRegulator():
             self.brake_failure = True
             self.TrainController.UI.ui.textBrowser_14.setStyleSheet(u"background-color: rgb(255, 0, 0);")
             self.VitalFault()
-            self.TrainController.TrainModel.brake_failure_on()
+            self.TrainController.TrainModel.train_detected_brake_failure()
            # print("Service brake: " + str(self.service_brake))
            # print("Current Speed: " + str(self.current_speed))
            # print("Previous speed: " + str(self.previous_speed))
@@ -587,7 +594,7 @@ class MainWindow(QMainWindow):
         self.ui.rightDoors.stateChanged.connect(self.TrainController.toggle_right_doors)
         self.ui.interiorLights.stateChanged.connect(self.TrainController.toggle_interior_lights)
         self.ui.exteriorLights.stateChanged.connect(self.TrainController.toggle_exterior_lights)
-        
+        self.ui.temperature.valueChanged.connect(self.TrainController.on_temperature_change)
 
         #self.pidTimer = QTimer()
         #self.pidTimer.timeout.connect(self.TrainController.SR.pidLoop)
