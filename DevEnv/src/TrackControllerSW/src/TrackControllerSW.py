@@ -11,6 +11,9 @@ class TrackController:
         self.line = line
         self.tag = tag
 
+        # Adjacent Controllers
+        self.adj_controller_list = [""]
+
         # Block Status Variables
         self.block_open = [True for i in range(150)]
         self.occupancy = [False for i in range(150)]
@@ -24,8 +27,16 @@ class TrackController:
         # Instantiate a crossing
         self.crossing = Crossing(-1)
 
+        # Instantiate a PLC script
+        self.plc_script = [PLCLine()]
+
         #UI used variables
         self.ui_block = 0
+
+    # Initialize adjacent controllers
+    def set_AdjacentControllers(self,adj_list):
+        self.adj_controller_list.clear()
+        self.adj_controller_list = adj_list
 
     # Initializes the switch values, calling the switch function
     # Parameters are block number, branch a, branch b, and track line name
@@ -168,6 +179,36 @@ class TrackController:
             if(self.occupancy(block_num-self.block_offset-1) == True):
                 self.authority[block_num-self.block_offset] = False
                 #send signal
+
+    # Set PLC Script
+    # Parameter is a list of PLC script
+    def set_PLCScript(self, plc_script):
+        self.plc_script.clear()
+        for (i in len(plc_script)):
+            self.plc_script.append(plc_script[i])
+    
+    # RUN PLC
+    def RunPLC(self, sent_tag):
+        # Collision Instruction
+        if(sent_tag == "COL"):
+            output = True
+            """for i in range(next_four):
+                controller = self.getController(line,next_four[i])
+                offset = controller.block_offset
+                if(controller.occupancy[next_four-offset] == True):
+                    output = False
+                    break
+            # Set authority of the block to the output of the function
+            controller = self.getController(line, block_num)
+            controller.authority[block_num - controller.block_offset] = output"""
+
+        # Crossing Instruction
+        elif(sent_tag == "CRX"):
+            continue
+
+        # Traffic Light Instruction
+        elif(sent_tag == "TRL"):
+            continue
 
 # Describes the function of a Switch under jurisdiction of a Track Controller
 class SwitchObj:
