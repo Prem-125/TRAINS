@@ -210,10 +210,14 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         #Declare processed list to be returned to calling environment
         proc_list = []
 
+        print("\n\nFULL DEST LIST")
+        for dest_name in self.dest_list:
+            print(dest_name)
+
         #Obtain train destinations from list
         if(track_line_name == "Green" and self.ui.StationRadioButton.isChecked()):
             #Create list of all track stations in the order they appear beginning at the yard
-            dest_order = ["Glenbury", "Dormont", "Mt Lebanon", "Poplar", "Castle Shannon", "Dormont", "Glenbury", "Overbrook", "Inglewood", "Central",
+            dest_order = ["Glenbury", "Dormont", "Mt Lebanon", "Poplar", "Castle Shannon", "Mt Lebanon", "Dormont", "Glenbury", "Overbrook", "Inglewood", "Central",
                             "Whited", "Edgebrook", "Pioneer", "Whited", "South Bank", "Central", "Inglewood", "Overbrook"]
 
             #Declare list of passed stations as the ordered list is traversed
@@ -228,7 +232,7 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                 if(destination_name in dest_order):
                     #Check if this is the second visitation of this station
                     if(destination_name in prev_stations):
-                        proc_list.append(destination_name + "2")
+                        proc_list.append(destination_name)
                     else:
                         proc_list.append(destination_name)
 
@@ -317,10 +321,37 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         #If destination is expressed as a station, convert to corresponding block number
         if(self.ui.StationRadioButton.isChecked()):
             if(track_line_name == "Green"):
+                #Loop through destinations
                 for destination_name in proc_list:
+                    #Loop through stations
                     for StationObj in GreenLine.station_list:
-                        if(StationObj.name == destination_name.upper()):
+                        #Address first and second visitations
+                        if(StationObj.name == destination_name.upper() and StationObj.block_num not in dest_block_list):
+                            #Swap block nums for Overbrook, Inglewood, and Central
+                            if(StationObj.name == "Overbrook".upper() and StationObj.block_num == 57):
+                                dest_block_list.append(123)
+                            elif(StationObj.name == "Overbrook".upper() and StationObj.block_num == 123):
+                                dest_block_list.append(57)
+                            #End if
+
+                            if(StationObj.name == "Inglewood".upper() and StationObj.block_num == 48):
+                                dest_block_list.append(132)
+                            elif(StationObj.name == "Inglewood".upper() and StationObj.block_num == 132):
+                                dest_block_list.append(48)
+                            #End if
+
+                            if(StationObj.name == "Central".upper() and StationObj.block_num == 39):
+                                dest_block_list.append(141)
+                            elif(StationObj.name == "Central".upper() and StationObj.block_num == 141):
+                                dest_block_list.append(39)
+                            #End if
+
                             dest_block_list.append(StationObj.block_num)
+
+                            break
+                        elif(StationObj.name == destination_name.upper() and StationObj.block_num in dest_block_list):
+                            if(StationObj.name == "Whited".upper() or StationObj.name == "Mt Lebanon".upper()):
+                                dest_block_list.append(StationObj.block_num)
                         #End if
                     #End station loop
                 #End destination loop
@@ -333,10 +364,12 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                         #End if
                     #End station loop
                 #End destination loop
+            #End if-elif block
 
         else:
             dest_block_list.append( int(destination_name) )
 
+        print("\nBLOCK LIST")
         for dest_block in dest_block_list:
             print(str(dest_block))
 
@@ -391,7 +424,14 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                 self.ui.SchedTable.setItem(numRows, 1, QTableWidgetItem(trainObj.HostTrackLine.color))
                 self.ui.SchedTable.setItem(numRows, 2, QTableWidgetItem("Block " + str(trainObj.route_queue[0])))
                 self.ui.SchedTable.setItem(numRows, 3, QTableWidgetItem("Block " + str(block_destination)))
-                self.ui.SchedTable.setItem(numRows, 4, QTableWidgetItem(input_time))
+                
+                #Convert seconds to display time
+                backend_time = dest_arrival_times[proc_list.index(destination_name)]
+                arrival_hours = int(backend_time/3600)
+                arrival_minutes = int( (backend_time%3600)/60 )
+                arrival_seconds = int( (backend_time%60) )
+                display_time = str(arrival_hours).zfill(2) + ":" + str(arrival_minutes).zfill(2) + ":" + str(arrival_seconds).zfill(2)
+                self.ui.SchedTable.setItem( numRows, 4, QTableWidgetItem(display_time) )
             #End for
         #End if-else block
 
@@ -409,8 +449,6 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         print("Departure Time: " + str(CTCSchedule.train_list[-1].departure_time))
     #End method
         
-
-
 
     #Methods to modify map information
     def SetGreenMap(self):
