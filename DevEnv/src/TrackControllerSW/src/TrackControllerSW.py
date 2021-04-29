@@ -93,6 +93,8 @@ class TrackController:
     def get_Authority(self, block_num, authority):
         # Uses block offset to set the correct block
         self.authority[block_num-self.block_offset] = authority
+        if(self.occupancy[block_num-self.block_offset+1] == True or self.occupancy[block_num-self.block_offset-1] == True):
+            self.authority[block_num-self.block_offset] = False
         self.set_TrackStats(block_num)
 
     # Gets the suggested speed from the CTC office
@@ -173,26 +175,17 @@ class TrackController:
             for block_num in self.block_list:
                 if(self.occupancy[block_num - self.block_offset] == True):
                     # Request the next four
-                    print("Requesting next four")
                     signals.CTC_next_four_request.emit(self.line, block_num)
-                    print("Requested")
                     next_four = self.get_UpcomingBlocks(block_num)
-                    print("Got next four")
-                    print(str(block_num))
-                    for x in next_four:    
-                        print(str(x))
                     for next_block in next_four:
                         # Checks current controller
                         if(self.occupancy[next_block - self.block_offset] == True):
                             output = False
-                            print("\n\n\nAUTHORITY SHOULD BE SET TO FALSE")
                         # Checks adjacent track controllers
-                        for controller in self.adj_controller_list:
+                        """for controller in self.adj_controller_list:
                             if(controller.occupancy[next_block - controller.block_offset] == True):
-                                output = False
-                                print("\n\n\nAUTHORITY SHOULD BE SET TO FALSE")
-                    self.get_Authority[block_num] = output
-                    print("Authority: " + str(self.authority[block_num - self.block_offset]))
+                                output = False"""
+                    self.get_Authority(block_num, output)
 
 
         # Crossing Instruction

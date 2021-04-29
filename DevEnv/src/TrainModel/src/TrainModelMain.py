@@ -58,6 +58,7 @@ class MainWindow(QMainWindow):
 		self.ui.engine3.clicked.connect(self.engine3_failure)
 		self.ui.engine4.clicked.connect(self.engine4_failure)
 		self.ui.engine5.clicked.connect(self.engine5_failure)
+		self.ui.massOutput.setText(str(round(self.train.mass,2))+ " Kg")
 		#from ui self.ui.authInput.textChanged.connect(self.set_authority)
 		#from ui self.ui.spinBox.valueChanged.connect(self.temp_changed)
 # from ui		self.ui.serviceBreakOn.clicked.connect(self.s_brake_on)
@@ -323,6 +324,7 @@ class MainWindow(QMainWindow):
 		elif(self.train.serviceBrake and not self.train.brakeFailure):
 			self.train.acceleration = self.train.decLimitS
 
+		#self.ui.accOutput.setText(str(round(self.train.acceleration,2))+ " m/s^2")
 
 		#calculate teh velocity (in meters per sec)
 		calcVelocity = (self.train.velocity + ( (self.train.samplePeriod /2) * (self.train.acceleration + previousAcc)  * (1 - .2 * self.train.engineFailure)))
@@ -334,7 +336,11 @@ class MainWindow(QMainWindow):
 
 		if(self.train.velocity<0.0):
 			self.train.velocity = 0.0
+			
+		if(self.train.velocity == 0.0 and self.train.acceleration<0):
+			self.train.acceleration == 0.0
 
+		self.ui.accOutput.setText(str(round(self.train.acceleration,2))+ " m/s^2")
 		self.ui.veloOutput.setText(str(round(self.train.velocity*2.23694,2))+ " mph")
 		#print("the speedbeing sent to train controler " + str(self.train.velocity))
 		# if(self.train.engineFailure == 5):
@@ -374,10 +380,11 @@ class MainWindow(QMainWindow):
 	def change_passengers(self, delta):
 		self.train.passengers += delta
 		self.change_mass()
+		self.ui.OccupantOutput.setText(str(self.train.passengers)+ " Kg")
 
 	def change_mass(self):
 		self.train.mass = 37103.86 + (70*self.train.passengers) # average mass of a human = 70 kg
-
+		self.ui.massOutput.setText(str(round(self.train.mass,2))+ " Kg")
    
 
 if __name__ == "__main__":

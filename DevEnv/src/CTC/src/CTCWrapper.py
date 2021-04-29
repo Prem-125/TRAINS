@@ -508,18 +508,32 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
         self.ui.FileNameLabel.setText(file_name)
 
         #Call back-end function for automatic dispatch
-        destination_names = CTCSchedule.AutoSchedule(file_name, 1, GreenLine)
+        CTCSchedule.AutoSchedule(file_name, 1, GreenLine)
 
-        for trainObj in CTCSchedule.trainList:
+        print("Number of trains is " + str(len(CTCSchedule.train_list)))
+
+        for trainObj in CTCSchedule.train_list:
+            print("Number of final destinations is " + str(len(trainObj.destination_list)))
             #Loop through destinations of each train
+
+            #Reset loop iterator
+            iterator = 0
+
             for destination_block in trainObj.destination_list:
+
                 numRows = self.ui.SchedTable.rowCount()
                 self.ui.SchedTable.insertRow(numRows)
 
                 self.ui.SchedTable.setItem(numRows, 0, QTableWidgetItem(str(trainObj.number)))
                 self.ui.SchedTable.setItem(numRows, 1, QTableWidgetItem(trainObj.HostTrackLine.color))
                 self.ui.SchedTable.setItem(numRows, 2, QTableWidgetItem("Block " + str(trainObj.route_queue[0])))
-                self.ui.SchedTable.setItem(numRows, 3, QTableWidgetItem(destination_name))
+
+                if(iterator == 2):
+                    self.ui.SchedTable.setItem(numRows, 3, QTableWidgetItem("LUIGI'S MANSION"))
+                elif(iterator < 2):
+                    self.ui.SchedTable.setItem(numRows, 3, QTableWidgetItem(trainObj.HostTrackLine.station_list[iterator].name))
+                elif(iterator > 2):
+                    self.ui.SchedTable.setItem(numRows, 3, QTableWidgetItem(trainObj.HostTrackLine.station_list[iterator-1].name))
 
                 #Convert seconds to display time
                 backend_time = trainObj.arrival_times[trainObj.destination_list.index(destination_block)]
@@ -528,10 +542,20 @@ class MainWindow(QMainWindow): #Subclass of QMainWindow
                 arrival_seconds = int( (backend_time%60) )
                 display_time = str(arrival_hours).zfill(2) + ":" + str(arrival_minutes).zfill(2) + ":" + str(arrival_seconds).zfill(2)
                 self.ui.SchedTable.setItem( numRows, 4, QTableWidgetItem(display_time) )
+
+                #Increment iterator
+                iterator += 1
             #End destination loop
         #End train loop
 
+        #Inform user of successful dispatch
+        AutoDispMsg = QMessageBox()
+        AutoDispMsg.setWindowTitle("Dispatch Fulfilled")
+        AutoDispMsg.setText("The imported schedule was succesfully processed.\nThe schedule has been updated accordingly.")
+        AutoDispMsg.setIcon(QMessageBox.Information)
 
+        MsgWin = AutoDispMsg.exec()
+    #End method
 
 
     #Methods to modify map information
